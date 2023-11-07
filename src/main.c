@@ -4,6 +4,14 @@
 
 #define LINE_LENGTH 256
 
+#ifdef DEBUG
+#define LOG_DEBUG(format, ...) printf("%s:%d: " format, __FILE__, __LINE__, ##__VA_ARGS__)
+#define LOG(format, ...) printf(format, ##__VA_ARGS__)
+#else
+#define LOG_DEBUG(...) /*** expands to nothing ***/ 
+#define LOG(...) /*** expands to nothing ***/
+#endif
+
 void parse_line(char *line) {
   unsigned long time;
   int core, operation;
@@ -11,9 +19,14 @@ void parse_line(char *line) {
 
   sscanf(line, "%lu %d %d %llx", &time, &core, &operation, &address);
 
-#if DEBUG
-  printf("Parsed: time = %5lu, core = %2d, operation = %d, address = %llx\n", time, core, operation, address);
-#endif
+  LOG(
+    "Parsed: time = %5lu, core = %2d, operation = %d, address = %llx\n", 
+    time, 
+    core, 
+    operation, 
+    address
+  );
+
 }
 
 int main(int argc, char *argv[]) {
