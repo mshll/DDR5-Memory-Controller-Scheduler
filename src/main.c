@@ -20,8 +20,8 @@ void parse_line(char *line) {
 
   sscanf(line, "%lu %d %d %llx", &time, &core, &operation, &address);
 
-  LOG(
-    "Parsed: time = %5lu, core = %2d, operation = %d, address = %llx\n", 
+  LOG_DEBUG(
+    "Parsed: time = %5lu, core = %2d, operation = %d, address = %016llx\n", 
     time, 
     core, 
     operation, 
