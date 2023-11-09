@@ -31,7 +31,7 @@
 #define LOG(...) /*** expands to nothing ***/
 #endif
 
-enum command_line {
+enum CommandLine {
   NO_INPUT  = 1,
   ONE_INPUT = 2
 };
