@@ -3,10 +3,9 @@
 Memory Controller Simulator
 
 ## Topological Address Mapping
-<div class="tg-wrap"><table class="tg">
+<div><table>
 <tbody>
   <tr>
-    <td>34</td>
     <td>33</td>
     <td>32</td>
     <td>31</td>
@@ -44,9 +43,9 @@ Memory Controller Simulator
   </tr>
   <tr>
     <td colspan="16" rowspan="2">Row</td>
-    <td colspan="7" rowspan="2">Column [10:4]</td>
-    <td colspan="3" rowspan="2">Bank Group</td>
+    <td colspan="6" rowspan="2">Column [9:4]</td>
     <td colspan="2" rowspan="2">Bank</td>
+    <td colspan="3" rowspan="2">Bank Group</td>
     <td rowspan="2">Channel</td>
     <td colspan="4" rowspan="2">Column [3:0]</td>
     <td colspan="2" rowspan="2">Byte Select</td>
