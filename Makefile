@@ -1,12 +1,15 @@
 CC = gcc
-CFLAGS = -Wall -g -Iinclude
+CFLAGS = -Wall -g -Iinclude -Ideps/list
 TARGET = main
 SRC_DIR = src
+DEPS_DIR = deps
 OBJ_DIR = obj
 BIN_DIR = bin
-SOURCES := $(wildcard $(SRC_DIR)/*.c)
-OBJECTS := $(SOURCES:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.o)
-HEADERS := $(wildcard include/*.h)
+SRCS := $(wildcard $(SRC_DIR)/*.c)
+DEPS_SRCS := $(wildcard $(DEPS_DIR)/*/*.c)
+SOURCES := $(SRCS) $(DEPS_SRCS)
+OBJECTS := $(SOURCES:%.c=$(OBJ_DIR)/%.o)
+HEADERS := $(wildcard include/*.h) $(wildcard $(DEPS_DIR)/*/*.h)
 TARGET_EXEC = $(BIN_DIR)/$(TARGET)
 
 all: $(TARGET_EXEC)
@@ -14,10 +17,11 @@ all: $(TARGET_EXEC)
 $(TARGET_EXEC): $(OBJECTS) | $(BIN_DIR)
 	$(CC) $(OBJECTS) -o $@
 
-$(OBJ_DIR)/%.o: $(SRC_DIR)/%.c $(HEADERS) | $(OBJ_DIR)
+$(OBJ_DIR)/%.o: %.c $(HEADERS) | $(OBJ_DIR)
+	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(BIN_DIR) $(OBJ_DIR):
+$(BIN_DIR):
 	mkdir -p $@
 
 debug: CFLAGS += -DDEBUG
