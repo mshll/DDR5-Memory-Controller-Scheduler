@@ -19,6 +19,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "queue.h"
 
 /*** macro(s), enum(s), and struct(s) ***/
 #define LINE_LENGTH 256
@@ -31,13 +32,15 @@
 #define LOG(...)       /*** expands to nothing ***/
 #endif
 
+int i = 0; // tracking how many operation we put in the queue
+
 enum CommandLine {
   NO_INPUT = 1,
   VALID_INPUT = 2
 };
 
 /*** function declaration(s) ***/
-void parse_line(char *line);
+void parse_line(char *line, struct Queue *queue); //added our queue
 
 int main(int argc, char *argv[]) {
   FILE *file;
@@ -59,22 +62,27 @@ int main(int argc, char *argv[]) {
     perror("Error opening file");
     return 1;
   }
-
-  while (fgets(line, sizeof(line), file)) {
-    parse_line(line);
+  struct Queue *queue = createQueue(); // creating our queue, 16 is the default size
+  while (fgets(line, sizeof(line), file) && i < 16 ) { // can use  ~(isfull())
+    parse_line(line, queue);
+    i++; //increment process counter
   }
+  #ifdef DEBUG
+  printQueue(queue); //prints the entire queue
+  #endif
 
   fclose(file);
   return 0;
 }
 
-void parse_line(char *line) {
+void parse_line(char *line, struct Queue *queue) { //added the struct
   unsigned long time;
   int core, operation;
   unsigned long long address;
-
-  sscanf(line, "%lu %d %d %llx", &time, &core, &operation, &address);
-
+  struct Process data;
+ 
+  sscanf(line, "%lu %d %d %llx", &data.time, &data.core, &data.operation, &data.address);
+  enqueue(queue, data);
   LOG_DEBUG(
       "Parsed: time = %5lu, core = %2d, operation = %d, address = %#016llX\n",
       time,
