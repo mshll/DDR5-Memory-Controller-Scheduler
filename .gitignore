@@ -59,4 +59,7 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
+# VScode
+/node_modules
+
 # End of https://www.toptal.com/developers/gitignore/api/c
