@@ -19,18 +19,12 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 #include "queue.h"
+#include "common.h"
 
 /*** macro(s), enum(s), and struct(s) ***/
 #define LINE_LENGTH 256
-
-#ifdef DEBUG
-#define LOG_DEBUG(format, ...) printf("%s:%d: " format, __FILE__, __LINE__, ##__VA_ARGS__)
-#define LOG(format, ...) printf(format, ##__VA_ARGS__)
-#else
-#define LOG_DEBUG(...) /*** expands to nothing ***/
-#define LOG(...)       /*** expands to nothing ***/
-#endif
 
 int i = 0; // tracking how many operation we put in the queue
 
@@ -76,15 +70,15 @@ int main(int argc, char *argv[]) {
 }
 
 void parse_line(char *line, struct Queue *queue) { //added the struct
-  unsigned long time;
-  int core, operation;
-  unsigned long long address;
+  uint64_t time = 0;
+  uint32_t core = 0, operation = 0;
+  uint64_t address = 0;
   struct Process data;
  
-  sscanf(line, "%lu %d %d %llx", &data.time, &data.core, &data.operation, &data.address);
+  sscanf(line, "%lu %d %d %lx", &data.time, &data.core, &data.operation, &data.address);
   enqueue(queue, data);
   LOG_DEBUG(
-      "Parsed: time = %5lu, core = %2d, operation = %d, address = %#016llX\n",
+      "Parsed: time = %5lu, core = %2d, operation = %d, address = %#016lX\n",
       time,
       core,
       operation,
