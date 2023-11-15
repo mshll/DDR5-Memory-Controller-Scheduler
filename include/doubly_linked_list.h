@@ -53,11 +53,11 @@ int8_t doubly_ll_insert_at (
     uint64_t index, 
     int value
 );
-int8_t doubly_ll_push (
+int8_t doubly_ll_insert_head (
     doubly_linked_list_t **list, 
     int value
 );
-int8_t doubly_ll_append (
+int8_t doubly_ll_insert_tail (
     doubly_linked_list_t **list, 
     int value
 );
@@ -67,10 +67,10 @@ int8_t doubly_ll_delete_at (
     doubly_linked_list_t **list, 
     uint64_t index
 );
-int8_t doubly_ll_pop (
+int8_t doubly_ll_delete_head (
     doubly_linked_list_t **list
 );
-int8_t doubly_ll_remove (
+int8_t doubly_ll_delete_tail (
     doubly_linked_list_t **list
 );
 
