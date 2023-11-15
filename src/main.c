@@ -15,7 +15,6 @@
  *
  */
 
-#include <list.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -63,13 +62,13 @@ int main(int argc, char *argv[]) {
     perror("Error opening file");
     return 1;
   }
-  struct Queue *queue = createQueue(); // creating our queue, 16 is the default size
+  struct Queue *queue = create_queue(); // creating our queue, 16 is the default size
   while (fgets(line, sizeof(line), file) && i < 16 ) { // can use  ~(isfull())
     parse_line(line, queue);
     i++; //increment process counter
   }
   #ifdef DEBUG
-  printQueue(queue); //prints the entire queue
+  print_queue(queue); //prints the entire queue
   #endif
 
   fclose(file);

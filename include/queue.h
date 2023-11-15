@@ -1,3 +1,6 @@
+#ifndef __QUEUE_H__
+#define __QUEUE_H__
+
 //function declarations
 
 struct Process {
@@ -6,6 +9,7 @@ struct Process {
     int operation;
     unsigned long long address;
 };
+
 struct Queue {
     int front, rear;
     int capacity;
@@ -15,11 +19,13 @@ struct Queue {
 // might need them later
 // struct Process frontElement(struct Queue *Q);
 // struct Process rearElement(struct Queue *Q);
-struct Queue *createQueue();
+struct Queue *create_queue();
 int size(struct Queue *Q);
-int isEmpty(struct Queue *Q);
-int isFull(struct Queue *Q);
+int is_empty(struct Queue *Q);
+int is_full(struct Queue *Q);
 void enqueue(struct Queue *Q, struct Process data);
 struct Process dequeue(struct Queue *Q);
-void deleteQueue(struct Queue *Q);
-void printQueue(struct Queue *Q);
+void delete_queue(struct Queue *Q);
+void print_queue(struct Queue *Q);
+
+#endif
