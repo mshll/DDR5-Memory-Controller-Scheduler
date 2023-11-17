@@ -16,17 +16,17 @@
  */
 
 #include <stdarg.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <stdint.h>
-#include "queue.h"
+
 #include "common.h"
+#include "memory_request.h"
+#include "queue.h"
 
 /*** macro(s), enum(s), and struct(s) ***/
 #define LINE_LENGTH 256
-
-int i = 0; // tracking how many operation we put in the queue
 
 enum CommandLine {
   NO_INPUT = 1,
@@ -34,7 +34,8 @@ enum CommandLine {
 };
 
 /*** function declaration(s) ***/
-void parse_line(char *line, struct Queue *queue); //added our queue
+FILE *open_file(char *file_name);
+MemoryRequest_t parse_line(char *line);
 
 int main(int argc, char *argv[]) {
   FILE *file;
@@ -51,36 +52,73 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  file = fopen(file_name, "r");
-  if (file == NULL) {
-    perror("Error opening file");
-    return 1;
+  file = open_file(file_name);
+
+  unsigned long long clock_cycle = 0;    // tracking the clock cycle (CPU clock). DIMM clock cycle is 1/2.
+  struct Queue *queue = create_queue();  // creating our queue, 16 is the default size
+
+  while (fgets(line, sizeof(line), file)) {
+    MemoryRequest_t memory_request = parse_line(line);
+
+    // DIMM clock cycle (happens every 2 CPU clock cycles)
+    if (clock_cycle % 2 == 0) {
+      // TODO
+      // process requests
+      LOG("DIMM clock cycle: %lu\n", clock_cycle / 2);
+    }
+
+    // CPU clock cycle
+    if (memory_request.time <= clock_cycle) {
+      // TODO
+      // add `memory_request` to the queue
+    }
+
+    LOG("CPU clock cycle: %lu\n", clock_cycle);
+    LOG("Memory request: time = %5lu, core = %2d, operation = %d, row = %5u, "
+        "column = %2u, bank = %2u, bank group = %2u, channel = %2u, byte "
+        "select = %2u\n",
+        memory_request.time,
+        memory_request.core,
+        memory_request.operation,
+        memory_request.row,
+        memory_request.column_high,
+        memory_request.bank,
+        memory_request.bank_group,
+        memory_request.channel,
+        memory_request.byte_select);
+
+    clock_cycle++;  // increment clock cycle
   }
-  struct Queue *queue = create_queue(); // creating our queue, 16 is the default size
-  while (fgets(line, sizeof(line), file) && i < 16 ) { // can use  ~(isfull())
-    parse_line(line, queue);
-    i++; //increment process counter
-  }
-  #ifdef DEBUG
-  print_queue(queue); //prints the entire queue
-  #endif
 
   fclose(file);
   return 0;
 }
 
-void parse_line(char *line, struct Queue *queue) { //added the struct
-  uint64_t time = 0;
-  uint32_t core = 0, operation = 0;
-  uint64_t address = 0;
-  struct Process data;
- 
-  sscanf(line, "%lu %d %d %lx", &data.time, &data.core, &data.operation, &data.address);
-  enqueue(queue, data);
+FILE *open_file(char *file_name) {
+  FILE *file;
+  file = fopen(file_name, "r");
+  if (file == NULL) {
+    perror("Error opening file");
+    exit(1);
+  }
+  return file;
+}
+
+MemoryRequest_t parse_line(char *line) {
+  unsigned long time;
+  int core, operation;
+  unsigned long long address;
+  MemoryRequest_t memory_request;
+
+  sscanf(line, "%lu %d %d %llx", &time, &core, &operation, &address);
+  memory_request_init(&memory_request, time, core, operation, address);
+
   LOG_DEBUG(
-      "Parsed: time = %5lu, core = %2d, operation = %d, address = %#016lX\n",
+      "Parsed: time = %5lu, core = %2d, operation = %d, address = %#016llX\n",
       time,
       core,
       operation,
       address);
+
+  return memory_request;
 }
