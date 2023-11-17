@@ -3,9 +3,11 @@
 
 /*** includes ***/
 #include <stdarg.h>
-#include <stdio.h>
+#include <stdbool.h>
 #include <stdint.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 /*** macro(s) ***/
 #ifdef DEBUG
@@ -16,9 +18,16 @@
 #define LOG(...)       /*** expands to nothing ***/
 #endif
 
+/*** enum(s) ***/
+enum Operation {
+  DATA_READ = 0,
+  DATA_WRITE = 1,
+  INSTRUCTION_FETCH = 2
+};
+
 /*** struct(s) ***/
 typedef struct MemoryRequest {
-  unsigned long time;
+  unsigned long long time;
   uint8_t core;
   uint8_t operation;
   // unsigned long long address;
@@ -29,6 +38,7 @@ typedef struct MemoryRequest {
   uint8_t bank;         // 2 bits
   uint8_t column_high;  // 6 bits (column[9:4])
   uint32_t row;         // 16 bits
+  bool is_complete;
 } MemoryRequest_t;
 
 #endif

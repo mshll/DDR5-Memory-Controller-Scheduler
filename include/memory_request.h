@@ -5,15 +5,13 @@
  *
  */
 
-#ifndef INCLUDE_MEMORY_REQUEST_H_
-#define INCLUDE_MEMORY_REQUEST_H_
+#ifndef __MEMORY_REQUEST_H__
+#define __MEMORY_REQUEST_H__
 
-#include <stdio.h>
-#include <stdlib.h>
 #include "common.h"
 
 void memory_request_init(MemoryRequest_t *memoryRequest, unsigned long time,
                          uint8_t core, uint8_t operation,
                          unsigned long long address);
 
-#endif  // INCLUDE_MEMORY_REQUEST_H_
+#endif  // __MEMORY_REQUEST_H__

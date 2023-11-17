@@ -15,17 +15,18 @@
  *
  */
 
-
 #include <stdlib.h>
 #include <string.h>
-
 #include "common.h"
+#include "dram.h"
 #include "memory_request.h"
 #include "queue.h"
 
 /*** macro(s), enum(s), and struct(s) ***/
 #define LINE_LENGTH 256
 #define MAX_QUEUE_SIZE 16
+#define DEFAULT_INPUT_FILE "trace.txt"
+#define DEFAULT_OUTPUT_FILE "dram.txt"
 
 enum CommandLine {
   NO_INPUT = 1,
@@ -33,17 +34,16 @@ enum CommandLine {
 };
 
 /*** function declaration(s) ***/
-FILE *open_file(char *file_name);
+FILE *open_file(char *file_name, char *mode);
 MemoryRequest_t parse_line(char *line);
 
 int main(int argc, char *argv[]) {
   FILE *file;
   char *file_name;
-  char *default_file = "trace.txt";
   char line[LINE_LENGTH];
 
   if (argc == NO_INPUT) {
-    file_name = default_file;
+    file_name = DEFAULT_INPUT_FILE;
   } else if (argc == VALID_INPUT) {
     file_name = argv[1];
   } else {
@@ -51,13 +51,14 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  file = open_file(file_name);
+  file = open_file(file_name, "r");
 
-  unsigned long long clock_cycle = 0;    // tracking the clock cycle (CPU clock). DIMM clock cycle is 1/2.
+  unsigned long long clock_cycle = 0;  // tracking the clock cycle (CPU clock). DIMM clock cycle is 1/2.
+  DRAM_t *dram = NULL;
   queue_t *main_queue = NULL;
 
-  // create queue of size 16
-  queue_create(&main_queue, MAX_QUEUE_SIZE);
+  dram_init(&dram);                           // initialize DRAM
+  queue_create(&main_queue, MAX_QUEUE_SIZE);  // create queue of size 16
 
   while (fgets(line, sizeof(line), file)) {
     MemoryRequest_t memory_request = parse_line(line);
@@ -76,7 +77,7 @@ int main(int argc, char *argv[]) {
     }
 
     LOG("CPU clock cycle: %llu\n", clock_cycle);
-    LOG("Memory request: time = %5lu, core = %2d, operation = %d, row = %5u, "
+    LOG("Memory request: time = %5llu, core = %2u, operation = %u, row = %5u, "
         "column = %2u, bank = %2u, bank group = %2u, channel = %2u, byte "
         "select = %2u\n",
         memory_request.time,
@@ -96,9 +97,9 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
-FILE *open_file(char *file_name) {
+FILE *open_file(char *file_name, char *mode) {
   FILE *file;
-  file = fopen(file_name, "r");
+  file = fopen(file_name, mode);
   if (file == NULL) {
     perror("Error opening file");
     exit(1);
@@ -107,16 +108,15 @@ FILE *open_file(char *file_name) {
 }
 
 MemoryRequest_t parse_line(char *line) {
-  unsigned long time;
-  int core, operation;
-  unsigned long long address;
+  unsigned long long time, address;
+  unsigned core, operation;
   MemoryRequest_t memory_request;
 
-  sscanf(line, "%lu %d %d %llx", &time, &core, &operation, &address);
+  sscanf(line, "%llu %u %u %llx", &time, &core, &operation, &address);
   memory_request_init(&memory_request, time, core, operation, address);
 
   LOG(
-      "Parsed: time = %5lu, core = %2d, operation = %d, address = %#016llX\n",
+      "Parsed: time = %5llu, core = %2u, operation = %u, address = %#016llX\n",
       time,
       core,
       operation,
