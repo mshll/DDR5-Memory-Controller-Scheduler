@@ -9,11 +9,11 @@
  * 
 **/
 
-#ifndef _DOUBLY_LINKED_LIST_H_
-#define _DOUBLY_LINKED_LIST_H_
+#ifndef __DOUBLY_LINKED_LIST_H__
+#define __DOUBLY_LINKED_LIST_H__
 
 /*** includes ***/
-#include <stdint.h>
+#include "common.h"
 
 /*** enums ***/
 enum err_code {
@@ -26,107 +26,107 @@ enum err_code {
 typedef struct node node_t;
 
 typedef struct node {
-    int item;
+    MemoryRequest_t item;
     node_t *next_node;
     node_t *prev_node;
 } node_t;
 
-typedef struct doubly_linked_list {
+typedef struct DoublyLinkedList {
     node_t  *list_head; // first node
     node_t  *list_tail; // last node
     uint64_t size;      // total nodes
-} doubly_linked_list_t;
+} DoublyLinkedList_t;
 
 
 /*** function declaration ***/
 // functions to initialize linked list object
 int8_t doubly_ll_create (
-    doubly_linked_list_t **list
+    DoublyLinkedList_t **list
 );
 int8_t doubly_ll_destroy (
-    doubly_linked_list_t **list
+    DoublyLinkedList_t **list
 );
 
 // functions to add nodes in linked list
 int8_t doubly_ll_insert_at (
-    doubly_linked_list_t **list, 
+    DoublyLinkedList_t **list, 
     uint64_t index, 
-    int value
+    MemoryRequest_t new_item
 );
 int8_t doubly_ll_insert_head (
-    doubly_linked_list_t **list, 
-    int value
+    DoublyLinkedList_t **list, 
+    MemoryRequest_t new_item
 );
 int8_t doubly_ll_insert_tail (
-    doubly_linked_list_t **list, 
-    int value
+    DoublyLinkedList_t **list, 
+    MemoryRequest_t new_item
 );
 
 // functions to delete nodes in linked list
-int8_t doubly_ll_delete_at (
-    doubly_linked_list_t **list, 
+MemoryRequest_t doubly_ll_delete_at (
+    DoublyLinkedList_t **list, 
     uint64_t index
 );
-int8_t doubly_ll_delete_head (
-    doubly_linked_list_t **list
+MemoryRequest_t doubly_ll_delete_head (
+    DoublyLinkedList_t **list
 );
-int8_t doubly_ll_delete_tail (
-    doubly_linked_list_t **list
+MemoryRequest_t doubly_ll_delete_tail (
+    DoublyLinkedList_t **list
 );
 
 
 // functions to replace valuse stored in nodes
 int8_t doubly_ll_replace_at (
-    doubly_linked_list_t **list,
+    DoublyLinkedList_t **list,
     uint64_t index,
-    int new_item
+    MemoryRequest_t new_item
 );
 int8_t doubly_ll_replace_head (
-    doubly_linked_list_t **list,
-    int new_item
+    DoublyLinkedList_t **list,
+    MemoryRequest_t new_item
 );
 int8_t doubly_ll_replace_tail (
-    doubly_linked_list_t **list,
-    int new_item
+    DoublyLinkedList_t **list,
+    MemoryRequest_t new_item
 );
 
 
 // functions to retrieve values stored in nodes
 int8_t doubly_ll_value_at (
-    doubly_linked_list_t *list, 
+    DoublyLinkedList_t *list, 
     uint64_t index, 
-    int *ret_val
+    MemoryRequest_t *ret_val
 ); 
 int8_t doubly_ll_value_at_head (
-    doubly_linked_list_t *list, 
-    int *ret_val
+    DoublyLinkedList_t *list, 
+    MemoryRequest_t *ret_val
 );
 int8_t doubly_ll_value_at_tail (
-    doubly_linked_list_t *list, 
-    int *ret_val
+    DoublyLinkedList_t *list, 
+    MemoryRequest_t *ret_val
 );
 
 
 // functions to debug linked list 
 int8_t doubly_ll_print_list (
-    doubly_linked_list_t *list
+    DoublyLinkedList_t *list
 );
 int8_t doubly_ll_list_status (
-    doubly_linked_list_t *list
+    DoublyLinkedList_t *list
 );
 int8_t doubly_ll_node_status (
-    doubly_linked_list_t *list,
+    DoublyLinkedList_t *list,
     uint64_t index
 );
 void doubly_ll_print_err_code (
     int8_t err_code
 );
 uint64_t doubly_ll_size (
-    doubly_linked_list_t *list
+    DoublyLinkedList_t *list
 );
 int8_t doubly_ll_search_for (
-    doubly_linked_list_t *list,
-    int value,
+    DoublyLinkedList_t *list,
+    MemoryRequest_t value,
     uint64_t *ret_index
 );
 

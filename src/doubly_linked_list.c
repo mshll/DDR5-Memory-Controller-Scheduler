@@ -20,7 +20,7 @@
  * functions to initialize linked list object 
 ***/
 int8_t doubly_ll_create (
-    doubly_linked_list_t **list
+    DoublyLinkedList_t **list
 ) {
     /**
      * @brief  initialized a linked list object 
@@ -37,7 +37,7 @@ int8_t doubly_ll_create (
 
     // create list
     if (
-        ( *list = (doubly_linked_list_t *) malloc(sizeof(doubly_linked_list_t)) )
+        ( *list = (DoublyLinkedList_t *) malloc(sizeof(DoublyLinkedList_t)) )
         == NULL
     ) {
         return LL_EXIT_FATAL;
@@ -53,7 +53,7 @@ int8_t doubly_ll_create (
 
 
 int8_t doubly_ll_destroy (
-    doubly_linked_list_t **list
+    DoublyLinkedList_t **list
 ) {
     /**
      * @brief  frees all the memory allocated to a linked list
@@ -99,9 +99,9 @@ int8_t doubly_ll_destroy (
  * functions to add nodes in linked list 
 ***/
 int8_t doubly_ll_insert_at (
-    doubly_linked_list_t **list, 
+    DoublyLinkedList_t **list, 
     uint64_t index, 
-    int value
+    MemoryRequest_t new_item
 ) {
     /**
      * @brief  inserts node at index given by user
@@ -123,14 +123,13 @@ int8_t doubly_ll_insert_at (
 
     // create node
     node_t *new_node = NULL;
+    new_node = (node_t *) malloc(sizeof(node_t));
 
-    if (
-        ( new_node = (node_t *) malloc(sizeof(node_t)) )
-        == NULL
-    ) {
+    if ( new_node == NULL ) {
         return LL_EXIT_FATAL;
     }
-    new_node->item = value;
+
+    new_node->item = new_item;
 
     // insert at head
     if ( index == 0 ) {
@@ -187,14 +186,14 @@ int8_t doubly_ll_insert_at (
 
 
 int8_t doubly_ll_insert_head (
-    doubly_linked_list_t **list, 
-    int value
+    DoublyLinkedList_t **list, 
+    MemoryRequest_t new_item
 ) {
     /**
      * @brief  adds node to head of list
      * 
      * @param  list     the linked list object
-     * @param  value    the value of the new node
+     * @param  new_item    the value of the new node
      * @return int8_t   error code
     **/
    
@@ -205,13 +204,12 @@ int8_t doubly_ll_insert_head (
 
     // create node
     node_t *new_node = NULL;
-    if (
-        ( new_node = (node_t *) malloc(sizeof(node_t)) )
-        == NULL
-    ) {
+    new_node = (node_t *) malloc(sizeof(node_t));
+
+    if ( new_node == NULL ) {
         return LL_EXIT_FATAL;
     }
-    new_node->item = value;
+    new_node->item = new_item;
     new_node->prev_node = NULL;
 
     
@@ -237,14 +235,14 @@ int8_t doubly_ll_insert_head (
 
 
 int8_t doubly_ll_insert_tail (
-    doubly_linked_list_t **list, 
-    int value
+    DoublyLinkedList_t **list, 
+    MemoryRequest_t new_item
 ) {
     /**
      * @brief  adds node to tail of list
      * 
      * @param  list     the linked list object
-     * @param  value    the vlaue of the new node
+     * @param  new_item    the vlaue of the new node
      * @return int8_t   error code
     **/
     
@@ -255,13 +253,12 @@ int8_t doubly_ll_insert_tail (
 
     // create node
     node_t *new_node = NULL;
-    if (
-        ( new_node = (node_t *) malloc(sizeof(node_t)) )
-        == NULL
-    ) {
+    new_node = (node_t *) malloc(sizeof(node_t));
+
+    if ( new_node == NULL ) {
         return LL_EXIT_FATAL;
     }
-    new_node->item = value;
+    new_node->item = new_item;
     new_node->next_node = NULL;
 
     // attach to tail if list is empty
@@ -287,8 +284,8 @@ int8_t doubly_ll_insert_tail (
 /*** 
  * functions to delete nodes in linked list 
 ***/
-int8_t doubly_ll_delete_at (
-    doubly_linked_list_t **list, 
+MemoryRequest_t doubly_ll_delete_at (
+    DoublyLinkedList_t **list, 
     uint64_t index
 ) {
     /**
@@ -301,12 +298,14 @@ int8_t doubly_ll_delete_at (
 
     // list existane or empty list
     if ( (*list) == NULL || (*list)->size == 0 ) {
-        return LL_EXIT_USER;
+        MemoryRequest_t error_value = {0};
+        return error_value;
     }
 
     // check if index is in range
     if ( index > (*list)->size - 1 ) {
-        return LL_EXIT_USER;
+        MemoryRequest_t error_value = {0};
+        return error_value;
     }
 
     // traverse list
@@ -316,26 +315,28 @@ int8_t doubly_ll_delete_at (
     // if deleting head node
     if ( index == 0 ) {
         (*list)->list_head = current_node->next_node;
+        MemoryRequest_t stored_item = current_node->item;
 
         // check if node is the last one in list
-        if ( current_node == (*list)->list_tail ) {
+        if ( (*list)->size == 1 ) {
             (*list)->list_tail = NULL;
             (*list)->size--;
             free(current_node);
 
-            return LL_EXIT_SUCCESS;
+            return stored_item;
         }
 
         (*list)->list_head->prev_node = NULL;
         (*list)->size--;
         free(current_node);
 
-        return LL_EXIT_SUCCESS;
+        return stored_item;
     }
 
     // if deleting last node
     if ( index == (*list)->size - 1 ) {
-        temp = (*list)->list_tail;
+        current_node = (*list)->list_tail;
+        MemoryRequest_t stored_item = current_node->item;
 
         // case 1; only one node in list
         if ( (*list)->size == 1 ) {
@@ -343,16 +344,16 @@ int8_t doubly_ll_delete_at (
             (*list)->list_tail = NULL;
             (*list)->size--;
 
-            free(temp);
-            return LL_EXIT_SUCCESS;
+            free(current_node);
+            return stored_item;
         }        
 
-        (*list)->list_tail = temp->prev_node;
+        (*list)->list_tail = current_node->prev_node;
         (*list)->list_tail->next_node = NULL;
         (*list)->size--;
 
-        free(temp);
-        return LL_EXIT_SUCCESS;
+        free(current_node);
+        return stored_item;
     }
 
     // current_node stops at node right before node at index
@@ -363,6 +364,7 @@ int8_t doubly_ll_delete_at (
 
     // temp points to node that will be deleted
     temp = current_node->next_node;
+    MemoryRequest_t stored_item = temp->item;
 
     // have current node point to temp's next node cuz temp node will be del
     current_node->next_node = temp->next_node;
@@ -371,14 +373,14 @@ int8_t doubly_ll_delete_at (
     temp->next_node->prev_node = current_node;
 
     (*list)->size--;
-    free(temp);
+    free(temp); // delete the node temp is pointing to
 
-    return LL_EXIT_SUCCESS;
+    return stored_item;
 }
 
 
-int8_t doubly_ll_delete_head (
-    doubly_linked_list_t **list
+MemoryRequest_t doubly_ll_delete_head (
+    DoublyLinkedList_t **list
 ) {
     /**
      * @brief  deletes the first node in list
@@ -389,22 +391,25 @@ int8_t doubly_ll_delete_head (
 
     // check if list exist or is empty
     if ( *list == NULL || (*list)->size == 0 ) {
-        return LL_EXIT_USER;
+        MemoryRequest_t error_value = {0};
+        return error_value;
     }
     
-    // point to node to delete
+    // point to node that will be deleted
     node_t *temp = (*list)->list_head;
+    MemoryRequest_t stored_item = temp->item;
+
     (*list)->list_head = temp->next_node;
 
     // check if theres only one node
-    if ( temp == (*list)->list_tail ) {
+    if ( (*list)->size == 1 ) {
         (*list)->list_tail = NULL;
 
         // delete node
         free(temp);
         (*list)->size--;
 
-        return LL_EXIT_SUCCESS;
+        return stored_item;
     }
 
     // make sure new head node does not point to old head node
@@ -414,12 +419,12 @@ int8_t doubly_ll_delete_head (
     free(temp);
     (*list)->size--;
 
-    return LL_EXIT_SUCCESS;
+    return stored_item;
 }
 
 
-int8_t doubly_ll_delete_tail (
-    doubly_linked_list_t **list
+MemoryRequest_t doubly_ll_delete_tail (
+    DoublyLinkedList_t **list
 ) {
     /**
      * @brief  deletes the last node in list
@@ -430,11 +435,13 @@ int8_t doubly_ll_delete_tail (
     
     // check if list exist or is empty
     if ( *list == NULL || (*list)->size == 0 ) {
-        return LL_EXIT_USER;
+        MemoryRequest_t error_value = {0};
+        return error_value;
     }
 
     node_t *temp = NULL;
     temp = (*list)->list_tail;
+    MemoryRequest_t stored_item = temp->item;
 
     // case 1; only one node in list
     if ( (*list)->size == 1 ) {
@@ -443,7 +450,7 @@ int8_t doubly_ll_delete_tail (
         (*list)->size--;
 
         free(temp);
-        return LL_EXIT_SUCCESS;
+        return stored_item;
     }        
 
     (*list)->list_tail = temp->prev_node;
@@ -452,7 +459,7 @@ int8_t doubly_ll_delete_tail (
 
     free(temp);
 
-    return LL_EXIT_SUCCESS;
+    return stored_item;
 }
 
 
@@ -460,9 +467,9 @@ int8_t doubly_ll_delete_tail (
  * functions to replace values stored in nodes
 ***/
 int8_t doubly_ll_replace_at (
-    doubly_linked_list_t **list,
+    DoublyLinkedList_t **list,
     uint64_t index,
-    int new_item
+    MemoryRequest_t new_item
 ) {
     /**
      * @brief  replaces node at index given by user
@@ -514,8 +521,8 @@ int8_t doubly_ll_replace_at (
 
 
 int8_t doubly_ll_replace_head (
-    doubly_linked_list_t **list,
-    int new_item
+    DoublyLinkedList_t **list,
+    MemoryRequest_t new_item
 ) {
     /**
      * @brief  replaces node at index given by user
@@ -536,8 +543,8 @@ int8_t doubly_ll_replace_head (
 
 
 int8_t doubly_ll_replace_tail (
-    doubly_linked_list_t **list,
-    int new_item
+    DoublyLinkedList_t **list,
+    MemoryRequest_t new_item
 ) {
     /**
      * @brief  replaces node at index given by user
@@ -562,9 +569,9 @@ int8_t doubly_ll_replace_tail (
  * functions to retrieve values stored in nodes 
 ***/
 int8_t doubly_ll_value_at (
-    doubly_linked_list_t *list, 
+    DoublyLinkedList_t *list, 
     uint64_t index, 
-    int *ret_val
+    MemoryRequest_t *ret_val
 ) {
     /**
      * @brief  retrieve the value from a node at the given index 
@@ -616,8 +623,8 @@ int8_t doubly_ll_value_at (
 
 
 int8_t doubly_ll_value_at_head (
-    doubly_linked_list_t *list, 
-    int *ret_val
+    DoublyLinkedList_t *list, 
+    MemoryRequest_t *ret_val
 ) {
     /**
      * @brief  retrieve the value from the first node in the list
@@ -638,8 +645,8 @@ int8_t doubly_ll_value_at_head (
 
 
 int8_t doubly_ll_value_at_tail (
-    doubly_linked_list_t *list, 
-    int *ret_val
+    DoublyLinkedList_t *list, 
+    MemoryRequest_t *ret_val
 ) {
     /**
      * @brief  retrieve the value from the last node in the list 
@@ -663,7 +670,7 @@ int8_t doubly_ll_value_at_tail (
  * functions to debug linked list 
 ***/
 int8_t doubly_ll_print_list (
-    doubly_linked_list_t *list
+    DoublyLinkedList_t *list
 ) {
     /**
      * @brief  prints all the values stored in the linked list.
@@ -681,22 +688,43 @@ int8_t doubly_ll_print_list (
     ***/
     node_t *temp = list->list_head;
 
-    fprintf(stdout, "\nlinked list: ");
+    LOG("queue: \n");
     
     // traverse linked list
     while ( temp != NULL ) {
-        fprintf(stdout, "%d ", temp->item);
+        LOG(
+            "%8lu \n"
+            "%8hhu\n"
+            "%8hhu\n"
+            "%8hhu\n"
+            "%8hhu\n"
+            "%8hhu\n"
+            "%8hhu\n"
+            "%8hhu\n"
+            "%8hhu\n"
+            "%8u  \n"
+            "   |   \n"
+            "   V   \n", 
+            temp->item.time,
+            temp->item.core,
+            temp->item.operation,
+            temp->item.byte_select,
+            temp->item.column_low,
+            temp->item.channel,
+            temp->item.bank_group,
+            temp->item.bank,
+            temp->item.column_high,
+            temp->item.row
+        );
         temp = temp->next_node;
     }
-
-    fprintf(stdout, "\n");
     
     return LL_EXIT_SUCCESS;
 }
 
 
 int8_t doubly_ll_list_status (
-    doubly_linked_list_t *list
+    DoublyLinkedList_t *list
 ) {
     /**
      * @brief  prints all members of list obj.
@@ -710,7 +738,7 @@ int8_t doubly_ll_list_status (
         return LL_EXIT_USER;
     }
 
-    printf(
+    LOG(
         "\nlinked_list_t:\n"
         "\tlist @%p\n"
         "\thead @%p\n"
@@ -727,7 +755,7 @@ int8_t doubly_ll_list_status (
 
 
 int8_t doubly_ll_node_status (
-    doubly_linked_list_t *list,
+    DoublyLinkedList_t *list,
     uint64_t index
 ) {
     /**
@@ -753,15 +781,36 @@ int8_t doubly_ll_node_status (
         index--;
     }
 
-    printf(
-        "\nnode_t: @%p\n"
-        "\tnext @%p\n"
-        "\tprev @%p\n"
-        "\titem = %d\n",
+    LOG(
+        "node_t: @%p\n"
+        "next node: @%p\n"
+        "prev node: @%p\n"
+        "item:\n"
+        "%8lu \n"
+        "%8hhu\n"
+        "%8hhu\n"
+        "%8hhu\n"
+        "%8hhu\n"
+        "%8hhu\n"
+        "%8hhu\n"
+        "%8hhu\n"
+        "%8hhu\n"
+        "%8u  \n"
+        "   |   \n"
+        "   V   \n",
         current_node,
         current_node->next_node,
         current_node->prev_node,
-        current_node->item
+        current_node->item.time,
+        current_node->item.core,
+        current_node->item.operation,
+        current_node->item.byte_select,
+        current_node->item.column_low,
+        current_node->item.channel,
+        current_node->item.bank_group,
+        current_node->item.bank,
+        current_node->item.column_high,
+        current_node->item.row
     );
 
     return LL_EXIT_SUCCESS;
@@ -802,7 +851,7 @@ void doubly_ll_print_err_code (
 
 
 uint64_t doubly_ll_size (
-    doubly_linked_list_t *list
+    DoublyLinkedList_t *list
 ) {
     /**
      * @brief  returns the total number of nodes in linked list
@@ -821,8 +870,8 @@ uint64_t doubly_ll_size (
 
 
 int8_t doubly_ll_search_for (
-    doubly_linked_list_t *list,
-    int value,
+    DoublyLinkedList_t *list,
+    MemoryRequest_t value,
     uint64_t *ret_index
 ) {
     /**
@@ -849,7 +898,18 @@ int8_t doubly_ll_search_for (
     // traverse list
     while ( current_node != NULL ) {
 
-        if ( current_node->item == value ) {
+        if (
+            current_node->item.time         == value.time &&
+            current_node->item.core         == value.core &&
+            current_node->item.operation    == value.operation &&
+            current_node->item.byte_select  == value.byte_select &&
+            current_node->item.column_low   == value.column_low &&
+            current_node->item.channel      == value.channel &&
+            current_node->item.bank_group   == value.bank_group &&
+            current_node->item.bank         == value.bank &&
+            current_node->item.column_high  == value.column_high &&
+            current_node->item.row          == value.row
+        ) {
 
             *ret_index = current_index;
             return LL_EXIT_SUCCESS;
