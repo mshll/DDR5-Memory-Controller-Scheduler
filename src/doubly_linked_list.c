@@ -12,8 +12,6 @@
 /*** includes ***/
 #include "common.h"
 #include "doubly_linked_list.h"
-#include <stdlib.h>
-#include <stdio.h>
 
 
 /*** 
@@ -36,10 +34,9 @@ int8_t doubly_ll_create (
     }
 
     // create list
-    if (
-        ( *list = (DoublyLinkedList_t *) malloc(sizeof(DoublyLinkedList_t)) )
-        == NULL
-    ) {
+    *list = (DoublyLinkedList_t *) malloc(sizeof(DoublyLinkedList_t));
+    
+    if ( *list == NULL ) {
         return LL_EXIT_FATAL;
     }
 

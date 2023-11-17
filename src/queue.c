@@ -10,9 +10,6 @@
 **/
 
 /*** inclueds ***/
-#include <limits.h>
-#include <stdlib.h>
-
 #include "common.h"
 #include "queue.h"
 
@@ -134,7 +131,7 @@ MemoryRequest_t dequeue(queue_t **q) {
     }
 
     // Delete at the head of the linked list (dequeue operation)
-    MemoryRequest_t stored_item = doubly_ll_delete_head(&((*q)->list));
+    MemoryRequest_t stored_item = doubly_ll_delete_tail(&((*q)->list));
     if (
         stored_item.time        == 0 &&
         stored_item.core        == 0 &&

@@ -7,9 +7,6 @@
 
 #include "memory_request.h"
 
-#include <stdio.h>
-#include <stdlib.h>
-
 static void map_address(MemoryRequest_t *memory_request, unsigned long long address) {
   memory_request->byte_select = address & ((1 << 2) - 1);
   memory_request->column_low = (address >> 2) & ((1 << 4) - 1);
