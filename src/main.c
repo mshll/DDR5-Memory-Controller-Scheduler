@@ -64,16 +64,18 @@ int main(int argc, char *argv[]) {
     MemoryRequest_t memory_request = parse_line(line);
 
     // DIMM clock cycle (happens every 2 CPU clock cycles)
-    if (clock_cycle % 2 == 0) {
-      // TODO
-      // process requests
+    if (clock_cycle % 2 == 0 && !queue_is_empty(main_queue)) {
+
+        MemoryRequest_t dequeued_request = dequeue(&main_queue);
+        process_request(&dram, &dequeued_request);
+
       LOG("DIMM clock cycle: %llu\n", clock_cycle / 2);
     }
 
     // CPU clock cycle
-    if (memory_request.time <= clock_cycle) {
-      // TODO
-      // add `memory_request` to the queue
+    if (memory_request.time <= clock_cycle && !queue_is_full(main_queue)) {
+      
+        enqueue(&main_queue, memory_request);
     }
 
     LOG("CPU clock cycle: %llu\n", clock_cycle);
