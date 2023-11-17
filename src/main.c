@@ -15,8 +15,7 @@
  *
  */
 
-#include <stdarg.h>
-#include <stdint.h>
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -27,6 +26,7 @@
 
 /*** macro(s), enum(s), and struct(s) ***/
 #define LINE_LENGTH 256
+#define MAX_QUEUE_SIZE 16
 
 enum CommandLine {
   NO_INPUT = 1,
@@ -55,7 +55,10 @@ int main(int argc, char *argv[]) {
   file = open_file(file_name);
 
   unsigned long long clock_cycle = 0;    // tracking the clock cycle (CPU clock). DIMM clock cycle is 1/2.
-  struct Queue *queue = create_queue();  // creating our queue, 16 is the default size
+  queue_t *main_queue = NULL;
+
+  // create queue of size 16
+  queue_create(&main_queue, MAX_QUEUE_SIZE);
 
   while (fgets(line, sizeof(line), file)) {
     MemoryRequest_t memory_request = parse_line(line);
@@ -64,7 +67,7 @@ int main(int argc, char *argv[]) {
     if (clock_cycle % 2 == 0) {
       // TODO
       // process requests
-      LOG("DIMM clock cycle: %lu\n", clock_cycle / 2);
+      LOG("DIMM clock cycle: %llu\n", clock_cycle / 2);
     }
 
     // CPU clock cycle
@@ -73,7 +76,7 @@ int main(int argc, char *argv[]) {
       // add `memory_request` to the queue
     }
 
-    LOG("CPU clock cycle: %lu\n", clock_cycle);
+    LOG("CPU clock cycle: %llu\n", clock_cycle);
     LOG("Memory request: time = %5lu, core = %2d, operation = %d, row = %5u, "
         "column = %2u, bank = %2u, bank group = %2u, channel = %2u, byte "
         "select = %2u\n",
@@ -113,7 +116,7 @@ MemoryRequest_t parse_line(char *line) {
   sscanf(line, "%lu %d %d %llx", &time, &core, &operation, &address);
   memory_request_init(&memory_request, time, core, operation, address);
 
-  LOG_DEBUG(
+  LOG(
       "Parsed: time = %5lu, core = %2d, operation = %d, address = %#016llX\n",
       time,
       core,
