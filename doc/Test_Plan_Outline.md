@@ -59,7 +59,7 @@ Create a trace file as an input (ASCII text file) using a test case generator.
 | --- | --------- | ----- | ---------------- | ----------------- |
 | 1   | Back to back references to same BG,B, same rows | Access BG,B,ROW,COL-X, followed by BG,B,ROW,COL-Y |ACT -> READ -> READ|                   |
 | 2   | Back to back references to same BG,B, different rows, and the second reference is successive with different COL | Access BG,B,ROWX, followed by successive acceses to BG,B,ROWY | ACT -> READ -> ACT -> READ -> READ | ----------------- |
-| 3   | Successive page access that is intersected by a page access from a different BG,B, with same ROW vs different ROW | Access BGX,BX,ROWX, followed by access to BGY,BY,ROWX/Y, then access BGX,BX,ROWX again | ACT -> READ -> READ | ----------------- |
+| 3   | Successive page access that is intersected by a page access from a different BG,B, with same ROW vs different ROW | Access BGX,BX,ROWX, followed by access to BGY,BY,ROWX/Y, then access BGX,BX,ROWX again | ACT -> ACT -> READ -> READ -> READ | ----------------- |
 
 ### 2.2. BANK LEVEL PARALLELISM
 >Scheduler is able to interleave commands to different bank/bank groups. For example, after it issues an activate command to B0,BG0, it can issue another activate to a different B/BG before coming back and issuing the READ command.
@@ -84,7 +84,7 @@ Create a trace file as an input (ASCII text file) using a test case generator.
 ### 4.5. tCCD_S and tCCD_L
 ### 4.6. tRAS
 
-## 5. INPUT
+## 5. INPUT VALIDIFICATION
 >Input should be in the format: time, core, operation, address. Where time is in (absolute) CPU clocks, core is between 0 to 11. operation is 0, 1, or 2, and address is 34-bit address represented in hexadecimal and it is 8-byte aligned. 
 
 ## 6. Appendix
