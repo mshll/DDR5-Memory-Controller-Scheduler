@@ -13,14 +13,14 @@
 #include "common.h"
 #include "queue.h"
 
-int8_t queue_create(queue_t **q, uint8_t max_size) {
+int8_t queue_create(Queue_t **q, uint8_t max_size) {
 
 
-    if ( *q != NULL ) {
-        return LL_EXIT_USER;
+    if (*q != NULL) {
+        return LL_EXIT_USER_ERR;
     }
 
-    *q = (queue_t *)malloc(sizeof(queue_t));
+    *q = (Queue_t *)malloc(sizeof(Queue_t));
 
     if (q == NULL) {
         return LL_EXIT_FATAL; // Allocation failed
@@ -38,27 +38,32 @@ int8_t queue_create(queue_t **q, uint8_t max_size) {
     return LL_EXIT_SUCCESS;
 }
 
-int8_t queue_destroy(queue_t **q) {
+int8_t queue_destroy(Queue_t **q) {
 
     if (*q != NULL) {
-        doubly_ll_destroy(&((*q)->list));
-        free(*q);
-        *q = NULL;
+        int8_t result = doubly_ll_destroy(&((*q)->list));
 
-        return LL_EXIT_SUCCESS;
+        if (result == LL_EXIT_SUCCESS) {
+            free(*q);
+            *q = NULL;
+
+            return result;
+        }
+        
+        return result;
     }
 
-    return LL_EXIT_USER;
+    return LL_EXIT_USER_ERR;
 }
 
-int8_t queue_insert_at(queue_t **q, uint8_t index, MemoryRequest_t value) {
+int8_t queue_insert_at(Queue_t **q, uint8_t index, MemoryRequest_t value) {
     if (*q == NULL || (*q)->list == NULL) {
-        return LL_EXIT_USER; // Invalid queue
+        return LL_EXIT_USER_ERR; // Invalid queue
     }
 
     // Check if the queue is already full
     if ( queue_is_full(*q) ) {
-        return LL_EXIT_USER; // Queue is full
+        return LL_EXIT_USER_ERR; // Queue is full
     }
 
     
@@ -70,14 +75,14 @@ int8_t queue_insert_at(queue_t **q, uint8_t index, MemoryRequest_t value) {
     return result;
 }
 
-int8_t enqueue(queue_t **q, MemoryRequest_t value) {
+int8_t enqueue(Queue_t **q, MemoryRequest_t value) {
     if (*q == NULL || (*q)->list == NULL) {
-        return LL_EXIT_USER; // Invalid queue
+        return LL_EXIT_USER_ERR; // Invalid queue
     }
 
     // Check if the queue is already full
     if ( queue_is_full(*q) ) {
-        return LL_EXIT_USER; 
+        return LL_EXIT_USER_ERR; 
     }
 
     
@@ -89,7 +94,7 @@ int8_t enqueue(queue_t **q, MemoryRequest_t value) {
     return result;
 }
 
-MemoryRequest_t queue_delete_at(queue_t **q, uint8_t index) {
+MemoryRequest_t queue_delete_at(Queue_t **q, uint8_t index) {
     if (*q == NULL || (*q)->list == NULL) {
         MemoryRequest_t error_value = {0};
         return error_value;
@@ -118,7 +123,7 @@ MemoryRequest_t queue_delete_at(queue_t **q, uint8_t index) {
     return stored_item;
 }
 
-MemoryRequest_t dequeue(queue_t **q) {
+MemoryRequest_t dequeue(Queue_t **q) {
     if (*q == NULL || (*q)->list == NULL) {
         MemoryRequest_t error_value = {0};
         return error_value;
@@ -147,7 +152,7 @@ MemoryRequest_t dequeue(queue_t **q) {
     return stored_item;
 }
 
-bool queue_is_full(queue_t *q) {
+bool queue_is_full(Queue_t *q) {
     if (q == NULL || q->list == NULL) {
         return false;
     }
@@ -155,7 +160,7 @@ bool queue_is_full(queue_t *q) {
     return (q->size == q->max_size) ? true : false;
 }
 
-bool queue_is_empty(queue_t *q) {
+bool queue_is_empty(Queue_t *q) {
     if (q == NULL || q->list == NULL) {
         return true; 
     }
