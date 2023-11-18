@@ -55,11 +55,13 @@ Create a trace file as an input (ASCII text file) using a test case generator.
 >Page is left open for a moment after a read/write command. It will only stay open if next read/write command is directed to the same bank group, bank and row as the open page. 
 
 **Test Cases**:
-| \#  | OBJECTIVE | INPUT | EXPECTED RESULTS | TEST DELIVERABLES |
-| --- | --------- | ----- | ---------------- | ----------------- |
-| 1   | Back to back references to same BG,B, same rows | Access BG,B,ROW,COL-X, followed by BG,B,ROW,COL-Y |ACT -> READ -> READ|                   |
-| 2   | Back to back references to same BG,B, different rows, and the second reference is successive with different COL | Access BG,B,ROWX, followed by successive acceses to BG,B,ROWY | ACT -> READ -> ACT -> READ -> READ | ----------------- |
-| 3   | Successive page access that is intersected by a page access from a different BG,B, with same ROW vs different ROW | Access BGX,BX,ROWX, followed by access to BGY,BY,ROWX/Y, then access BGX,BX,ROWX again | ACT -> ACT -> READ -> READ -> READ | ----------------- |
+| \#  | OBJECTIVE | INPUT | EXPECTED RESULTS | Notes |
+| --- | --------- | ----- | ---------------- | ----- |
+| 1   | Back to back references to same BG,B, same row | Access BG,B,ROW,COLx, followed by BG,B,ROW,COLy | ACT -> READ -> READ | ----- |
+| 2   | Back to back references to same BG,B, different rows | Access BG,B,ROWx, followed by BG,B,ROWy | ACT -> READ -> PRE -> ACT -> READ | ----- |
+| 3   | Back to back references to same BG,B, different rows, and then second row gets referenced again | Access BG,B,ROWx, followed by successive acceses to BG,B,ROWy | ACT -> READ -> PRE -> ACT -> READ -> READ | This overlaps with test case 2, decided to list it out to be clear |
+| 4   | Back to back references that are intersected by a page access from a different BG,B, with same ROW | Access BGx,Bx,ROWx, followed by access to BGy,BY,ROWx, then access BGx,Bx,ROWx again | ACT -> ACT -> READ -> READ -> READ | Testing how open pages and row tracking interactcs |
+| 5   | Back to back references that are intersected by a page access from a different BG,B, with different ROW | Access BGx,Bx,ROWx, followed by access to BGy,BY,ROWy, then access BGx,Bx,ROWx again | ACT -> ACT -> READ -> READ -> READ | Testing how open pages and bank/bankgroup tracking interacts |
 
 ### 2.2. BANK LEVEL PARALLELISM
 >Scheduler is able to interleave commands to different bank/bank groups. For example, after it issues an activate command to B0,BG0, it can issue another activate to a different B/BG before coming back and issuing the READ command.
