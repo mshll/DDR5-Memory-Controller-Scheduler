@@ -26,18 +26,18 @@ enum Operation {
 };
 
 /*** struct(s) ***/
-typedef struct MemoryRequest {
+typedef struct __attribute__((__packed__)) MemoryRequest {
   unsigned long long time;
   uint8_t core;
   uint8_t operation;
   // unsigned long long address;
-  uint8_t byte_select;  // 2 bits
-  uint8_t column_low;   // 4 bits (column[3:0])
-  uint8_t channel;      // 1 bit
-  uint8_t bank_group;   // 3 bits
-  uint8_t bank;         // 2 bits
-  uint8_t column_high;  // 6 bits (column[9:4])
-  uint32_t row;         // 16 bits
+  uint16_t byte_select: 2;  // 2 bits
+  uint16_t column_low:  4;  // 4 bits (column[3:0])
+  uint16_t channel:     1;  // 1 bit
+  uint16_t bank_group:  3;  // 3 bits
+  uint16_t bank:        2;  // 2 bits
+  uint16_t column_high: 6;  // 6 bits (column[9:4])
+  uint16_t row:        16;  // 16 bits
   bool is_complete;
 } MemoryRequest_t;
 
