@@ -60,22 +60,37 @@ int main(int argc, char *argv[]) {
   dram_init(&dram);                           // initialize DRAM
   queue_create(&main_queue, MAX_QUEUE_SIZE);  // create queue of size 16
 
-  while (fgets(line, sizeof(line), file)) {
-    MemoryRequest_t memory_request = parse_line(line);
+  bool has_pending_request = false;
+  MemoryRequest_t pending_request;
 
-    // DIMM clock cycle (happens every 2 CPU clock cycles)
-    if (clock_cycle % 2 == 0 && !queue_is_empty(main_queue)) {
-
-        MemoryRequest_t dequeued_request = dequeue(&main_queue);
-        process_request(&dram, &dequeued_request);
-
-      LOG("DIMM clock cycle: %llu\n", clock_cycle / 2);
+  while (true) {
+    // Enqueue pending request if queue is not full
+    if (has_pending_request && !queue_is_full(main_queue)) {
+        enqueue(&main_queue, pending_request);
+        has_pending_request = false;
     }
 
-    // CPU clock cycle
-    if (memory_request.time <= clock_cycle && !queue_is_full(main_queue)) {
-      
-        enqueue(&main_queue, memory_request);
+    // No pending request and we didnt finish the file
+    if (!has_pending_request && fgets(line, sizeof(line), file)) {
+        MemoryRequest_t memory_request = parse_line(line);
+
+        // Try to enqueue the new request, or keep it as pending if queue is full
+        if (queue_is_full(main_queue)) {
+            has_pending_request = true;
+            pending_request = memory_request;
+        } else {
+            enqueue(&main_queue, memory_request);
+        }
+    }
+
+    // Process requests on every DIMM clock cycle
+    if (clock_cycle % 2 == 0 && !queue_is_empty(main_queue)) {
+        process_request(&dram, dequeue(&main_queue));
+    }
+
+    // If we dont have pending request and we reached end of file and there are no more requests to handle, we leave
+    if (!has_pending_request && feof(file) && queue_is_empty(main_queue)) {
+        break;
     }
 
     LOG("CPU clock cycle: %llu\n", clock_cycle);
