@@ -58,7 +58,7 @@ int main(int argc, char *argv[]) {
   DIMM_t  *PC5_38400  = NULL;
   Queue_t *main_queue = NULL;
 
-  dimm_init(&PC5_38400);
+  dimm_create(&PC5_38400);
   queue_create(&main_queue, MAX_QUEUE_SIZE);  // create queue of size 16
 
   bool has_pending_request = false;

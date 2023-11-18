@@ -7,12 +7,7 @@
 
 #include "dimm.h"
 
-
-#define DATA_READ 0
-#define DATA_WRITE 1
-#define INSTRUCTION_FETCH 2
-
-void dimm_init(DIMM_t **dimm) {
+void dimm_create(DIMM_t **dimm) {
   *dimm = malloc(sizeof(DIMM_t));
 
   if (dimm == NULL) {
@@ -51,21 +46,21 @@ int process_request(DRAM_t **dram, MemoryRequest_t *request) {
         activate_bank(dram, request);
     }
   switch (request->operation) {
-      case DATA_READ:
-          // Issue read command
-          issue_cmd("RD", request);
-            break;
-      case DATA_WRITE:
-            // Issue write command
-          issue_cmd("WR", request);
-            break;
-      case INSTRUCTION_FETCH:
-      
-            break;
-      default:
-            //  invalid operation
-            break;
-    }
+    case DATA_READ:
+      // Issue read command
+      issue_cmd("RD", request);
+      break;
+    case DATA_WRITE:
+      // Issue write command
+      issue_cmd("WR", request);
+      break;
+    case INSTRUCTION_FETCH:
+    
+      break;
+    default:
+      //  invalid operation
+      break;
+  }
   return 0;
 }
 
