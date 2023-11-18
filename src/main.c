@@ -21,6 +21,7 @@
 #include "dram.h"
 #include "memory_request.h"
 #include "queue.h"
+#include "common.h"
 
 /*** macro(s), enum(s), and struct(s) ***/
 #define LINE_LENGTH 256
@@ -29,8 +30,8 @@
 #define DEFAULT_OUTPUT_FILE "dram.txt"
 
 enum CommandLine {
-  NO_INPUT = 1,
-  VALID_INPUT = 2
+  NO_INPUT  = 1,
+  ONE_INPUT = 2
 };
 
 /*** function declaration(s) ***/
