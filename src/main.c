@@ -18,7 +18,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "common.h"
-#include "dram.h"
+#include "dimm.h"
 #include "memory_request.h"
 #include "queue.h"
 #include "common.h"
@@ -31,7 +31,7 @@
 
 enum CommandLine {
   NO_INPUT  = 1,
-  ONE_INPUT = 2
+  VALID_INPUT = 2
 };
 
 /*** function declaration(s) ***/
@@ -55,10 +55,10 @@ int main(int argc, char *argv[]) {
   file = open_file(file_name, "r");
 
   unsigned long long clock_cycle = 0;  // tracking the clock cycle (CPU clock). DIMM clock cycle is 1/2.
-  DRAM_t *dram = NULL;
-  queue_t *main_queue = NULL;
+  DIMM_t *PC5_38400   = NULL;
+  Queue_t *main_queue = NULL;
 
-  dram_init(&dram);                           // initialize DRAM
+  dimm_init(&PC5_38400);
   queue_create(&main_queue, MAX_QUEUE_SIZE);  // create queue of size 16
 
   bool has_pending_request = false;
