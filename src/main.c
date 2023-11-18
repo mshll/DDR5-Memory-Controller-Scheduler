@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
   file = open_file(file_name, "r");
 
   unsigned long long clock_cycle = 0;  // tracking the clock cycle (CPU clock). DIMM clock cycle is 1/2.
-  DIMM_t *PC5_38400   = NULL;
+  DIMM_t  *PC5_38400  = NULL;
   Queue_t *main_queue = NULL;
 
   dimm_init(&PC5_38400);

@@ -70,25 +70,27 @@ int process_request(DRAM_t **dram, MemoryRequest_t *request) {
 }
 
 void activate_bank(DRAM_t *dram, MemoryRequest_t *request) {
-  for (int i = 0; i < NUM_BANKS_PER_GROUP; i++) {
-    (*dram)->channels[request->channel].bank_groups[request->bank_group].banks[i].is_precharged = false;
-    (*dram)->channels[request->channel].bank_groups[request->bank_group].banks[i].is_active = false;
-    (*dram)->channels[request->channel].bank_groups[request->bank_group].banks[i].active_row = 0;
-  }
-  (*dram)->channels[request->channel].bank_groups[request->bank_group].banks[request->bank].is_active = true;
-  (*dram)->channels[request->channel].bank_groups[request->bank_group].banks[request->bank].active_row = request->row;
+
+  dram->bank_groups[request->bank_group].banks[request->bank].is_active = true;
+  dram->bank_groups[request->bank_group].banks[request->bank].active_row = request->row;
 }
 
 void precharge_bank(DRAM_t *dram, MemoryRequest_t *request) {
-  (*dram)->channels[request->channel].bank_groups[request->bank_group].banks[request->bank].is_precharged = true;
-  (*dram)->channels[request->channel].bank_groups[request->bank_group].banks[request->bank].is_active = false;
-  (*dram)->channels[request->channel].bank_groups[request->bank_group].banks[request->bank].active_row = 0;
+
+  dram->bank_groups[request->bank_group].banks[request->bank].is_precharged = true;
+  dram->bank_groups[request->bank_group].banks[request->bank].is_active = false;
+  dram->bank_groups[request->bank_group].banks[request->bank].active_row = 0;
 }
 
-bool is_row_hit(DRAM_t *dram, MemoryRequest_t *request) {
-  return ((*dram)->channels[request->channel].bank_groups[request->bank_group].banks[request->bank].is_active &&
-          (*dram)->channels[request->channel].bank_groups[request->bank_group].banks[request->bank].active_row ==
-              request->row);
+bool is_row_hit(DRAM_t dram, MemoryRequest_t *request) {
+
+  bool hit_result = (
+    dram.bank_groups[request->bank_group].banks[request->bank].is_active  &&
+    dram.bank_groups[request->bank_group].banks[request->bank].active_row ==
+    request->row
+  );
+
+  return hit_result;
 }
 
 /**
