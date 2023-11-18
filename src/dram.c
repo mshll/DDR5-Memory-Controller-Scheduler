@@ -7,6 +7,11 @@
 
 #include "dram.h"
 
+
+#define DATA_READ 0
+#define DATA_WRITE 1
+#define INSTRUCTION_FETCH 2
+
 // Initialize the DRAM with all banks precharged
 void dram_init(DRAM_t **dram) {
   *dram = malloc(sizeof(DRAM_t));
@@ -24,6 +29,23 @@ void dram_init(DRAM_t **dram) {
 
 int process_request(DRAM_t **dram, MemoryRequest_t *request) {
   // TODO figure out how to process memory requests
+
+  switch (request->operation) {
+      case DATA_READ:
+          // Issue read command
+          issue_cmd("RD", request);
+            break;
+      case DATA_WRITE:
+            // Issue write command
+          issue_cmd("WR", request);
+            break;
+      case INSTRUCTION_FETCH:
+      
+            break;
+      default:
+            //  invalid operation
+            break;
+    }
   return 0;
 }
 
