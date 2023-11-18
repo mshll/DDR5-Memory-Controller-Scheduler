@@ -19,19 +19,19 @@
 enum err_code {
     LL_EXIT_SUCCESS =  0,
     LL_EXIT_FATAL   = -1,
-    LL_EXIT_USER    =  1
+    LL_EXIT_USER_ERR =  1
 };
 
 /*** structs ***/
 typedef struct node node_t;
 
-typedef struct node {
+typedef struct __attribute__((__packed__)) node {
     MemoryRequest_t item;
     node_t *next_node;
     node_t *prev_node;
 } node_t;
 
-typedef struct DoublyLinkedList {
+typedef struct __attribute__((__packed__)) DoublyLinkedList {
     node_t  *list_head; // first node
     node_t  *list_tail; // last node
     uint64_t size;      // total nodes

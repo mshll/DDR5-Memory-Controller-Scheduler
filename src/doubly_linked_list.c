@@ -28,7 +28,7 @@ int8_t doubly_ll_create(
 
   // check if list already exist
   if (*list != NULL) {
-    return LL_EXIT_USER;
+    return LL_EXIT_USER_ERR;
   }
 
   // create list
@@ -57,7 +57,7 @@ int8_t doubly_ll_destroy(
 
   // check if list exist
   if (*list == NULL) {
-    return LL_EXIT_USER;
+    return LL_EXIT_USER_ERR;
   }
 
   // traverse list
@@ -104,12 +104,12 @@ int8_t doubly_ll_insert_at(
 
   // check if list exist
   if (*list == NULL) {
-    return LL_EXIT_USER;
+    return LL_EXIT_USER_ERR;
   }
 
   // check if index is in range of list
   if (index > (*list)->size) {
-    return LL_EXIT_USER;
+    return LL_EXIT_USER_ERR;
   }
 
   // create node
@@ -188,7 +188,7 @@ int8_t doubly_ll_insert_head(
 
   // check if list exist
   if (*list == NULL) {
-    return LL_EXIT_USER;
+    return LL_EXIT_USER_ERR;
   }
 
   // create node
@@ -234,7 +234,7 @@ int8_t doubly_ll_insert_tail(
 
   // check if list exist
   if (*list == NULL) {
-    return LL_EXIT_USER;
+    return LL_EXIT_USER_ERR;
   }
 
   // create node
@@ -460,12 +460,12 @@ int8_t doubly_ll_replace_at(
 
   // check if list exist
   if (*list == NULL) {
-    return LL_EXIT_USER;
+    return LL_EXIT_USER_ERR;
   }
 
   // check if index is in range of list
   if (index + 1 > (*list)->size) {
-    return LL_EXIT_USER;
+    return LL_EXIT_USER_ERR;
   }
 
   // replace at head
@@ -508,7 +508,7 @@ int8_t doubly_ll_replace_head(
 
   // check if list exist or is empty
   if (*list == NULL || (*list)->size == 0) {
-    return LL_EXIT_USER;
+    return LL_EXIT_USER_ERR;
   }
 
   (*list)->list_head->item = new_item;
@@ -528,7 +528,7 @@ int8_t doubly_ll_replace_tail(
 
   // check if list exist or is empty
   if (*list == NULL || (*list)->size == 0) {
-    return LL_EXIT_USER;
+    return LL_EXIT_USER_ERR;
   }
 
   (*list)->list_tail->item = new_item;
@@ -554,12 +554,12 @@ int8_t doubly_ll_value_at(
 
   // check if list exist or is empty
   if (list == NULL || list->size == 0) {
-    return LL_EXIT_USER;
+    return LL_EXIT_USER_ERR;
   }
 
   // check if index is in range of list
   if (index + 1 > list->size) {
-    return LL_EXIT_USER;
+    return LL_EXIT_USER_ERR;
   }
 
   // replace at head
@@ -602,7 +602,7 @@ int8_t doubly_ll_value_at_head(
 
   // check if list exist or is empty
   if (list == NULL || list->size == 0) {
-    return LL_EXIT_USER;
+    return LL_EXIT_USER_ERR;
   }
 
   *ret_val = list->list_head->item;
@@ -622,7 +622,7 @@ int8_t doubly_ll_value_at_tail(
 
   // check if list exist or is empty
   if (list == NULL || list->size == 0) {
-    return LL_EXIT_USER;
+    return LL_EXIT_USER_ERR;
   }
 
   *ret_val = list->list_tail->item;
@@ -642,7 +642,7 @@ int8_t doubly_ll_print_list(
    **/
   // check if list is empty
   if (list == NULL) {
-    return LL_EXIT_USER;
+    return LL_EXIT_USER_ERR;
   }
 
   /*** although "list" is a local variable, "list_head" is not and is being reference.
@@ -694,15 +694,15 @@ int8_t doubly_ll_list_status(
 
   // check if list exist
   if (list == NULL) {
-    return LL_EXIT_USER;
+    return LL_EXIT_USER_ERR;
   }
 
   LOG(
-      "\nlinked_list_t:\n"
+      "\ndoubly_linked_list_t:\n"
       "\tlist @%p\n"
       "\thead @%p\n"
       "\ttail @%p\n"
-      "\tsize = %llu\n",
+      "\tsize = %lu\n",
       list,
       list->list_head,
       list->list_tail,
@@ -723,11 +723,11 @@ int8_t doubly_ll_node_status(
 
   // check if list exist
   if (list == NULL) {
-    return LL_EXIT_USER;
+    return LL_EXIT_USER_ERR;
   }
 
   if (index > list->size - 1) {
-    return LL_EXIT_USER;
+    return LL_EXIT_USER_ERR;
   }
 
   node_t *current_node = list->list_head;
@@ -751,9 +751,7 @@ int8_t doubly_ll_node_status(
       "%8hhu\n"
       "%8hhu\n"
       "%8hhu\n"
-      "%8u  \n"
-      "   |   \n"
-      "   V   \n",
+      "%8u\n\n",
       current_node,
       current_node->next_node,
       current_node->prev_node,
@@ -788,7 +786,7 @@ void doubly_ll_print_err_code(
     case LL_EXIT_FATAL:
       printf("\nmalloc failed\n");
       break;
-    case LL_EXIT_USER:
+    case LL_EXIT_USER_ERR:
       printf("\nimproper use of linked list API\n");
       break;
     default:
@@ -833,7 +831,7 @@ int8_t doubly_ll_search_for(
 
   // check if list exist or is empty
   if (list == NULL || list->size == 0) {
-    return LL_EXIT_USER;
+    return LL_EXIT_USER_ERR;
   }
 
   // index of node with matching item
