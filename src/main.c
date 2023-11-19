@@ -56,57 +56,58 @@ int main(int argc, char *argv[]) {
 
   unsigned long long clock_cycle = 0;  // tracking the clock cycle (CPU clock). DIMM clock cycle is 1/2.
   DIMM_t  *PC5_38400  = NULL;
-  Queue_t *main_queue = NULL;
+  Queue_t *global_queue = NULL;
 
   dimm_create(&PC5_38400);
-  queue_create(&main_queue, MAX_QUEUE_SIZE);  // create queue of size 16
+  queue_create(&global_queue, MAX_QUEUE_SIZE);  // create queue of size 16
 
   bool has_pending_request = false;
   MemoryRequest_t pending_request;
 
   while (true) {
     // Enqueue pending request if queue is not full
-    if (has_pending_request && !queue_is_full(main_queue)) {
-        enqueue(&main_queue, pending_request);
-        has_pending_request = false;
+    if (has_pending_request && !queue_is_full(global_queue)) {
+      enqueue(&global_queue, pending_request);
+      has_pending_request = false;
     }
 
     // No pending request and we didnt finish the file
     if (!has_pending_request && fgets(line, sizeof(line), file)) {
-        MemoryRequest_t memory_request = parse_line(line);
+      MemoryRequest_t memory_request = parse_line(line);
 
-        // Try to enqueue the new request, or keep it as pending if queue is full
-        if (queue_is_full(main_queue)) {
-            has_pending_request = true;
-            pending_request = memory_request;
-        } else {
-            enqueue(&main_queue, memory_request);
-        }
+      LOG("CPU clock cycle: %llu\n", clock_cycle);
+      LOG("Memory request: time = %5llu, core = %2u, operation = %u, row = %5u, "
+          "column = %2u, bank = %2u, bank group = %2u, channel = %2u, byte "
+          "select = %2u\n",
+          memory_request.time,
+          memory_request.core,
+          memory_request.operation,
+          memory_request.row,
+          memory_request.column_high,
+          memory_request.bank,
+          memory_request.bank_group,
+          memory_request.channel,
+          memory_request.byte_select);
+
+      // Try to enqueue the new request, or keep it as pending if queue is full
+      if (queue_is_full(global_queue)) {
+        has_pending_request = true;
+        pending_request = memory_request;
+      } else {
+        enqueue(&global_queue, memory_request);
+      }
     }
 
     // Process requests on every DIMM clock cycle
-    if (clock_cycle % 2 == 0 && !queue_is_empty(main_queue)) {
-        process_request(&dram, dequeue(&main_queue));
+    if (clock_cycle % 2 == 0 && !queue_is_empty(global_queue)) {
+      MemoryRequest_t memory_request = dequeue(&global_queue);
+      process_request(&PC5_38400, &memory_request);
     }
 
     // If we dont have pending request and we reached end of file and there are no more requests to handle, we leave
-    if (!has_pending_request && feof(file) && queue_is_empty(main_queue)) {
-        break;
+    if (!has_pending_request && feof(file) && queue_is_empty(global_queue)) {
+      break;
     }
-
-    LOG("CPU clock cycle: %llu\n", clock_cycle);
-    LOG("Memory request: time = %5llu, core = %2u, operation = %u, row = %5u, "
-        "column = %2u, bank = %2u, bank group = %2u, channel = %2u, byte "
-        "select = %2u\n",
-        memory_request.time,
-        memory_request.core,
-        memory_request.operation,
-        memory_request.row,
-        memory_request.column_high,
-        memory_request.bank,
-        memory_request.bank_group,
-        memory_request.channel,
-        memory_request.byte_select);
 
     clock_cycle++;  // increment clock cycle
   }

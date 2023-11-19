@@ -34,17 +34,19 @@ void dram_init(DRAM_t *dram) {
 
 }
 
-int process_request(DRAM_t **dram, MemoryRequest_t *request) {
+int process_request(DIMM_t **dimm, MemoryRequest_t *request) {
   // TODO figure out how to process memory requests
-    bool row_hit = is_row_hit(dram, request);
-    if (!row_hit) {
-        
-        if ((*dram)->channels[request->channel].bank_groups[request->bank_group].banks[request->bank].is_active) {
-            precharge_bank(dram, request);
-        }
-        
-        activate_bank(dram, request);
+  DRAM_t *dram = &( (*dimm)->channels[request->channel].DDR5_chip[0] );
+
+  bool row_hit = is_row_hit(*dram, request);
+  if (!row_hit) {
+      
+    if (dram->bank_groups[request->bank_group].banks[request->bank].is_active) {
+        precharge_bank(dram, request);
     }
+      
+    activate_bank(dram, request);
+  }
   switch (request->operation) {
     case DATA_READ:
       // Issue read command

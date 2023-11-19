@@ -48,7 +48,7 @@ void precharge_bank(DRAM_t *dram, MemoryRequest_t *request);
 bool is_row_hit(DRAM_t dram, MemoryRequest_t *request);
 
 char *issue_cmd(char *cmd, MemoryRequest_t *request);
-int process_request(DRAM_t **dram, MemoryRequest_t *request);
+int process_request(DIMM_t **dimm, MemoryRequest_t *request);
 
 // TODO add additional functions as necessary
 
