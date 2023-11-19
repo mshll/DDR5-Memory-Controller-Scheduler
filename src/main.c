@@ -20,28 +20,21 @@
 #include "common.h"
 #include "dimm.h"
 #include "memory_request.h"
+#include "parser.h"
 #include "queue.h"
-#include "common.h"
 
 /*** macro(s), enum(s), and struct(s) ***/
-#define LINE_LENGTH 256
 #define MAX_QUEUE_SIZE 16
 #define DEFAULT_INPUT_FILE "trace.txt"
 #define DEFAULT_OUTPUT_FILE "dram.txt"
 
 enum CommandLine {
-  NO_INPUT  = 1,
+  NO_INPUT = 1,
   VALID_INPUT = 2
 };
 
-/*** function declaration(s) ***/
-FILE *open_file(char *file_name, char *mode);
-MemoryRequest_t parse_line(char *line);
-
 int main(int argc, char *argv[]) {
-  FILE *file;
   char *file_name;
-  char line[LINE_LENGTH];
 
   if (argc == NO_INPUT) {
     file_name = DEFAULT_INPUT_FILE;
@@ -52,94 +45,47 @@ int main(int argc, char *argv[]) {
     return 1;
   }
 
-  file = open_file(file_name, "r");
+  Parser_t *parser = parser_init(file_name);
 
   unsigned long long clock_cycle = 0;  // tracking the clock cycle (CPU clock). DIMM clock cycle is 1/2.
-  DIMM_t  *PC5_38400  = NULL;
+  DIMM_t *PC5_38400 = NULL;
   Queue_t *global_queue = NULL;
 
   dimm_create(&PC5_38400);
   queue_create(&global_queue, MAX_QUEUE_SIZE);  // create queue of size 16
 
-  bool has_pending_request = false;
-  MemoryRequest_t pending_request;
+  MemoryRequest_t *request_buffer = NULL;
 
   while (true) {
-    // Enqueue pending request if queue is not full
-    if (has_pending_request && !queue_is_full(global_queue)) {
-      enqueue(&global_queue, pending_request);
-      has_pending_request = false;
+    if (request_buffer == NULL && !queue_is_full(global_queue)) {
+      request_buffer = parser_next_request(parser, clock_cycle);  // only returns the request if the current cycle >= request's time
+
+      if (request_buffer) LOG("Request: %s\n", memory_request_to_string(request_buffer));
     }
 
-    // No pending request and we didnt finish the file
-    if (!has_pending_request && fgets(line, sizeof(line), file)) {
-      MemoryRequest_t memory_request = parse_line(line);
-
-      LOG("CPU clock cycle: %llu\n", clock_cycle);
-      LOG("Memory request: time = %5llu, core = %2u, operation = %u, row = %5u, "
-          "column = %2u, bank = %2u, bank group = %2u, channel = %2u, byte "
-          "select = %2u\n",
-          memory_request.time,
-          memory_request.core,
-          memory_request.operation,
-          memory_request.row,
-          memory_request.column_high,
-          memory_request.bank,
-          memory_request.bank_group,
-          memory_request.channel,
-          memory_request.byte_select);
-
-      // Try to enqueue the new request, or keep it as pending if queue is full
-      if (queue_is_full(global_queue)) {
-        has_pending_request = true;
-        pending_request = memory_request;
-      } else {
-        enqueue(&global_queue, memory_request);
-      }
-    }
-
-    // Process requests on every DIMM clock cycle
+    // DIMM clock cycle
     if (clock_cycle % 2 == 0 && !queue_is_empty(global_queue)) {
-      MemoryRequest_t memory_request = dequeue(&global_queue);
-      process_request(&PC5_38400, &memory_request);
+      // TODO
+      MemoryRequest_t request = dequeue(&global_queue);
+      LOG("Dequeued: %s\n", memory_request_to_string(&request));
+      process_request(&PC5_38400, &request);
     }
 
-    // If we dont have pending request and we reached end of file and there are no more requests to handle, we leave
-    if (!has_pending_request && feof(file) && queue_is_empty(global_queue)) {
+    // CPU clock cycle
+    if (request_buffer != NULL) {
+      enqueue(&global_queue, *request_buffer);
+      LOG("Enqueued: %s\n", memory_request_to_string(request_buffer));
+      request_buffer = NULL;
+    }
+
+    if (parser->status == END_OF_FILE && queue_is_empty(global_queue)) {
+      LOG("END OF SIMULATION\n");
       break;
     }
 
     clock_cycle++;  // increment clock cycle
   }
 
-  fclose(file);
+  parser_destroy(parser);
   return 0;
-}
-
-FILE *open_file(char *file_name, char *mode) {
-  FILE *file;
-  file = fopen(file_name, mode);
-  if (file == NULL) {
-    perror("Error opening file");
-    exit(1);
-  }
-  return file;
-}
-
-MemoryRequest_t parse_line(char *line) {
-  unsigned long long time, address;
-  unsigned core, operation;
-  MemoryRequest_t memory_request;
-
-  sscanf(line, "%llu %u %u %llx", &time, &core, &operation, &address);
-  memory_request_init(&memory_request, time, core, operation, address);
-
-  LOG(
-      "Parsed: time = %5llu, core = %2u, operation = %u, address = %#016llX\n",
-      time,
-      core,
-      operation,
-      address);
-
-  return memory_request;
 }
