@@ -29,23 +29,21 @@
 #define DEFAULT_OUTPUT_FILE "dram.txt"
 
 enum CommandLine {
-  NO_INPUT = 1,
-  VALID_INPUT = 2
+  NO_ARGS = 1,
+  INPUT_ONLY = 2,
+  INPUT_OUTPUT = 3,
 };
 
+/*** function prototype(s) ***/
+void process_args(int argc, char *argv[], char **input_file, char **output_file);
+
+/*** function(s) ***/
 int main(int argc, char *argv[]) {
-  char *file_name;
+  char *input_file = NULL;
+  char *output_file = NULL;
+  process_args(argc, argv, &input_file, &output_file);
 
-  if (argc == NO_INPUT) {
-    file_name = DEFAULT_INPUT_FILE;
-  } else if (argc == VALID_INPUT) {
-    file_name = argv[1];
-  } else {
-    fprintf(stderr, "Usage: %s [file_name]\n", argv[0]);
-    return 1;
-  }
-
-  Parser_t *parser = parser_init(file_name);
+  Parser_t *parser = parser_init(input_file);
 
   unsigned long long clock_cycle = 0;  // tracking the clock cycle (CPU clock). DIMM clock cycle is 1/2.
   DIMM_t *PC5_38400 = NULL;
@@ -88,4 +86,26 @@ int main(int argc, char *argv[]) {
 
   parser_destroy(parser);
   return 0;
+}
+
+void process_args(int argc, char *argv[], char **input_file, char **output_file) {
+  switch (argc) {
+    case NO_ARGS:
+      *input_file = DEFAULT_INPUT_FILE;
+      *output_file = DEFAULT_OUTPUT_FILE;
+      break;
+    case INPUT_ONLY:
+      *input_file = argv[1];
+      *output_file = DEFAULT_OUTPUT_FILE;
+      break;
+    case INPUT_OUTPUT:
+      *input_file = argv[1];
+      *output_file = argv[2];
+      break;
+    default:
+      fprintf(stderr, "Usage: %s [input_file] [output_file]\n", argv[0]);
+      exit(1);
+  }
+  LOG("Input file: %s\n", *input_file);
+  LOG("Output file: %s\n", *output_file);
 }

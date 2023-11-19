@@ -45,10 +45,6 @@ MemoryRequest_t *parser_next_request(Parser_t *parser, unsigned long long cycle)
   return NULL;
 }
 
-ParserStatus_t parser_status(Parser_t *parser) {
-  return parser->status;
-}
-
 FILE *open_file(char *file_name, char *mode) {
   FILE *file = fopen(file_name, mode);
   if (file == NULL) {
