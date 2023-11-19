@@ -49,12 +49,4 @@ void parser_destroy(Parser_t *parser);
  */
 MemoryRequest_t *parser_next_request(Parser_t *parser, unsigned long long cycle);
 
-/**
- * @brief Get the status of the parser.
- *
- * @param parser  The parser
- * @return ParserStatus_t  The status
- */
-ParserStatus_t parser_status(Parser_t *parser);
-
 #endif
