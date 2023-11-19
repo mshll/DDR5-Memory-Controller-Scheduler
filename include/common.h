@@ -22,8 +22,19 @@
 enum Operation {
   DATA_READ = 0,
   DATA_WRITE = 1,
-  INSTRUCTION_FETCH = 2
+  IFETCH = 2,
 };
+
+typedef enum MemoryRequestState {
+  PENDING,
+  REF,
+  PRE,
+  ACT0,
+  ACT1,
+  RW0,
+  RW1,
+  COMPLETE,
+} MemoryRequestState_t;
 
 /*** struct(s) ***/
 typedef struct __attribute__((__packed__)) MemoryRequest {
@@ -31,14 +42,14 @@ typedef struct __attribute__((__packed__)) MemoryRequest {
   uint8_t core;
   uint8_t operation;
   // unsigned long long address;
-  uint16_t byte_select: 2;  // 2 bits
-  uint16_t column_low:  4;  // 4 bits (column[3:0])
-  uint16_t channel:     1;  // 1 bit
-  uint16_t bank_group:  3;  // 3 bits
-  uint16_t bank:        2;  // 2 bits
-  uint16_t column_high: 6;  // 6 bits (column[9:4])
-  uint16_t row:        16;  // 16 bits
-  bool is_complete;
+  uint16_t byte_select : 2;  // 2 bits
+  uint16_t column_low : 4;   // 4 bits (column[3:0])
+  uint16_t channel : 1;      // 1 bit
+  uint16_t bank_group : 3;   // 3 bits
+  uint16_t bank : 2;         // 2 bits
+  uint16_t column_high : 6;  // 6 bits (column[9:4])
+  uint16_t row : 16;         // 16 bits
+  MemoryRequestState_t state;
 } MemoryRequest_t;
 
 #endif

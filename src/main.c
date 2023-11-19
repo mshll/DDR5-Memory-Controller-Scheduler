@@ -53,20 +53,33 @@ int main(int argc, char *argv[]) {
   queue_create(&global_queue, MAX_QUEUE_SIZE);  // create queue of size 16
 
   MemoryRequest_t *request_buffer = NULL;
+  MemoryRequest_t *dimm_request = NULL;
 
   while (true) {
     if (request_buffer == NULL && !queue_is_full(global_queue)) {
       request_buffer = parser_next_request(parser, clock_cycle);  // only returns the request if the current cycle >= request's time
 
-      if (request_buffer) LOG("Request: %s\n", memory_request_to_string(request_buffer));
+      if (request_buffer) LOG("Request buffer: %s\n", memory_request_to_string(request_buffer));
     }
 
     // DIMM clock cycle
     if (clock_cycle % 2 == 0 && !queue_is_empty(global_queue)) {
-      // TODO
-      MemoryRequest_t request = dequeue(&global_queue);
-      LOG("Dequeued: %s\n", memory_request_to_string(&request));
-      process_request(&PC5_38400, &request);
+      // if the current request is complete, free it
+      if (dimm_request != NULL && dimm_request->state == COMPLETE) {
+        LOG("Completed: %s\n", memory_request_to_string(dimm_request));
+        free(dimm_request);
+        dimm_request = NULL;
+      }
+
+      if (dimm_request == NULL) {  // if there is no request being processed, dequeue next request
+        dimm_request = malloc(sizeof(MemoryRequest_t));
+        *dimm_request = dequeue(&global_queue);
+        LOG("Dequeued: %s\n", memory_request_to_string(dimm_request));
+
+      } else {  // otherwise, process the current request
+        LOG_DEBUG("Processing: %s\n", memory_request_to_string(dimm_request));
+        process_request(&PC5_38400, dimm_request);
+      }
     }
 
     // CPU clock cycle

@@ -24,7 +24,7 @@ void memory_request_init(MemoryRequest_t *memory_request, unsigned long time,
   memory_request->core = core;
   memory_request->operation = operation;
   map_address(memory_request, address);
-  memory_request->is_complete = false;
+  memory_request->state = PENDING;
 }
 
 char *memory_request_to_string(MemoryRequest_t *memory_request) {

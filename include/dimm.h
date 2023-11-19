@@ -45,11 +45,10 @@ void dimm_create(DIMM_t **dimm);
 void dram_init(DRAM_t *dram);
 void activate_bank(DRAM_t *dram, MemoryRequest_t *request);
 void precharge_bank(DRAM_t *dram, MemoryRequest_t *request);
-bool is_row_hit(DRAM_t dram, MemoryRequest_t *request);
 
 char *issue_cmd(char *cmd, MemoryRequest_t *request);
 int process_request(DIMM_t **dimm, MemoryRequest_t *request);
 
 // TODO add additional functions as necessary
 
-#endif  
+#endif
