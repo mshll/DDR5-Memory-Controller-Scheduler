@@ -702,7 +702,7 @@ int8_t doubly_ll_list_status(
       "\tlist @%p\n"
       "\thead @%p\n"
       "\ttail @%p\n"
-      "\tsize = %lu\n",
+      "\tsize = %llu\n",
       list,
       list->list_head,
       list->list_tail,

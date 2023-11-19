@@ -13,5 +13,6 @@
 void memory_request_init(MemoryRequest_t *memoryRequest, unsigned long time,
                          uint8_t core, uint8_t operation,
                          unsigned long long address);
+char *memory_request_to_string(MemoryRequest_t *memory_request);
 
-#endif 
+#endif
