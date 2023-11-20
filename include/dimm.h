@@ -42,6 +42,7 @@ typedef struct DIMM {
 
 /*** function declaration(s) ***/
 void dimm_create(DIMM_t **dimm);
+void dimm_destroy(DIMM_t **dimm);
 void dram_init(DRAM_t *dram);
 void activate_bank(DRAM_t *dram, MemoryRequest_t *request);
 void precharge_bank(DRAM_t *dram, MemoryRequest_t *request);

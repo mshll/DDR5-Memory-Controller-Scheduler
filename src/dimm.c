@@ -40,6 +40,13 @@ void dimm_create(DIMM_t **dimm) {
   }
 }
 
+void dimm_destroy(DIMM_t **dimm) {
+  if (*dimm != NULL) {
+    free(*dimm);
+    *dimm = NULL; // remove dangler
+  }
+}
+
 // Initialize the DRAM with all banks precharged
 void dram_init(DRAM_t *dram) {
   for (int i = 0; i < NUM_BANK_GROUPS; i++) {

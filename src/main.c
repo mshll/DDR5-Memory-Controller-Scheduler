@@ -3,9 +3,10 @@
  * @author  ECE485/585 Team 5
  *          members:
  *            Abdulaziz Alateeqi,
- *            Eduardo Sanchez Simancas,
+ *            Meshal Almutairi,
  *            Gene Hu,
- *            Meshal Almutairi
+ *            Eduardo Sanchez Simancas
+ *            
  * @brief   This program simulates a memory controller scheduler for a 12-core
  *          4.8 GHz processor employing a 16GB PC5-38400 DIMM
  * @version 0.1
@@ -98,6 +99,8 @@ int main(int argc, char *argv[]) {
   }
 
   parser_destroy(parser);
+  queue_destroy(&global_queue);
+  dimm_destroy(&PC5_38400);
   return 0;
 }
 
