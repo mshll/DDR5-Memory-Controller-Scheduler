@@ -25,23 +25,23 @@ enum Operation {
   IFETCH = 2,
 };
 
+// TODO 'REF' not implemented yet
 typedef enum MemoryRequestState {
   PENDING,
   REF,
-  PRE,
   ACT0,
   ACT1,
   RW0,
   RW1,
+  PRE,
   COMPLETE,
 } MemoryRequestState_t;
 
 /*** struct(s) ***/
 typedef struct __attribute__((__packed__)) MemoryRequest {
-  unsigned long long time;
+  uint64_t time;
   uint8_t core;
   uint8_t operation;
-  // unsigned long long address;
   uint16_t byte_select : 2;  // 2 bits
   uint16_t column_low : 4;   // 4 bits (column[3:0])
   uint16_t channel : 1;      // 1 bit

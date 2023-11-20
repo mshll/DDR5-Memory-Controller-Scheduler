@@ -51,7 +51,7 @@ void dram_init(DRAM_t *dram) {
   }
 }
 
-int process_request(DIMM_t **dimm, MemoryRequest_t *request) {
+int process_request(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
   DRAM_t *dram = &((*dimm)->channels[request->channel].DDR5_chip[0]);
 
   // Set the initial state before processing the request
@@ -60,52 +60,44 @@ int process_request(DIMM_t **dimm, MemoryRequest_t *request) {
       request->state = RW0;
     } else if (is_bank_precharged(dram, request)) {
       request->state = ACT0;
-    } else {
+
+    } else {  // TODO shouldn't happen in closed page policy - might want to handle it differently
       request->state = PRE;
     }
   }
 
-  // Process the request (one state per cycle)
+  // Process the request (one state per cycle) (closed page policy currently)
   // TODO write to output file instead of printing to stdout
   // TODO not sure how/when to do 'REF' command
   switch (request->state) {
-    case PRE:
-      precharge_bank(dram, request);
-      printf("%s\n", issue_cmd("PRE", request));
-
-      request->state++;
-      break;
-
     case ACT0:
       activate_bank(dram, request);
-      printf("%s\n", issue_cmd("ACT0", request));
+      printf("%s\n", issue_cmd("ACT0", request, cycle));
 
       request->state++;
       break;
 
     case ACT1:
-      printf("%s\n", issue_cmd("ACT1", request));
+      printf("%s\n", issue_cmd("ACT1", request, cycle));
 
       request->state++;
       break;
 
     case RW0:
-      // TODO What to do for instruction fetch? (currently treated as read)
-      if (request->operation == DATA_READ || request->operation == IFETCH) {
-        printf("%s\n", issue_cmd("RD0", request));
-      } else if (request->operation == DATA_WRITE) {
-        printf("%s\n", issue_cmd("WR0", request));
-      }
+      printf("%s\n", issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle));
 
       request->state++;
       break;
 
     case RW1:
-      if (request->operation == DATA_READ || request->operation == IFETCH) {
-        printf("%s\n", issue_cmd("RD1", request));
-      } else if (request->operation == DATA_WRITE) {
-        printf("%s\n", issue_cmd("WR1", request));
-      }
+      printf("%s\n", issue_cmd(request->operation == DATA_WRITE ? "WR1" : "RD1", request, cycle));
+
+      request->state++;
+      break;
+
+    case PRE:
+      precharge_bank(dram, request);
+      printf("%s\n", issue_cmd("PRE", request, cycle));
 
       request->state++;
       break;
@@ -122,23 +114,19 @@ int process_request(DIMM_t **dimm, MemoryRequest_t *request) {
   return 0;
 }
 
+// TODO check if activation and precharge are working correctly
+
 void activate_bank(DRAM_t *dram, MemoryRequest_t *request) {
   // Check if any other bank in the group is active and deactivate it
-  // TODO not sure if this is correct
   for (int i = 0; i < NUM_BANKS_PER_GROUP; i++) {
     dram->bank_groups[request->bank_group].banks[i].is_active = false;
   }
 
-  dram->bank_groups[request->bank_group].banks[request->bank].is_precharged = false;
   dram->bank_groups[request->bank_group].banks[request->bank].is_active = true;
   dram->bank_groups[request->bank_group].banks[request->bank].active_row = request->row;
 }
 
-void precharge_bank(DRAM_t *dram, MemoryRequest_t *request) {
-  dram->bank_groups[request->bank_group].banks[request->bank].is_precharged = true;
-  dram->bank_groups[request->bank_group].banks[request->bank].is_active = false;
-  dram->bank_groups[request->bank_group].banks[request->bank].active_row = 0;
-}
+void precharge_bank(DRAM_t *dram, MemoryRequest_t *request) { dram->bank_groups[request->bank_group].banks[request->bank].is_precharged = true; }
 
 /**
  * @brief Constructs a command string to be written to the output file.
@@ -147,11 +135,12 @@ void precharge_bank(DRAM_t *dram, MemoryRequest_t *request) {
  * @param request memory request
  * @return char*  command string to be written to the output file
  */
-char *issue_cmd(char *cmd, MemoryRequest_t *request) {
+char *issue_cmd(char *cmd, MemoryRequest_t *request, uint64_t cycle) {
   char *response = malloc(sizeof(char) * 100);
   char *temp = malloc(sizeof(char) * 100);
 
-  sprintf(response, "%10llu %u %4s", request->time, request->channel, cmd);
+  // TODO should we use cpu clock cycle or dram clock cycle? (now using cpu, divide by 2 for dram)
+  sprintf(response, "%10llu %u %4s", cycle, request->channel, cmd);
 
   if (strncmp(cmd, "ACT", 3) == 0) {
     sprintf(temp, " %u %u %X", request->bank_group, request->bank, request->row);

@@ -47,6 +47,6 @@ void parser_destroy(Parser_t *parser);
  * @param cycle  The current cpu cycle
  * @return MemoryRequest_t*  The memory request
  */
-MemoryRequest_t *parser_next_request(Parser_t *parser, unsigned long long cycle);
+MemoryRequest_t *parser_next_request(Parser_t *parser, uint64_t cycle);
 
 #endif

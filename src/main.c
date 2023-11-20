@@ -64,13 +64,6 @@ int main(int argc, char *argv[]) {
 
     // DIMM clock cycle
     if (clock_cycle % 2 == 0 && !queue_is_empty(global_queue)) {
-      // if the current request is complete, free it
-      if (dimm_request != NULL && dimm_request->state == COMPLETE) {
-        LOG("Completed: %s\n", memory_request_to_string(dimm_request));
-        free(dimm_request);
-        dimm_request = NULL;
-      }
-
       if (dimm_request == NULL) {  // if there is no request being processed, dequeue next request
         dimm_request = malloc(sizeof(MemoryRequest_t));
         *dimm_request = dequeue(&global_queue);
@@ -78,7 +71,14 @@ int main(int argc, char *argv[]) {
 
       } else {  // otherwise, process the current request
         LOG_DEBUG("Processing: %s\n", memory_request_to_string(dimm_request));
-        process_request(&PC5_38400, dimm_request);
+        process_request(&PC5_38400, dimm_request, clock_cycle);
+      }
+
+      // if the current request is complete, free it
+      if (dimm_request != NULL && dimm_request->state == COMPLETE) {
+        LOG("Completed: %s\n", memory_request_to_string(dimm_request));
+        free(dimm_request);
+        dimm_request = NULL;
       }
     }
 

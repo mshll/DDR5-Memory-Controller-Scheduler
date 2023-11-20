@@ -35,7 +35,7 @@ void parser_destroy(Parser_t *parser) {
   }
 }
 
-MemoryRequest_t *parser_next_request(Parser_t *parser, unsigned long long cycle) {
+MemoryRequest_t *parser_next_request(Parser_t *parser, uint64_t cycle) {
   if (parser->status == OK && parser->next_request->time <= cycle) {
     MemoryRequest_t *request = parser->next_request;
     parser_next_line(parser);
@@ -71,19 +71,14 @@ void parser_next_line(Parser_t *parser) {
 }
 
 MemoryRequest_t parse_line(char *line) {
-  unsigned long long time, address;
+  uint64_t time, address;
   unsigned core, operation;
   MemoryRequest_t memory_request;
 
   sscanf(line, "%llu %u %u %llx", &time, &core, &operation, &address);
   memory_request_init(&memory_request, time, core, operation, address);
 
-  LOG(
-      "Parsed: time = %5llu, core = %2u, operation = %u, address = %#016llX\n",
-      time,
-      core,
-      operation,
-      address);
+  LOG("Parsed: time = %5llu, core = %2u, operation = %u, address = %#016llX\n", time, core, operation, address);
 
   return memory_request;
 }
