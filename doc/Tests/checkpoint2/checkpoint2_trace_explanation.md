@@ -24,4 +24,4 @@
   - 0,1,0,0
   - 1,0,0,0
   - And the number will increase until it loops back to 1
-- Request 30, 31, 32, 33 will match the first 4 requests to be distinguishable
+- Request 30, 31, 32, 33 will use the same commands as the first four reqeusts for distinguishability.
