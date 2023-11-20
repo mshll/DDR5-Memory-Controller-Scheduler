@@ -38,7 +38,7 @@ int main() {
     char trace_name[STRING_MAX] = DEFAULT_FILE_NAME;
 
     // Ask for trace file name
-    printf("Enter trace file name\n");
+    printf("Enter trace file name, don't forget .txt\n");
     scanf("%s", trace_name);
     #ifdef DEBUG
     printf("the trace file name is: %s\n", trace_name);
@@ -101,6 +101,7 @@ void obtaining_line (
 
     fflush(stdin);
     // Honestly don't know if all these fflush is necessary, but added them just in case
+    int track = 0;
     while(fgets(str, sizeof(str), stdin) != NULL) {
         token = strtok(str, " ");
         int k = 0;
@@ -128,17 +129,25 @@ void obtaining_line (
                input_vals[4],input_vals[5],input_vals[6]);
 
         fflush(stdin);
+        // Checking if they entered 'y' to write request
         check = getchar();
-        if (check == 'y')
+        if (check == 'y') {
             writing_line(input_vals, fp);
+            track++;
+        }
 
-        printf("Do you want to keep inputting lines, y/n?\n");
+        printf("You have written %d requests.\n"
+               "Do you want to keep inputting lines, y/n?\n", track);
         fflush(stdin);
         check = getchar();
         if (check == 'n')
             break;
         fflush(stdin);
-
+        printf("The last input was:\n"
+               "%d %d %d %d %d %d %d",
+               input_vals[0], input_vals[1], input_vals[2], input_vals[3],
+               input_vals[4], input_vals[5], input_vals[6]);
+        
         printf("\nEnter input line in following format (all positive integers):\n\n"
                "time core operation bank bank_group row column\n\n");
         fflush(stdin);
@@ -172,13 +181,12 @@ void writing_line (
     #ifdef DEBUG
         printf("setted col_h: %X\n", address);
     #endif
-    address = set_value(address, 10, 11, BG);
+    address = set_value(address, 10, 11, BA);
     #ifdef DEBUG
         printf("setted BG: %X\n", address);
     #endif
-    address = set_value(address, 7, 9, BA);
+    address = set_value(address, 7, 9, BG);
     // Bit 6 is the channel bit, and we will only be working in channel 0
-    // WARNING, pretty sure 8-byte aligned means the LSB of col should always be 0, but I am including for now until I get more confirmation 
     address = set_value(address, 2, 5, col_l);
     // Bit 0 and 1 are the offset which should stay 0
 
