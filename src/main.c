@@ -6,7 +6,7 @@
  *            Meshal Almutairi,
  *            Gene Hu,
  *            Eduardo Sanchez Simancas
- *            
+ *
  * @brief   This program simulates a memory controller scheduler for a 12-core
  *          4.8 GHz processor employing a 16GB PC5-38400 DIMM
  * @version 0.1
@@ -59,8 +59,6 @@ int main(int argc, char *argv[]) {
   while (true) {
     if (request_buffer == NULL && !queue_is_full(global_queue)) {
       request_buffer = parser_next_request(parser, clock_cycle);  // only returns the request if the current cycle >= request's time
-
-      if (request_buffer) LOG("Request buffer: %s\n", memory_request_to_string(request_buffer));
     }
 
     // DIMM clock cycle
@@ -68,25 +66,25 @@ int main(int argc, char *argv[]) {
       if (dimm_request == NULL) {  // if there is no request being processed, dequeue next request
         dimm_request = malloc(sizeof(MemoryRequest_t));
         *dimm_request = dequeue(&global_queue);
-        LOG("Dequeued: %s\n", memory_request_to_string(dimm_request));
+        log_memory_request("Dequeued:", dimm_request, clock_cycle);
 
       } else {  // otherwise, process the current request
-        LOG_DEBUG("Processing: %s\n", memory_request_to_string(dimm_request));
         process_request(&PC5_38400, dimm_request, clock_cycle);
       }
 
       // if the current request is complete, free it
       if (dimm_request != NULL && dimm_request->state == COMPLETE) {
-        LOG("Completed: %s\n", memory_request_to_string(dimm_request));
+        log_memory_request("Completed:", dimm_request, clock_cycle);
         free(dimm_request);
         dimm_request = NULL;
       }
     }
 
     // CPU clock cycle
-    if (request_buffer != NULL) {
+    if (request_buffer != NULL) {  // if there is a request in the buffer to be enqueued
       enqueue(&global_queue, *request_buffer);
-      LOG("Enqueued: %s\n", memory_request_to_string(request_buffer));
+      log_memory_request("Enqueued:", request_buffer, clock_cycle);
+      free(request_buffer);
       request_buffer = NULL;
     }
 
