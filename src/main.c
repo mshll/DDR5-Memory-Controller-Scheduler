@@ -61,16 +61,16 @@ int main(int argc, char *argv[]) {
       request_buffer = parser_next_request(parser, clock_cycle);  // only returns the request if the current cycle >= request's time
     }
 
-    // DIMM clock cycle
-    if (clock_cycle % 2 == 0 && !queue_is_empty(global_queue)) {
-      if (dimm_request == NULL) {  // if there is no request being processed, dequeue next request
+    // DIMM clock cycle - only process if there is a request in progress still or the queue is not empty
+    if (clock_cycle % 2 == 0 && (dimm_request != NULL || !queue_is_empty(global_queue))) {
+      // if there is no request being processed, dequeue next request
+      if (dimm_request == NULL) {
         dimm_request = malloc(sizeof(MemoryRequest_t));
         *dimm_request = dequeue(&global_queue);
         log_memory_request("Dequeued:", dimm_request, clock_cycle);
-
-      } else {  // otherwise, process the current request
-        process_request(&PC5_38400, dimm_request, clock_cycle);
       }
+
+      process_request(&PC5_38400, dimm_request, clock_cycle);
 
       // if the current request is complete, free it
       if (dimm_request != NULL && dimm_request->state == COMPLETE) {
