@@ -25,12 +25,8 @@ void memory_request_init(MemoryRequest_t *memory_request, uint64_t time, uint8_t
   memory_request->state = PENDING;
 }
 
-char *memory_request_to_string(MemoryRequest_t *memory_request) {
-  char *response = malloc(sizeof(char) * 100);
-
-  sprintf(response, "%llu %u %u [%X %X %X %X %X %X %X]", memory_request->time, memory_request->core, memory_request->operation,
-          memory_request->byte_select, memory_request->column_low, memory_request->channel, memory_request->bank_group, memory_request->bank,
-          memory_request->column_high, memory_request->row);
-
-  return response;
+void log_memory_request(char *prefix, MemoryRequest_t *memory_request, uint64_t cycle) {
+  LOG("[%llu] %s %u %u [%X %X %X %X %X %X %X]\n", cycle, prefix, memory_request->core, memory_request->operation, memory_request->row,
+      memory_request->column_high, memory_request->bank, memory_request->bank_group, memory_request->channel, memory_request->column_low,
+      memory_request->byte_select);
 }

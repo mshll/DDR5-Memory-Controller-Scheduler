@@ -43,7 +43,7 @@ void dimm_create(DIMM_t **dimm) {
 void dimm_destroy(DIMM_t **dimm) {
   if (*dimm != NULL) {
     free(*dimm);
-    *dimm = NULL; // remove dangler
+    *dimm = NULL;  // remove dangler
   }
 }
 
@@ -60,6 +60,7 @@ void dram_init(DRAM_t *dram) {
 
 int process_request(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
   DRAM_t *dram = &((*dimm)->channels[request->channel].DDR5_chip[0]);
+  char *cmd = NULL;
 
   // Set the initial state before processing the request
   if (request->state == PENDING) {
@@ -74,37 +75,36 @@ int process_request(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
   }
 
   // Process the request (one state per cycle) (closed page policy currently)
-  // TODO write to output file instead of printing to stdout
   // TODO not sure how/when to do 'REF' command
   switch (request->state) {
     case ACT0:
       activate_bank(dram, request);
-      printf("%s\n", issue_cmd("ACT0", request, cycle));
+      cmd = issue_cmd("ACT0", request, cycle);
 
       request->state++;
       break;
 
     case ACT1:
-      printf("%s\n", issue_cmd("ACT1", request, cycle));
+      cmd = issue_cmd("ACT1", request, cycle);
 
       request->state++;
       break;
 
     case RW0:
-      printf("%s\n", issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle));
+      cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
 
       request->state++;
       break;
 
     case RW1:
-      printf("%s\n", issue_cmd(request->operation == DATA_WRITE ? "WR1" : "RD1", request, cycle));
+      cmd = issue_cmd(request->operation == DATA_WRITE ? "WR1" : "RD1", request, cycle);
 
       request->state++;
       break;
 
     case PRE:
       precharge_bank(dram, request);
-      printf("%s\n", issue_cmd("PRE", request, cycle));
+      cmd = issue_cmd("PRE", request, cycle);
 
       request->state++;
       break;
@@ -116,6 +116,12 @@ int process_request(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
     default:
       // TODO error
       break;
+  }
+
+  // TODO write to output file instead of printing to stdout
+  if (cmd != NULL) {
+    printf("%s\n", cmd);
+    free(cmd);
   }
 
   return 0;
