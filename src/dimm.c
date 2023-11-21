@@ -18,9 +18,19 @@ bool is_bank_precharged(DRAM_t *dram, MemoryRequest_t *request) {
   return precharged_result;
 }
 
-bool is_row_hit(DRAM_t *dram, MemoryRequest_t *request) {
-  bool hit_result = is_bank_active(dram, request) && dram->bank_groups[request->bank_group].banks[request->bank].active_row == request->row;
-  return hit_result;
+bool is_page_hit(DRAM_t *dram, MemoryRequest_t *request) {
+  bool result = is_bank_active(dram, request) && dram->bank_groups[request->bank_group].banks[request->bank].active_row == request->row;
+  return result;
+}
+
+bool is_page_miss(DRAM_t *dram, MemoryRequest_t *request) {
+  bool result = is_bank_active(dram, request) && dram->bank_groups[request->bank_group].banks[request->bank].active_row != request->row;
+  return result;
+}
+
+bool is_page_empty(DRAM_t *dram, MemoryRequest_t *request) {
+  bool result = is_bank_precharged(dram, request) && !is_bank_active(dram, request);
+  return result;
 }
 
 /*** function(s) ***/
@@ -69,20 +79,13 @@ void dram_init(DRAM_t *dram) {
   }
 }
 
+/*** close page ***/
 int process_request(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
   DRAM_t *dram = &((*dimm)->channels[request->channel].DDR5_chip[0]);
   char *cmd = NULL;
 
-  // Set the initial state before processing the request
   if (request->state == PENDING) {
-    if (is_row_hit(dram, request)) {
-      request->state = RW0;
-    } else if (is_bank_precharged(dram, request)) {
-      request->state = ACT0;
-
-    } else {  // TODO shouldn't happen in closed page policy - might want to handle it differently
-      request->state = PRE;
-    }
+    request->state = ACT0;
   }
 
   // Process the request (one state per cycle) (closed page policy currently)
@@ -142,6 +145,89 @@ int process_request(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
   return 0;
 }
 
+/***** OPEN PAGE ******/
+// int process_request(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
+//   DRAM_t *dram = &((*dimm)->channels[request->channel].DDR5_chip[0]);
+//   char *cmd = NULL;
+
+//   // Set the initial state before processing the request
+//   if (request->state == PENDING) {
+//     if (is_page_hit(dram, request)) {
+//       request->state = RW0;
+//     } 
+
+//     if (is_page_miss(dram, request)) {
+//       request->state = PRE;
+//     }  
+
+//     if (is_page_empty(dram, request)) {
+//       request->state = ACT0;
+//     }
+//   }
+
+//   // Process the request (one state per cycle) (closed page policy currently)
+//   // TODO not sure how/when to do 'REF' command
+//   switch (request->state) {
+//     case PRE:
+//       precharge_bank(dram, request);
+//       cmd = issue_cmd("PRE", request, cycle);
+
+//       request->state++;
+//       break;
+//     case ACT0:
+//       activate_bank(dram, request);
+//       cmd = issue_cmd("ACT0", request, cycle);
+
+//       request->state++;
+//       break;
+
+//     case ACT1:
+//       cmd = issue_cmd("ACT1", request, cycle);
+
+//       request->state++;
+//       break;
+
+//     case RW0:
+//       cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
+
+//       request->state++;
+//       break;
+
+//     case RW1:
+//       cmd = issue_cmd(request->operation == DATA_WRITE ? "WR1" : "RD1", request, cycle);
+
+//       request->state = COMPLETE;
+//       break;
+
+//     case PRE_IMMEDIATE:
+//       precharge_bank(dram, request);
+//       cmd = issue_cmd("PRE", request, cycle);
+
+//       request->state = COMPLETE;
+//       break;
+
+//     case COMPLETE:
+//       break;
+
+//     case PENDING:
+//     default:
+//       // TODO error
+//       break;
+//   }
+
+//   // writing commands to output file
+//   if (cmd != NULL) {
+// #ifdef DEBUG
+//     printf("%s\n", cmd);
+// #else
+//     fprintf((*dimm)->outputFile, "%s\n", cmd);
+// #endif
+//     free(cmd);
+//   }
+
+//   return 0;
+// }
+
 void activate_bank(DRAM_t *dram, MemoryRequest_t *request) {
   // Check if any other bank in the group is active and deactivate it
   for (int i = 0; i < NUM_BANKS_PER_GROUP; i++) {
@@ -152,7 +238,9 @@ void activate_bank(DRAM_t *dram, MemoryRequest_t *request) {
   dram->bank_groups[request->bank_group].banks[request->bank].active_row = request->row;
 }
 
-void precharge_bank(DRAM_t *dram, MemoryRequest_t *request) { dram->bank_groups[request->bank_group].banks[request->bank].is_precharged = true; }
+void precharge_bank(DRAM_t *dram, MemoryRequest_t *request) { 
+  dram->bank_groups[request->bank_group].banks[request->bank].is_precharged = true; 
+}
 
 /**
  * @brief Constructs a command string to be written to the output file.
@@ -169,13 +257,14 @@ char *issue_cmd(char *cmd, MemoryRequest_t *request, uint64_t cycle) {
   sprintf(response, "%10llu %u %4s", cycle, request->channel, cmd);
 
   if (strncmp(cmd, "ACT", 3) == 0) {
-    sprintf(temp, " %u %u %X", request->bank_group, request->bank, request->row);
+    sprintf(temp, " %u %u 0x%X", request->bank_group, request->bank, request->row);
 
   } else if (strncmp(cmd, "PRE", 3) == 0) {
     sprintf(temp, " %u %u", request->bank_group, request->bank);
 
   } else if (strncmp(cmd, "RD", 2) == 0 || strncmp(cmd, "WR", 2) == 0) {
-    sprintf(temp, " %u %u %X", request->bank_group, request->bank, request->column_low);
+    uint16_t column = ((request->column_high << 4) | request->column_low);
+    sprintf(temp, " %u %u 0x%X", request->bank_group, request->bank, column);
   }
 
   strcat(response, temp);

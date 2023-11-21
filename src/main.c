@@ -65,7 +65,9 @@ int main(int argc, char *argv[]) {
       MemoryRequest_t *dimm_request = queue_peek(global_queue);
 
       if (dimm_request) {
-        process_request(&PC5_38400, dimm_request, clock_cycle);
+        while (dimm_request->state != COMPLETE) {
+          process_request(&PC5_38400, dimm_request, clock_cycle);
+        }
 
         if (dimm_request->state == COMPLETE) {
           log_memory_request("Dequeued:", dimm_request, clock_cycle);
