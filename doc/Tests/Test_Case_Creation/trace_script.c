@@ -190,6 +190,6 @@ void writing_line (
     address = set_value(address, 2, 5, col_l);
     // Bit 0 and 1 are the offset which should stay 0
 
-    fprintf(fp, "%8d %3d %2d 0x%llX\n", val[0], val[1], val[2], address);
+    fprintf(fp, "%d %d %d %llX\n", val[0], val[1], val[2], address);
 }
 
