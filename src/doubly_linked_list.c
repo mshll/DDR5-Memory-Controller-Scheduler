@@ -609,9 +609,8 @@ int8_t doubly_ll_value_at_head(
   return LL_EXIT_SUCCESS;
 }
 
-int8_t doubly_ll_value_at_tail(
-    DoublyLinkedList_t *list,
-    MemoryRequest_t *ret_val) {
+MemoryRequest_t doubly_ll_value_at_tail(
+    DoublyLinkedList_t *list) {
   /**
    * @brief  retrieve the value from the last node in the list
    *
@@ -622,11 +621,11 @@ int8_t doubly_ll_value_at_tail(
 
   // check if list exist or is empty
   if (list == NULL || list->size == 0) {
-    return LL_EXIT_USER_ERR;
+    MemoryRequest_t error_value = {.error_bit = 1};
+    return error_value;
   }
 
-  *ret_val = list->list_tail->item;
-  return LL_EXIT_SUCCESS;
+  return list->list_tail->item;
 }
 
 /***
