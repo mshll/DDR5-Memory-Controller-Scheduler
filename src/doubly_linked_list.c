@@ -121,6 +121,7 @@ int8_t doubly_ll_insert_at(
   }
 
   new_node->item = new_item;
+  new_node->item.error_bit = 0; // no error occured during insertion
 
   // insert at head
   if (index == 0) {
@@ -200,6 +201,7 @@ int8_t doubly_ll_insert_head(
   }
   new_node->item = new_item;
   new_node->prev_node = NULL;
+  new_node->item.error_bit = 0; // no error occured during insertion
 
   // case 1; list is empty
   if ((*list)->size == 0) {
@@ -246,6 +248,7 @@ int8_t doubly_ll_insert_tail(
   }
   new_node->item = new_item;
   new_node->next_node = NULL;
+  new_node->item.error_bit = 0; // no error occured during insertion
 
   // attach to tail if list is empty
   if ((*list)->list_tail == NULL) {
@@ -282,13 +285,13 @@ MemoryRequest_t doubly_ll_delete_at(
 
   // list existane or empty list
   if ((*list) == NULL || (*list)->size == 0) {
-    MemoryRequest_t error_value = {0};
+    MemoryRequest_t error_value = {.error_bit = 1};
     return error_value;
   }
 
   // check if index is in range
   if (index > (*list)->size - 1) {
-    MemoryRequest_t error_value = {0};
+    MemoryRequest_t error_value = {.error_bit = 1};
     return error_value;
   }
 
@@ -373,7 +376,7 @@ MemoryRequest_t doubly_ll_delete_head(
 
   // check if list exist or is empty
   if (*list == NULL || (*list)->size == 0) {
-    MemoryRequest_t error_value = {0};
+    MemoryRequest_t error_value = {.error_bit = 1};
     return error_value;
   }
 
@@ -415,7 +418,7 @@ MemoryRequest_t doubly_ll_delete_tail(
 
   // check if list exist or is empty
   if (*list == NULL || (*list)->size == 0) {
-    MemoryRequest_t error_value = {0};
+    MemoryRequest_t error_value = {.error_bit = 1};
     return error_value;
   }
 
@@ -539,10 +542,9 @@ int8_t doubly_ll_replace_tail(
 /***
  * functions to retrieve values stored in nodes
  ***/
-int8_t doubly_ll_value_at(
+MemoryRequest_t *doubly_ll_value_at(
     DoublyLinkedList_t *list,
-    uint64_t index,
-    MemoryRequest_t *ret_val) {
+    uint64_t index) {
   /**
    * @brief  retrieve the value from a node at the given index
    *
@@ -554,24 +556,22 @@ int8_t doubly_ll_value_at(
 
   // check if list exist or is empty
   if (list == NULL || list->size == 0) {
-    return LL_EXIT_USER_ERR;
+    return NULL;
   }
 
   // check if index is in range of list
   if (index + 1 > list->size) {
-    return LL_EXIT_USER_ERR;
+    return NULL;
   }
 
   // replace at head
   if (index == 0) {
-    *ret_val = list->list_head->item;
-    return LL_EXIT_SUCCESS;
+    return &(list->list_head->item);
   }
 
   // insert at tail
   if (index == list->size) {
-    *ret_val = list->list_tail->item;
-    return LL_EXIT_SUCCESS;
+    return &(list->list_tail->item);
   }
 
   // insert inbetween list
@@ -584,14 +584,11 @@ int8_t doubly_ll_value_at(
     index--;
   }
 
-  *ret_val = current_node->item;
-
-  return LL_EXIT_SUCCESS;
+  return &(current_node->item);
 }
 
-int8_t doubly_ll_value_at_head(
-    DoublyLinkedList_t *list,
-    MemoryRequest_t *ret_val) {
+MemoryRequest_t *doubly_ll_value_at_head(
+    DoublyLinkedList_t *list) {
   /**
    * @brief  retrieve the value from the first node in the list
    *
@@ -602,11 +599,10 @@ int8_t doubly_ll_value_at_head(
 
   // check if list exist or is empty
   if (list == NULL || list->size == 0) {
-    return LL_EXIT_USER_ERR;
+    return NULL;
   }
 
-  *ret_val = list->list_head->item;
-  return LL_EXIT_SUCCESS;
+  return &(list->list_head->item);
 }
 
 MemoryRequest_t *doubly_ll_value_at_tail(
@@ -624,7 +620,7 @@ MemoryRequest_t *doubly_ll_value_at_tail(
     return NULL;
   }
 
-  return list->list_tail;
+  return &(list->list_tail->item);
 }
 
 /***
@@ -740,16 +736,16 @@ int8_t doubly_ll_node_status(
       "next node: @%p\n"
       "prev node: @%p\n"
       "item:\n"
-      "%8llu \n"
-      "%8hhu\n"
-      "%8hhu\n"
-      "%8hhu\n"
-      "%8hhu\n"
-      "%8hhu\n"
-      "%8hhu\n"
-      "%8hhu\n"
-      "%8hhu\n"
-      "%8u\n\n",
+      "\ttime: %8llu \n"
+      "\tcore: %8hhu\n"
+      "\toperation: %8hhu\n"
+      "\tbyte_select: %8hhu\n"
+      "\tcolumn_low: %8hhu\n"
+      "\tchannel: %8hhu\n"
+      "\tbank_group: %8hhu\n"
+      "\tbank: %8hhu\n"
+      "\tcolumn_high: %8hhu\n"
+      "\trow: %8u\n\n",
       current_node,
       current_node->next_node,
       current_node->prev_node,
@@ -807,7 +803,7 @@ uint64_t doubly_ll_size(
 
   // check if list exist
   if (list == NULL) {
-    return LL_EXIT_SUCCESS;
+    return 0;
   }
 
   return list->size;

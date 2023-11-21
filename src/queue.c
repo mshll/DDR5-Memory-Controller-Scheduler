@@ -96,26 +96,19 @@ int8_t enqueue(Queue_t **q, MemoryRequest_t value) {
 
 MemoryRequest_t queue_delete_at(Queue_t **q, uint8_t index) {
     if (*q == NULL || (*q)->list == NULL) {
-        MemoryRequest_t error_value = {0};
+        MemoryRequest_t error_value = {.error_bit = 1};
         return error_value;
     }
 
     // Check if the queue is empty
     if ( queue_is_empty(*q) ) {
-        MemoryRequest_t error_value = {0};
+        MemoryRequest_t error_value = {.error_bit = 1};
         return error_value;
     }
 
     // Delete at the head of the linked list (dequeue operation)
     MemoryRequest_t stored_item = doubly_ll_delete_at(&((*q)->list), index);
-    if (
-        stored_item.time        == 0 &&
-        stored_item.core        == 0 &&
-        stored_item.operation   == 0 &&
-        stored_item.byte_select == 0 &&
-        stored_item.column_low  == 0 &&
-        stored_item.channel     == 0 // might just need to check if channel != 0
-    ) {
+    if (stored_item.error_bit == 1) {
         return stored_item;
     }
 
@@ -125,26 +118,19 @@ MemoryRequest_t queue_delete_at(Queue_t **q, uint8_t index) {
 
 MemoryRequest_t dequeue(Queue_t **q) {
     if (*q == NULL || (*q)->list == NULL) {
-        MemoryRequest_t error_value = {0};
+        MemoryRequest_t error_value = {.error_bit = 1};
         return error_value;
     }
 
     // Check if the queue is empty
     if ( queue_is_empty(*q) ) {
-        MemoryRequest_t error_value = {0};
+        MemoryRequest_t error_value = {.error_bit = 1};
         return error_value;
     }
 
     // Delete at the head of the linked list (dequeue operation)
     MemoryRequest_t stored_item = doubly_ll_delete_tail(&((*q)->list));
-    if (
-        stored_item.time        == 0 &&
-        stored_item.core        == 0 &&
-        stored_item.operation   == 0 &&
-        stored_item.byte_select == 0 &&
-        stored_item.column_low  == 0 &&
-        stored_item.channel     == 0 // might just need to check if channel != 0
-    ) {
+    if (stored_item.error_bit == 1) {
         return stored_item;
     }
 

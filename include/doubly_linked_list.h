@@ -92,14 +92,12 @@ int8_t doubly_ll_replace_tail (
 
 
 // functions to retrieve values stored in nodes
-int8_t doubly_ll_value_at (
+MemoryRequest_t *doubly_ll_value_at (
     DoublyLinkedList_t *list, 
-    uint64_t index, 
-    MemoryRequest_t *ret_val
+    uint64_t index
 ); 
-int8_t doubly_ll_value_at_head (
-    DoublyLinkedList_t *list, 
-    MemoryRequest_t *ret_val
+MemoryRequest_t *doubly_ll_value_at_head (
+    DoublyLinkedList_t *list
 );
 MemoryRequest_t *doubly_ll_value_at_tail (
     DoublyLinkedList_t *list
