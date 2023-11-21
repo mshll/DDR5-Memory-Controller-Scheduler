@@ -48,18 +48,14 @@ void dimm_create(DIMM_t **dimm) {
 
 void dimm_destroy(DIMM_t **dimm) {
   if (*dimm != NULL) {
-
     // closing the file
     if ((*dimm)->outputFile) {
-        fclose((*dimm)->outputFile);
-        }
+      fclose((*dimm)->outputFile);
+    }
 
     free(*dimm);
     *dimm = NULL;  // remove dangler
-
-
   }
-
 }
 
 // Initialize the DRAM with all banks precharged
@@ -135,14 +131,16 @@ int process_request(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
 
   // writing commands to output file
   if (cmd != NULL) {
+#ifdef DEBUG
+    printf("%s\n", cmd);
+#else
     fprintf((*dimm)->outputFile, "%s\n", cmd);
+#endif
     free(cmd);
   }
 
   return 0;
 }
-
-// TODO check if activation and precharge are working correctly
 
 void activate_bank(DRAM_t *dram, MemoryRequest_t *request) {
   // Check if any other bank in the group is active and deactivate it

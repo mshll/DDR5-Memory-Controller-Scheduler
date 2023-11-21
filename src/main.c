@@ -54,29 +54,24 @@ int main(int argc, char *argv[]) {
   queue_create(&global_queue, MAX_QUEUE_SIZE);  // create queue of size 16
 
   MemoryRequest_t *request_buffer = NULL;
-  MemoryRequest_t *dimm_request = NULL;
 
   while (true) {
     if (request_buffer == NULL && !queue_is_full(global_queue)) {
       request_buffer = parser_next_request(parser, clock_cycle);  // only returns the request if the current cycle >= request's time
     }
 
-    // DIMM clock cycle - only process if there is a request in progress still or the queue is not empty
-    if (clock_cycle % 2 == 0 && (dimm_request != NULL || !queue_is_empty(global_queue))) {
-      // if there is no request being processed, dequeue next request
-      if (dimm_request == NULL) {
-        dimm_request = malloc(sizeof(MemoryRequest_t));
-        *dimm_request = dequeue(&global_queue);
-        log_memory_request("Dequeued:", dimm_request, clock_cycle);
-      }
+    // DIMM clock cycle - only process request if there is one in the queue
+    if (clock_cycle % 2 == 0 && !queue_is_empty(global_queue)) {
+      MemoryRequest_t *dimm_request = queue_peek(global_queue);
 
-      process_request(&PC5_38400, dimm_request, clock_cycle);
+      if (dimm_request) {
+        process_request(&PC5_38400, dimm_request, clock_cycle);
 
-      // if the current request is complete, free it
-      if (dimm_request != NULL && dimm_request->state == COMPLETE) {
-        log_memory_request("Completed:", dimm_request, clock_cycle);
-        free(dimm_request);
-        dimm_request = NULL;
+        if (dimm_request->state == COMPLETE) {
+          log_memory_request("Dequeued:", dimm_request, clock_cycle);
+          dequeue(&global_queue);
+          LOG("Queue size: %lu\n", global_queue->size);
+        }
       }
     }
 
@@ -86,6 +81,7 @@ int main(int argc, char *argv[]) {
       log_memory_request("Enqueued:", request_buffer, clock_cycle);
       free(request_buffer);
       request_buffer = NULL;
+      LOG("Queue size: %lu\n", global_queue->size);
     }
 
     if (parser->status == END_OF_FILE && queue_is_empty(global_queue)) {

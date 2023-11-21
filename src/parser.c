@@ -78,7 +78,7 @@ MemoryRequest_t parse_line(char *line) {
   sscanf(line, "%llu %u %u %llx", &time, &core, &operation, &address);
   memory_request_init(&memory_request, time, core, operation, address);
 
-  LOG("Parsed: time = %5llu, core = %2u, operation = %u, address = %#016llX\n", time, core, operation, address);
+  // LOG("Parsed: time = %5llu, core = %2u, operation = %u, address = %#016llX\n", time, core, operation, address);
 
   return memory_request;
 }

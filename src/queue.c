@@ -152,7 +152,7 @@ MemoryRequest_t dequeue(Queue_t **q) {
     return stored_item;
 }
 
-MemoryRequest_t *queue_peak(Queue_t *q) {
+MemoryRequest_t *queue_peek(Queue_t *q) {
     if (q == NULL || q->list == NULL) {
         return NULL;
     }
