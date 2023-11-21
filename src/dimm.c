@@ -175,7 +175,7 @@ char *issue_cmd(char *cmd, MemoryRequest_t *request, uint64_t cycle) {
     sprintf(temp, " %u %u", request->bank_group, request->bank);
 
   } else if (strncmp(cmd, "RD", 2) == 0 || strncmp(cmd, "WR", 2) == 0) {
-    sprintf(temp, " %u %u %X", request->bank_group, request->bank, request->column_high);
+    sprintf(temp, " %u %u %X", request->bank_group, request->bank, request->column_low);
   }
 
   strcat(response, temp);
