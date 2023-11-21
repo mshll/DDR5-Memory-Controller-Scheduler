@@ -152,18 +152,16 @@ MemoryRequest_t dequeue(Queue_t **q) {
     return stored_item;
 }
 
-MemoryRequest_t queue_peak(Queue_t *q) {
+MemoryRequest_t *queue_peak(Queue_t *q) {
     if (q == NULL || q->list == NULL) {
-        MemoryRequest_t error_value = {.error_bit = 1};
-        return error_value;
+        return NULL;
     }
 
     if ( queue_is_empty(q) ) {
-        MemoryRequest_t error_value = {.error_bit = 1};
-        return error_value;
+        return NULL;
     }
 
-    MemoryRequest_t stored_item = doubly_ll_value_at_tail(q->list);
+    MemoryRequest_t *stored_item = doubly_ll_value_at_tail(q->list);
 
     return stored_item;
 }

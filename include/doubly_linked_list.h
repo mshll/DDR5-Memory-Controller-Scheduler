@@ -101,7 +101,7 @@ int8_t doubly_ll_value_at_head (
     DoublyLinkedList_t *list, 
     MemoryRequest_t *ret_val
 );
-MemoryRequest_t doubly_ll_value_at_tail (
+MemoryRequest_t *doubly_ll_value_at_tail (
     DoublyLinkedList_t *list
 );
 
