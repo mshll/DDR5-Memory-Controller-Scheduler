@@ -38,11 +38,11 @@ typedef struct Channel {
 
 typedef struct DIMM {
   Channel_t channels[NUM_CHANNELS];
-  FILE *outputFile; //output file
+  FILE *output_file;  // output file
 } DIMM_t;
 
 /*** function declaration(s) ***/
-void dimm_create(DIMM_t **dimm);
+void dimm_create(DIMM_t **dimm, char *output_file_name);
 void dimm_destroy(DIMM_t **dimm);
 void dram_init(DRAM_t *dram);
 void activate_bank(DRAM_t *dram, MemoryRequest_t *request);

@@ -40,19 +40,18 @@ void process_args(int argc, char *argv[], char **input_file, char **output_file)
 
 /*** function(s) ***/
 int main(int argc, char *argv[]) {
-  char *input_file = NULL;
-  char *output_file = NULL;
-  process_args(argc, argv, &input_file, &output_file);
+  char *input_file_name = NULL;
+  char *output_file_name = NULL;
+  process_args(argc, argv, &input_file_name, &output_file_name);
 
-  Parser_t *parser = parser_init(input_file);
-
-  unsigned long long clock_cycle = 0;  // tracking the clock cycle (CPU clock). DIMM clock cycle is 1/2.
+  Parser_t *parser = parser_init(input_file_name);
   DIMM_t *PC5_38400 = NULL;
   Queue_t *global_queue = NULL;
 
-  dimm_create(&PC5_38400);
+  dimm_create(&PC5_38400, output_file_name);    // create DIMM
   queue_create(&global_queue, MAX_QUEUE_SIZE);  // create queue of size 16
 
+  unsigned long long clock_cycle = 0;  // tracking the clock cycle (CPU clock). DIMM clock cycle is 1/2.
   MemoryRequest_t *request_buffer = NULL;
 
   while (true) {
@@ -65,6 +64,7 @@ int main(int argc, char *argv[]) {
       MemoryRequest_t *dimm_request = queue_peek(global_queue);
 
       if (dimm_request) {
+        // While loop is temporary for checkpoint 2 to force request to be completed in one DIMM clock cycle
         while (dimm_request->state != COMPLETE) {
           process_request(&PC5_38400, dimm_request, clock_cycle);
         }

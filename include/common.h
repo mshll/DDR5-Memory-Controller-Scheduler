@@ -10,6 +10,7 @@
 #include <string.h>
 
 /*** macro(s) ***/
+// #define OPEN_PAGE_POLICY  // comment out to use closed page policy
 #ifdef DEBUG
 #define LOG_DEBUG(format, ...) printf("%s:%d: " format, __FILE__, __LINE__, ##__VA_ARGS__)
 #define LOG(format, ...) printf(format, ##__VA_ARGS__)
@@ -27,13 +28,18 @@ enum Operation {
 
 // TODO 'REF' not implemented yet
 typedef enum MemoryRequestState {
-  PENDING,
   REF,
+  PENDING,
+#ifdef OPEN_PAGE_POLICY
+  PRE,
+#endif
   ACT0,
   ACT1,
   RW0,
   RW1,
+#ifndef OPEN_PAGE_POLICY
   PRE,
+#endif
   COMPLETE
 } MemoryRequestState_t;
 
