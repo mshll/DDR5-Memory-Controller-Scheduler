@@ -32,6 +32,12 @@ void dimm_create(DIMM_t **dimm) {
     perror("Error allocating memory for DIMM");
     exit(1);
   }
+  // opening the file
+  (*dimm)->outputFile = fopen("output.txt", "w");
+  if ((*dimm)->outputFile == NULL) {
+    perror("Error opening output file");
+    exit(1);
+  }
 
   for (int i = 0; i < NUM_CHANNELS; i++) {
     for (int j = 0; j < NUM_CHIPS_PER_CHANNEL; j++) {
@@ -42,9 +48,18 @@ void dimm_create(DIMM_t **dimm) {
 
 void dimm_destroy(DIMM_t **dimm) {
   if (*dimm != NULL) {
+
+    // closing the file
+    if ((*dimm)->outputFile) {
+        fclose((*dimm)->outputFile);
+        }
+
     free(*dimm);
     *dimm = NULL;  // remove dangler
+
+
   }
+
 }
 
 // Initialize the DRAM with all banks precharged
@@ -118,9 +133,9 @@ int process_request(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
       break;
   }
 
-  // TODO write to output file instead of printing to stdout
+  // writing commands to output file
   if (cmd != NULL) {
-    printf("%s\n", cmd);
+    fprintf((*dimm)->outputFile, "%s\n", cmd);
     free(cmd);
   }
 

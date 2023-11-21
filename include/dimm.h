@@ -38,6 +38,7 @@ typedef struct Channel {
 
 typedef struct DIMM {
   Channel_t channels[NUM_CHANNELS];
+  FILE *outputFile; //output file
 } DIMM_t;
 
 /*** function declaration(s) ***/
