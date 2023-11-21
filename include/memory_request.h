@@ -12,5 +12,6 @@
 
 void memory_request_init(MemoryRequest_t *memoryRequest, uint64_t time, uint8_t core, uint8_t operation, uint64_t address);
 void log_memory_request(char *prefix, MemoryRequest_t *memory_request, uint64_t cycle);
+uint16_t get_column(MemoryRequest_t *memory_request);
 
 #endif

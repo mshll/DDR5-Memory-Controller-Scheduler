@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
   MemoryRequest_t *request_buffer = NULL;
 
   while (true) {
-    if (request_buffer == NULL && !queue_is_full(global_queue)) {
+    if (request_buffer == NULL) {
       request_buffer = parser_next_request(parser, clock_cycle);  // only returns the request if the current cycle >= request's time
     }
 
@@ -70,20 +70,18 @@ int main(int argc, char *argv[]) {
         }
 
         if (dimm_request->state == COMPLETE) {
-          log_memory_request("Dequeued:", dimm_request, clock_cycle);
+          // log_memory_request("Dequeued:", dimm_request, clock_cycle);
           dequeue(&global_queue);
-          LOG("Queue size: %lu\n", global_queue->size);
         }
       }
     }
 
-    // CPU clock cycle
-    if (request_buffer != NULL) {  // if there is a request in the buffer to be enqueued
+    // CPU clock cycle - enqueue if there is a request and queue is not full
+    if (request_buffer != NULL && !queue_is_full(global_queue)) {
       enqueue(&global_queue, *request_buffer);
       log_memory_request("Enqueued:", request_buffer, clock_cycle);
       free(request_buffer);
       request_buffer = NULL;
-      LOG("Queue size: %lu\n", global_queue->size);
     }
 
     if (parser->status == END_OF_FILE && queue_is_empty(global_queue)) {

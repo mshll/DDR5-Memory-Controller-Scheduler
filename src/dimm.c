@@ -6,6 +6,7 @@
  */
 
 #include "dimm.h"
+#include "memory_request.h"
 
 /*** helper function(s) ***/
 bool is_bank_active(DRAM_t *dram, MemoryRequest_t *request) {
@@ -150,11 +151,7 @@ int process_request(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
 
   // writing commands to output file
   if (cmd != NULL) {
-#ifdef DEBUG
-    printf("%s\n", cmd);
-#else
     fprintf((*dimm)->output_file, "%s\n", cmd);
-#endif
     free(cmd);
   }
 
@@ -190,8 +187,7 @@ char *issue_cmd(char *cmd, MemoryRequest_t *request, uint64_t cycle) {
     sprintf(temp, " %u %u", request->bank_group, request->bank);
 
   } else if (strncmp(cmd, "RD", 2) == 0 || strncmp(cmd, "WR", 2) == 0) {
-    uint16_t column = ((request->column_high << 4) | request->column_low);
-    sprintf(temp, " %u %u 0x%X", request->bank_group, request->bank, column);
+    sprintf(temp, " %u %u 0x%X", request->bank_group, request->bank, get_column(request));
   }
 
   strcat(response, temp);

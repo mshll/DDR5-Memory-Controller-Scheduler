@@ -25,8 +25,15 @@ void memory_request_init(MemoryRequest_t *memory_request, uint64_t time, uint8_t
   memory_request->state = PENDING;
 }
 
+uint16_t get_column(MemoryRequest_t *memory_request) {
+  return ((memory_request->column_high << 4) | memory_request->column_low);
+}
+
+/**
+ * Logs the memory request to stdout
+ * Format: [cycle] prefix core operation [bank_group bank row column]
+ */
 void log_memory_request(char *prefix, MemoryRequest_t *memory_request, uint64_t cycle) {
-  LOG("[%llu] %s %u %u [%X %X %X %X %X %X %X]\n", cycle, prefix, memory_request->core, memory_request->operation, memory_request->row,
-      memory_request->column_high, memory_request->bank, memory_request->bank_group, memory_request->channel, memory_request->column_low,
-      memory_request->byte_select);
+  LOG("[%llu] %s %u %u [%X %X %X %X]\n", cycle, prefix, memory_request->core, memory_request->operation, memory_request->bank_group,
+      memory_request->bank, memory_request->row, get_column(memory_request));
 }
