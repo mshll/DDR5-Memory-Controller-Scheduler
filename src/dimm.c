@@ -8,6 +8,23 @@
 #include "dimm.h"
 #include "memory_request.h"
 
+
+/*** macro(s) ***/
+#define TRC 115
+#define TRAS 76
+#define TRRD_L 12
+#define TRRD_S 8
+#define TRP 39
+#define TCWD 38
+#define TCL 40
+#define TRCD 39
+#define TWR 30
+#define TRTP 18
+#define TCCD_L 12
+#define TCCD_S 8
+#define TBURST 8
+
+
 /*** helper function(s) ***/
 bool is_bank_active(DRAM_t *dram, MemoryRequest_t *request) {
   bool active_result = dram->bank_groups[request->bank_group].banks[request->bank].is_active;
@@ -86,6 +103,8 @@ int process_request(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
   char *cmd = NULL;
 
   // Set the initial state before processing the request
+  LOG("cycle %llu, state %d \n", cycle,request->state );
+
   if (request->state == PENDING) {
 #ifdef OPEN_PAGE_POLICY
     if (is_page_hit(dram, request)) {
@@ -98,7 +117,9 @@ int process_request(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
     } else if (is_page_empty(dram, request)) {
       request->state = ACT0;
     }
+    request->timer = cycle;
 #else  // closed page policy
+    request->timer = cycle;
     request->state = ACT0;
 #endif
   }
@@ -106,29 +127,39 @@ int process_request(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
   // Process the request (one state per cycle)
   switch (request->state) {
     case PRE:
+    
+    if (cycle - request->timer >= TRP) {
       precharge_bank(dram, request);
       cmd = issue_cmd("PRE", request, cycle);
-
+      request->timer = cycle; //update timer
       request->state++;  // goes to ACT0 if open page policy, COMPLETE if closed page policy
+    }
       break;
 
     case ACT0:
+    
+    if (cycle - request->timer >= TRAS) {
       activate_bank(dram, request);
       cmd = issue_cmd("ACT0", request, cycle);
-
+      request->timer = cycle; //update timer
       request->state++;
+    }
       break;
 
     case ACT1:
+   
       cmd = issue_cmd("ACT1", request, cycle);
-
+      request->timer = cycle;
       request->state++;
       break;
 
     case RW0:
+    
+    if (cycle - request->timer >= TRCD){
       cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
-
+      request->timer = cycle; //update timer
       request->state++;
+    }
       break;
 
     case RW1:
@@ -136,7 +167,7 @@ int process_request(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
 #ifndef OPEN_PAGE_POLICY  // closed page policy
       dram->bank_groups[request->bank_group].banks[request->bank].is_active = false;
 #endif
-
+      request->timer = cycle;
       request->state++;  // goes to PRE if open page policy, COMPLETE if closed page policy
       break;
 
@@ -145,8 +176,8 @@ int process_request(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
 
     case PENDING:
     default:
-      // TODO error
-      break;
+      fprintf(stderr, "Error: Unknown state encountered\n");
+      return -1; 
   }
 
   // writing commands to output file

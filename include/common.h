@@ -57,6 +57,7 @@ typedef struct __attribute__((__packed__)) MemoryRequest {
   uint16_t row : 16;         // 16 bits
   uint16_t error_bit : 1;    // for the event the queue failed
   MemoryRequestState_t state;
+  uint64_t timer;
 } MemoryRequest_t;
 
 #endif

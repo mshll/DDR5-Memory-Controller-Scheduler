@@ -63,17 +63,17 @@ int main(int argc, char *argv[]) {
     if (clock_cycle % 2 == 0 && !queue_is_empty(global_queue)) {
       MemoryRequest_t *dimm_request = queue_peek(global_queue);
 
-      if (dimm_request) {
-        // While loop is temporary for checkpoint 2 to force request to be completed in one DIMM clock cycle
-        while (dimm_request->state != COMPLETE) {
+     
+        
+        if (dimm_request && dimm_request->state != COMPLETE) {
           process_request(&PC5_38400, dimm_request, clock_cycle);
         }
 
-        if (dimm_request->state == COMPLETE) {
+        if (dimm_request && dimm_request->state == COMPLETE) {
           // log_memory_request("Dequeued:", dimm_request, clock_cycle);
           dequeue(&global_queue);
         }
-      }
+      
     }
 
     // CPU clock cycle - enqueue if there is a request and queue is not full
