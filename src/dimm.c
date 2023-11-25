@@ -71,28 +71,28 @@ char *issue_cmd(char *cmd, MemoryRequest_t *request, uint64_t cycle) {
   return response;
 }
 
-void set_tfaw_counter(DIMM_t **dimm) {
+void set_tfaw_counter(DRAM_t *dram) {
   for (int i = 0; i < NUM_OF_TFAW_COUNTERS; i++) {
-    if ((*dimm)->tFAW_counters[i] == 0) {
-      (*dimm)->tFAW_counters[i] = TFAW + 1; // add one because it gets decrement on the same clk cycle it gets set
+    if (dram->tFAW_counters[i] == 0) {
+      dram->tFAW_counters[i] = TFAW + 1; // add one because it gets decrement on the same clk cycle it gets set
       break; // only want to set one counter at a time
     }
   }
 }
 
-void decrement_tfaw_counters(DIMM_t **dimm) {
+void decrement_tfaw_counters(DRAM_t *dram) {
   for (int i = 0; i < NUM_OF_TFAW_COUNTERS; i++) {
-    if ((*dimm)->tFAW_counters[i] != 0) {
-      (*dimm)->tFAW_counters[i]--;
+    if (dram->tFAW_counters[i] != 0) {
+      dram->tFAW_counters[i]--;
     }
   }
 }
 
-bool can_issue_act(DIMM_t **dimm) {
+bool can_issue_act(DRAM_t *dram) {
   // if any counter is set to 0 then we can issue an ACT cmd
   // without violating the tFAW timing constraint
   for (int i = 0; i < NUM_OF_TFAW_COUNTERS; i++) {
-    if ((*dimm)->tFAW_counters[i] == 0) {
+    if (dram->tFAW_counters[i] == 0) {
       return true;
     }
   }
@@ -108,15 +108,15 @@ int closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
   LOG("cycle %llu, state %d \n", cycle,request->state );
 
   if (request->state == PENDING) {
-    if (!can_issue_act(dimm)) {
+    if (!can_issue_act(dram)) {
         // TODO: handle this case
     }
     request->timer = cycle;
     request->state = ACT0;
-    set_tfaw_counter(dimm);
+    set_tfaw_counter(dram);
   }
 
-  decrement_tfaw_counters(dimm);
+  decrement_tfaw_counters(dram);
 
   // Process the request (one state per cycle)
   switch (request->state) {
@@ -194,17 +194,17 @@ int open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
       request->state = PRE;
 
     } else if (is_page_empty(dram, request)) {
-      if (!can_issue_act(dimm)) {
+      if (!can_issue_act(dram)) {
         // TODO: handle this case
       }
       request->state = ACT0;
-      set_tfaw_counter(dimm);
+      set_tfaw_counter(dram);
     }
     request->timer = cycle;
 
   }
 
-  decrement_tfaw_counters(dimm);
+  decrement_tfaw_counters(dram);
 
   // Process the request (one state per cycle)
   switch (request->state) {

@@ -57,6 +57,7 @@ typedef struct BankGroup {
 
 typedef struct DRAM {
   BankGroup_t bank_groups[NUM_BANK_GROUPS];
+  uint16_t tFAW_counters[NUM_OF_TFAW_COUNTERS];
 } DRAM_t;
 
 typedef struct Channel {
@@ -66,7 +67,6 @@ typedef struct Channel {
 typedef struct __attribute__((aligned(CACHE_LINE_BOUNDARY))) DIMM {
   Channel_t channels[NUM_CHANNELS];
   FILE *output_file;
-  uint16_t tFAW_counters[NUM_OF_TFAW_COUNTERS];
 } DIMM_t;
 
 /*** function declaration(s) ***/
