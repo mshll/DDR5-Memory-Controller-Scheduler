@@ -121,7 +121,7 @@ void doubly_ll_print_err_code (
 uint64_t doubly_ll_size (
     DoublyLinkedList_t *list
 );
-int8_t doubly_ll_search_for (
+MemoryRequest_t *doubly_ll_search_for (
     DoublyLinkedList_t *list,
     MemoryRequest_t value,
     uint64_t *ret_index

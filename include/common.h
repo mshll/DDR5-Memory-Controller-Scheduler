@@ -9,17 +9,29 @@
 #include <stdlib.h>
 #include <string.h>
 
-/*** macro(s) ***/
+/*** macro(s), enum(s), struct(s) ***/
 // #define OPEN_PAGE_POLICY  // comment out to use closed page policy
 #ifdef DEBUG
-#define LOG_DEBUG(format, ...) printf("%s:%d: " format, __FILE__, __LINE__, ##__VA_ARGS__)
-#define LOG(format, ...) printf(format, ##__VA_ARGS__)
+  #define LOG_DEBUG(format, ...) printf("%s:%d: " format, __FILE__, __LINE__, ##__VA_ARGS__)
+  #define LOG(format, ...) printf(format, ##__VA_ARGS__)
 #else
-#define LOG_DEBUG(...) /*** expands to nothing ***/
-#define LOG(...)       /*** expands to nothing ***/
+  #define LOG_DEBUG(...) /*** expands to nothing ***/
+  #define LOG(...)       /*** expands to nothing ***/
 #endif
 
-/*** enum(s) ***/
+#ifdef __linux__
+  #define UINT64_T "%lu"
+#elif __APPLE__
+  #define UINT64_T "%llu"
+#endif
+
+enum SchedulingAlgorithms {
+  LEVEL_0,
+  LEVEL_1,
+  LEVEL_2,
+  LEVEL_3
+};
+
 enum Operation {
   DATA_READ = 0,
   DATA_WRITE = 1,
@@ -30,20 +42,15 @@ enum Operation {
 typedef enum MemoryRequestState {
   REF,
   PENDING,
-#ifdef OPEN_PAGE_POLICY
-  PRE,
-#endif
   ACT0,
   ACT1,
   RW0,
   RW1,
-#ifndef OPEN_PAGE_POLICY
   PRE,
-#endif
   COMPLETE
 } MemoryRequestState_t;
 
-/*** struct(s) ***/
+
 typedef struct __attribute__((__packed__)) MemoryRequest {
   uint64_t time;
   uint8_t core;

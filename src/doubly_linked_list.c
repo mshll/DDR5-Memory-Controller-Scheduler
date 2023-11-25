@@ -809,7 +809,7 @@ uint64_t doubly_ll_size(
   return list->size;
 }
 
-int8_t doubly_ll_search_for(
+MemoryRequest_t *doubly_ll_search_for(
     DoublyLinkedList_t *list,
     MemoryRequest_t value,
     uint64_t *ret_index) {
@@ -819,22 +819,20 @@ int8_t doubly_ll_search_for(
    *
    * @param  list     linked list
    * @param  value    the value to search for in list
-   * @return int8_t   exit status; each value represents
-   *                  what happen during the function call
    **/
 
   // check if list exist or is empty
   if (list == NULL || list->size == 0) {
-    return LL_EXIT_USER_ERR;
+    return NULL;
   }
 
   // index of node with matching item
   uint64_t current_index = 0;
 
   // cursor node
-  node_t *current_node = list->list_head;
+  node_t *current_node = list->list_tail;
 
-  // traverse list
+  // traverse list from front of queue to rear
   while (current_node != NULL) {
     if (
         current_node->item.time == value.time &&
@@ -846,16 +844,17 @@ int8_t doubly_ll_search_for(
         current_node->item.bank_group == value.bank_group &&
         current_node->item.bank == value.bank &&
         current_node->item.column_high == value.column_high &&
-        current_node->item.row == value.row) {
+        current_node->item.row == value.row
+    ) {
       *ret_index = current_index;
-      return LL_EXIT_SUCCESS;
+      return current_node;
     }
 
     // search next node
-    current_node = current_node->next_node;
+    current_node = current_node->prev_node;
     current_index++;
   }
 
   // no match found
-  return LL_EXIT_FATAL;
+  return NULL;
 }

@@ -52,44 +52,36 @@ int main(int argc, char *argv[]) {
   queue_create(&global_queue, MAX_QUEUE_SIZE);  // create queue of size 16
 
   unsigned long long clock_cycle = 0;  // tracking the clock cycle (CPU clock). DIMM clock cycle is 1/2.
-  MemoryRequest_t *request_buffer = NULL;
+  MemoryRequest_t *current_request = NULL;
 
   while (true) {
-    if (request_buffer == NULL) {
-      request_buffer = parser_next_request(parser, clock_cycle);  // only returns the request if the current cycle >= request's time
+    if (current_request == NULL) {
+      current_request = parser_next_request(parser, clock_cycle);  // only returns the request if the current cycle >= request's time
     }
 
     // DIMM clock cycle - only process request if there is one in the queue
     if (clock_cycle % 2 == 0 && !queue_is_empty(global_queue)) {
-      MemoryRequest_t *dimm_request = queue_peek(global_queue);
-
-     
-        
-        if (dimm_request && dimm_request->state != COMPLETE) {
-          process_request(&PC5_38400, dimm_request, clock_cycle);
-        }
-
-        if (dimm_request && dimm_request->state == COMPLETE) {
-          // log_memory_request("Dequeued:", dimm_request, clock_cycle);
-          dequeue(&global_queue);
-        }
-      
+      process_request(&PC5_38400, &global_queue, clock_cycle, 0);
     }
 
     // CPU clock cycle - enqueue if there is a request and queue is not full
-    if (request_buffer != NULL && !queue_is_full(global_queue)) {
-      enqueue(&global_queue, *request_buffer);
-      log_memory_request("Enqueued:", request_buffer, clock_cycle);
-      free(request_buffer);
-      request_buffer = NULL;
+    if (current_request != NULL && !queue_is_full(global_queue)) {
+      enqueue(&global_queue, *current_request);
+      log_memory_request("Enqueued:", current_request, clock_cycle);
+      free(current_request);
+      current_request = NULL;
     }
 
-    if (parser->status == END_OF_FILE && queue_is_empty(global_queue)) {
+    if (parser->status == END_OF_FILE) {
       LOG("END OF SIMULATION\n");
       break;
     }
 
-    clock_cycle++;  // increment clock cycle
+    clock_cycle++; 
+  }
+
+  if (!queue_is_empty(global_queue)) {
+    LOG("ERROR: Queue is not empty by EOF\n");
   }
 
   parser_destroy(parser);
