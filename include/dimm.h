@@ -33,7 +33,7 @@
 #define TCCD_S_RTW 16
 #define TCCD_L_WTR 70
 #define TCCD_S_WTR 52 
-#define TFAW (10 + 1) // CHANGE ME -- dont have datasheet to find this value
+#define TFAW 10 // CHANGE ME -- dont have datasheet to find this value
 #define NUM_OF_TFAW_COUNTERS 4
 
 #define NUM_BANKS 32

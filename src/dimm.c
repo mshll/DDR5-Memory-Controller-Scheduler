@@ -74,7 +74,7 @@ char *issue_cmd(char *cmd, MemoryRequest_t *request, uint64_t cycle) {
 void set_tfaw_counter(DIMM_t **dimm) {
   for (int i = 0; i < NUM_OF_TFAW_COUNTERS; i++) {
     if ((*dimm)->tFAW_counters[i] == 0) {
-      (*dimm)->tFAW_counters[i] = TFAW;
+      (*dimm)->tFAW_counters[i] = TFAW + 1; // add one because it gets decrement on the same clk cycle it gets set
       break; // only want to set one counter at a time
     }
   }
@@ -268,93 +268,7 @@ int open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
 }
 
 int bank_level_parallelism(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
-  DRAM_t *dram = &((*dimm)->channels[request->channel].DDR5_chip[0]);
-  char *cmd = NULL;
-
-  // Set the initial state before processing the request
-  LOG("cycle %llu, state %d \n", cycle,request->state );
-
-  if (request->state == PENDING) {
-
-    if (is_page_hit(dram, request)) {
-      request->state = RW0;
-
-    } else if (is_page_miss(dram, request)) {
-      dram->bank_groups[request->bank_group].banks[request->bank].is_active = false;
-      request->state = PRE;
-
-    } else if (is_page_empty(dram, request)) {
-      if (!can_issue_act(dimm)) {
-        // TODO: handle this case
-      }
-      request->state = ACT0;
-      set_tfaw_counter(dimm);
-    }
-    request->timer = cycle;
-
-  }
-
-  decrement_tfaw_counters(dimm);
-
-  // Process the request (one state per cycle)
-  switch (request->state) {
-    case PRE:
-      if (cycle - request->timer >= TRP) {
-        precharge_bank(dram, request);
-        cmd = issue_cmd("PRE", request, cycle);
-        request->timer = cycle; //update timer
-        request->state = ACT0;
-      }
-      break;
-
-    case ACT0:
-      if (cycle - request->timer >= TRAS) {
-        activate_bank(dram, request);
-        cmd = issue_cmd("ACT0", request, cycle);
-        request->timer = cycle; //update timer
-        request->state++;
-      }
-      break;
-
-    case ACT1:
-      cmd = issue_cmd("ACT1", request, cycle);
-      request->timer = cycle;
-      request->state++;
-      break;
-
-    case RW0:
-    
-      if (cycle - request->timer >= TRCD){
-        cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
-        request->timer = cycle; //update timer
-        request->state++;
-      }
-      break;
-
-    case RW1:
-      cmd = issue_cmd(request->operation == DATA_WRITE ? "WR1" : "RD1", request, cycle);
-      dram->bank_groups[request->bank_group].banks[request->bank].is_active = false;
-
-      request->timer = cycle;
-      request->state = COMPLETE;  
-      break;
-
-    case COMPLETE:
-      break;
-
-    case PENDING:
-    default:
-      fprintf(stderr, "Error: Unknown state encountered\n");
-      return -1; 
-  }
-
-  // writing commands to output file
-  if (cmd != NULL) {
-    fprintf((*dimm)->output_file, "%s\n", cmd);
-    free(cmd);
-  }
-
-  return 0;
+  
 }
 
 void out_of_order() {
