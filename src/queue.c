@@ -15,15 +15,11 @@
 
 int8_t queue_create(Queue_t **q, uint8_t max_size) {
 
-
-    if (*q != NULL) {
-        return LL_EXIT_USER_ERR;
-    }
-
     *q = (Queue_t *)malloc(sizeof(Queue_t));
 
     if (q == NULL) {
-        return LL_EXIT_FATAL; // Allocation failed
+        fprintf(stderr, "%s:%d: malloc failed\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
     }
 
     (*q)->list = NULL;
@@ -32,28 +28,26 @@ int8_t queue_create(Queue_t **q, uint8_t max_size) {
 
     if (doubly_ll_create(&((*q)->list)) != LL_EXIT_SUCCESS) {
         free(q);
-        return LL_EXIT_FATAL; // List creation failed
+        fprintf(stderr, "%s:%d: queue_create failed\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
     }
 
     return LL_EXIT_SUCCESS;
 }
 
-int8_t queue_destroy(Queue_t **q) {
+void queue_destroy(Queue_t **q) {
 
     if (*q != NULL) {
         int8_t result = doubly_ll_destroy(&((*q)->list));
 
-        if (result == LL_EXIT_SUCCESS) {
-            free(*q);
-            *q = NULL;
-
-            return result;
+        if (result != LL_EXIT_SUCCESS) {
+            fprintf(stderr, "%s:%d: queue_destroy failed\n", __FILE__, __LINE__);
+            exit(EXIT_FAILURE);
         }
         
-        return result;
+        free(*q);
+        *q = NULL;
     }
-
-    return LL_EXIT_USER_ERR;
 }
 
 int8_t queue_insert_at(Queue_t **q, uint8_t index, MemoryRequest_t value) {
@@ -61,17 +55,20 @@ int8_t queue_insert_at(Queue_t **q, uint8_t index, MemoryRequest_t value) {
         return LL_EXIT_USER_ERR; // Invalid queue
     }
 
-    // Check if the queue is already full
+    // queue should never overflow if main loop logic is correct
     if ( queue_is_full(*q) ) {
-        return LL_EXIT_USER_ERR; // Queue is full
+        fprintf(stderr, "%s:%d: Queue overflow\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
     }
 
     
     int8_t result = doubly_ll_insert_at(&((*q)->list), index, value);
-    if (result == LL_EXIT_SUCCESS) {
-        (*q)->size++;
+    if (result != LL_EXIT_SUCCESS) {
+        fprintf(stderr, "%s:%d: queue_insert_at failed\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
     }
 
+    (*q)->size++;
     return result;
 }
 
@@ -80,17 +77,20 @@ int8_t enqueue(Queue_t **q, MemoryRequest_t value) {
         return LL_EXIT_USER_ERR; // Invalid queue
     }
 
-    // Check if the queue is already full
+    // queue should never overflow if main loop logic is correct
     if ( queue_is_full(*q) ) {
-        return LL_EXIT_USER_ERR; 
+        fprintf(stderr, "%s:%d: Queue overflow\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
     }
 
     
     int8_t result = doubly_ll_insert_head(&((*q)->list), value);
-    if (result == LL_EXIT_SUCCESS) {
-        (*q)->size++;
+    if (result != LL_EXIT_SUCCESS) {
+        fprintf(stderr, "%s:%d: enqueue failed\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
     }
 
+    (*q)->size++;
     return result;
 }
 
@@ -100,16 +100,17 @@ MemoryRequest_t queue_delete_at(Queue_t **q, uint8_t index) {
         return error_value;
     }
 
-    // Check if the queue is empty
+    // if main loop logic is correct; we should never request from an empty queue
     if ( queue_is_empty(*q) ) {
-        MemoryRequest_t error_value = {.error_bit = 1};
-        return error_value;
+        fprintf(stderr, "%s:%d: Dequeueing an empty queue\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
     }
 
     // Delete at the head of the linked list (dequeue operation)
     MemoryRequest_t stored_item = doubly_ll_delete_at(&((*q)->list), index);
     if (stored_item.error_bit == 1) {
-        return stored_item;
+        fprintf(stderr, "%s:%d: queue_delete_at failed\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
     }
 
     (*q)->size--;
@@ -122,16 +123,17 @@ MemoryRequest_t dequeue(Queue_t **q) {
         return error_value;
     }
 
-    // Check if the queue is empty
+    // if main loop logic is correct; we should never request from an empty queue
     if ( queue_is_empty(*q) ) {
-        MemoryRequest_t error_value = {.error_bit = 1};
-        return error_value;
+        fprintf(stderr, "%s:%d: Dequeueing an empty queue\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
     }
 
     // Delete at the head of the linked list (dequeue operation)
     MemoryRequest_t stored_item = doubly_ll_delete_tail(&((*q)->list));
     if (stored_item.error_bit == 1) {
-        return stored_item;
+        fprintf(stderr, "%s:%d: dequeue failed\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
     }
 
     (*q)->size--;
@@ -147,9 +149,7 @@ MemoryRequest_t *queue_peek(Queue_t *q) {
         return NULL;
     }
 
-    MemoryRequest_t *stored_item = doubly_ll_value_at_tail(q->list);
-
-    return stored_item;
+    return doubly_ll_value_at_tail(q->list);
 }
 
 bool queue_is_full(Queue_t *q) {

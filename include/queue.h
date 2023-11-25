@@ -25,16 +25,14 @@ typedef struct Queue {
 } Queue_t;
 
 /*** function declaration(s) ***/
-int8_t queue_create            (Queue_t **q, uint8_t max_size);
-int8_t queue_destroy           (Queue_t **q);
-int8_t queue_insert_at         (Queue_t **q, uint8_t index, MemoryRequest_t value);
-int8_t enqueue                 (Queue_t **q, MemoryRequest_t value);
+int8_t queue_create(Queue_t **q, uint8_t max_size);
+void queue_destroy(Queue_t **q);
+int8_t queue_insert_at(Queue_t **q, uint8_t index, MemoryRequest_t value);
+int8_t enqueue(Queue_t **q, MemoryRequest_t value);
 MemoryRequest_t queue_delete_at(Queue_t **q, uint8_t index);
-MemoryRequest_t dequeue        (Queue_t **q);
-MemoryRequest_t *queue_peek    (Queue_t *q);
-bool queue_is_full             (Queue_t *q);
-bool queue_is_empty            (Queue_t *q);
-
-
+MemoryRequest_t dequeue(Queue_t **q);
+MemoryRequest_t *queue_peek(Queue_t *q);
+bool queue_is_full(Queue_t *q);
+bool queue_is_empty(Queue_t *q);
 
 #endif
