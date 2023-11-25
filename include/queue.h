@@ -32,6 +32,7 @@ int8_t enqueue(Queue_t **q, MemoryRequest_t value);
 MemoryRequest_t queue_delete_at(Queue_t **q, uint8_t index);
 MemoryRequest_t dequeue(Queue_t **q);
 MemoryRequest_t *queue_peek(Queue_t *q);
+MemoryRequest_t *queue_peek_at(Queue_t *q, uint8_t index);
 bool queue_is_full(Queue_t *q);
 bool queue_is_empty(Queue_t *q);
 

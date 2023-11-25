@@ -550,8 +550,6 @@ MemoryRequest_t *doubly_ll_value_at(
    *
    * @param  list     linked list
    * @param  index    the node location
-   * @param  ret_val  the variable where the value gets stored in
-   * @return int8_t   error code
    **/
 
   // check if list exist or is empty
@@ -564,23 +562,23 @@ MemoryRequest_t *doubly_ll_value_at(
     return NULL;
   }
 
-  // replace at head
+  // front of queue
   if (index == 0) {
-    return &(list->list_head->item);
+    return &(list->list_tail->item);
   }
 
   // insert at tail
   if (index == list->size) {
-    return &(list->list_tail->item);
+    return &(list->list_head->item);
   }
 
   // insert inbetween list
-  node_t *current_node = list->list_head;
+  node_t *current_node = list->list_tail;
 
   /*** current node points to node whos value will be replace
   ***/
   while (index != 0) {
-    current_node = current_node->next_node;
+    current_node = current_node->prev_node;
     index--;
   }
 

@@ -152,6 +152,24 @@ MemoryRequest_t *queue_peek(Queue_t *q) {
     return doubly_ll_value_at_tail(q->list);
 }
 
+MemoryRequest_t *queue_peek_at(Queue_t *q, uint8_t index) {
+    if (q == NULL || q->list == NULL) {
+        return NULL;
+    }
+
+    if (queue_is_empty(q)) {
+        return NULL;
+    }
+
+    // queue index starts at 0
+    if (index > 15) {
+        fprintf(stderr, "%s:%d: queue_peek_at out of range. index > 15\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
+    }
+
+    return doubly_ll_value_at(q->list, index);
+}
+
 bool queue_is_full(Queue_t *q) {
     if (q == NULL || q->list == NULL) {
         return false;

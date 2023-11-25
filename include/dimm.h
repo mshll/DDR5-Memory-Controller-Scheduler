@@ -45,9 +45,10 @@
 #define CACHE_LINE_BOUNDARY 64
 
 /*** struct(s) ***/
-typedef struct __attribute__((__packed__)) Bank {
+typedef struct Bank {
   bool is_precharged;
   bool is_active;
+  bool activation_in_progress;
   uint32_t active_row;
 } Bank_t;
 

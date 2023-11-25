@@ -177,9 +177,10 @@ int closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
   return 0;
 }
 
-int open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
+bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
   DRAM_t *dram = &((*dimm)->channels[request->channel].DDR5_chip[0]);
   char *cmd = NULL;
+  bool issued_cmd = false;
 
   // Set the initial state before processing the request
   LOG("cycle %llu, state %d \n", cycle,request->state );
@@ -219,7 +220,6 @@ int open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
 
     case ACT0:
       if (cycle - request->timer >= TRAS) {
-        activate_bank(dram, request);
         cmd = issue_cmd("ACT0", request, cycle);
         request->timer = cycle; //update timer
         request->state++;
@@ -227,13 +227,13 @@ int open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
       break;
 
     case ACT1:
+      activate_bank(dram, request);
       cmd = issue_cmd("ACT1", request, cycle);
       request->timer = cycle;
       request->state++;
       break;
 
     case RW0:
-    
       if (cycle - request->timer >= TRCD){
         cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
         request->timer = cycle; //update timer
@@ -255,20 +255,43 @@ int open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
     case PENDING:
     default:
       fprintf(stderr, "Error: Unknown state encountered\n");
-      return -1; 
+      exit(EXIT_FAILURE);
   }
 
   // writing commands to output file
   if (cmd != NULL) {
     fprintf((*dimm)->output_file, "%s\n", cmd);
     free(cmd);
+    issued_cmd = true;
   }
 
-  return 0;
+  return issued_cmd;
 }
 
-int bank_level_parallelism(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
-  
+int bank_level_parallelism(DIMM_t **dimm, Queue_t **q, uint64_t cycle) {
+  bool is_cmd_issued = false;
+
+  for (int index = 0; index < 16; index++) {
+    MemoryRequest_t *dimm_request = queue_peek_at(*q, index);
+    DRAM_t *dram = &((*dimm)->channels[dimm_request->channel].DDR5_chip[0]);
+
+    // delete once done
+    if (dimm_request->state == COMPLETE) {
+      queue_delete_at(q, index);
+      continue;
+    }
+
+    // skip if older process is in progess for the same BA/BG of current request
+    if (index != 0 && is_bank_active(dram, dimm_request)) {
+      continue;
+    }
+
+    is_cmd_issued = open_page(dimm, dimm_request, cycle);
+
+    if (is_cmd_issued) {
+      break;
+    }
+  }
 }
 
 void out_of_order() {
@@ -340,6 +363,7 @@ void process_request(DIMM_t **dimm, Queue_t **q, uint64_t dimm_cycle, uint8_t sc
       break;
 
     case LEVEL_2:
+      bank_level_parallelism(dimm, q, dimm_cycle);
       break;
 
     case LEVEL_3:
