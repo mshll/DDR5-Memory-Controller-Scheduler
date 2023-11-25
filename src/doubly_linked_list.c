@@ -847,7 +847,7 @@ MemoryRequest_t *doubly_ll_search_for(
         current_node->item.row == value.row
     ) {
       *ret_index = current_index;
-      return current_node;
+      return &(current_node->item);
     }
 
     // search next node
