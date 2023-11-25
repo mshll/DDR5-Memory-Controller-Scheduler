@@ -108,9 +108,15 @@ int closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
   LOG("cycle %llu, state %d \n", cycle,request->state );
 
   if (request->state == PENDING) {
+    if (!can_issue_act(dimm)) {
+        // TODO: handle this case
+    }
     request->timer = cycle;
     request->state = ACT0;
+    set_tfaw_counter(dimm);
   }
+
+  decrement_tfaw_counters(dimm);
 
   // Process the request (one state per cycle)
   switch (request->state) {
@@ -188,11 +194,17 @@ int open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
       request->state = PRE;
 
     } else if (is_page_empty(dram, request)) {
+      if (!can_issue_act(dimm)) {
+        // TODO: handle this case
+      }
       request->state = ACT0;
+      set_tfaw_counter(dimm);
     }
     request->timer = cycle;
 
   }
+
+  decrement_tfaw_counters(dimm);
 
   // Process the request (one state per cycle)
   switch (request->state) {
@@ -272,11 +284,17 @@ int bank_level_parallelism(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cyc
       request->state = PRE;
 
     } else if (is_page_empty(dram, request)) {
+      if (!can_issue_act(dimm)) {
+        // TODO: handle this case
+      }
       request->state = ACT0;
+      set_tfaw_counter(dimm);
     }
     request->timer = cycle;
 
   }
+
+  decrement_tfaw_counters(dimm);
 
   // Process the request (one state per cycle)
   switch (request->state) {
