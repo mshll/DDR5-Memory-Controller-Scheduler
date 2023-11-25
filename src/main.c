@@ -61,7 +61,7 @@ int main(int argc, char *argv[]) {
 
     // DIMM clock cycle - only process request if there is one in the queue
     if (clock_cycle % 2 == 0 && !queue_is_empty(global_queue)) {
-      process_request(&PC5_38400, &global_queue, clock_cycle, 0);
+      process_request(&PC5_38400, &global_queue, clock_cycle, LEVEL_0);
     }
 
     // CPU clock cycle - enqueue if there is a request and queue is not full
