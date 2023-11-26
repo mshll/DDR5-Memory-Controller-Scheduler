@@ -130,7 +130,8 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
   LOG("cycle %llu, state %d \n", cycle, request->state);
 
   if (request->state == PENDING) {
-    if (!can_issue_act(dram) && 
+    if (
+      !can_issue_act(dram) || 
       dram->timing_constraints[request->bank_group][request->bank][tRP] != 0
     ) {
         // TODO: handle this case
