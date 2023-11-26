@@ -12,29 +12,31 @@
 #include "memory_request.h"
 #include "queue.h"
 
-/*** macro(s) ***/
-#define TRC 115
-#define TRAS 76
-#define TRRD_L 12
-#define TRRD_S 8
-#define TRP 39
-#define TRFC 708 // 295ns
-#define TCWD 38
-#define TCL 40
-#define TRCD 39
-#define TWR 30
-#define TRTP 18
-#define TCCD_L 12
-#define TCCD_S 8
-#define TCCD_L_WR 48
-#define TCCD_S_WR 8
-#define TBURST 8
-#define TCCD_L_RTW 16
-#define TCCD_S_RTW 16
-#define TCCD_L_WTR 70
-#define TCCD_S_WTR 52 
-#define TFAW 10 // CHANGE ME -- dont have datasheet to find this value
-#define NUM_OF_TFAW_COUNTERS 4
+/*** macro(s), enum(s), struct(s) ***/
+#define TRC       115 // time interval between successive ACT commands to the same bank
+#define TRAS       76 // time interval between a bank ACT command and issuing the PRE command
+#define TRRD_L     12 // time interval between successive ACT commands to the same bank group
+#define TRRD_S      8 // time interval between successive ACT commands to different bank group
+#define TRP        39 // time interval between a PRE command and a ACT command
+#define TRFC      708 // 295ns; 
+#define TCWD       38 // aka tCWL; 
+#define TCL        40 // aka tCAS; time interval between a RD command and the output of the first bit of data
+#define TRCD       39 // time interval between a ACT command and a RD/WR command
+#define TWR        30 // time interval between writing data and issuing a PRE command
+#define TRTP       18 // delay between internal RD command to PRE command within the same bank
+#define TCCD_L     12 // time interval between consecutive RD or WR commands between different banks in the same bank group
+#define TCCD_S      8 // time interval between consecutive RD or WR commands between different banks in different bank group
+#define TCCD_L_WR  48 // 
+#define TCCD_S_WR   8 //
+#define TBURST      8 // delay between the start and end of RD/WR data 
+#define TCCD_L_RTW 16 // 
+#define TCCD_S_RTW 16 //
+#define TCCD_L_WTR 70 //
+#define TCCD_S_WTR 52 //
+#define TFAW       32 // time window where there can be at most four ACT commands
+
+#define NUM_TFAW_COUNTERS 4
+#define NUM_TIMING_CONSTRAINTS 20
 
 #define NUM_BANKS 32
 #define NUM_BANK_GROUPS 4
@@ -44,13 +46,57 @@
 
 #define CACHE_LINE_BOUNDARY 64
 
-/*** struct(s) ***/
+typedef enum TimingConstraints {
+  tRC,
+  tRAS,
+  tRRD_L,
+  tRRD_S,
+  tRP,
+  tRFC,
+  tCWD,
+  tCL,
+  tRCD,
+  tWR,
+  tRTP,
+  tCCD_L,
+  tCCD_S,
+  tCCD_L_WR,
+  tCCD_S_WR,
+  tBURST,
+  tCCD_L_RTW,
+  tCCD_S_RTW,
+  tCCD_L_WTR,
+  tCCD_S_WTR
+} TimingConstraints_t;
+
+uint8_t timing_attribute[NUM_TIMING_CONSTRAINTS] = {
+  TRC,
+  TRAS,
+  TRRD_L,
+  TRRD_S,
+  TRP,
+  TRFC,
+  TCWD,
+  TCL,
+  TRCD,
+  TWR,
+  TRTP,
+  TCCD_L,
+  TCCD_S,
+  TCCD_L_WR,
+  TCCD_S_WR,
+  TBURST,
+  TCCD_L_RTW,
+  TCCD_S_RTW,
+  TCCD_L_WTR,
+  TCCD_S_WTR
+};
+
 typedef struct Bank {
   bool is_precharged;
   bool is_active;
-  bool activation_in_progress;
   uint32_t active_row;
-  uint64_t timing_constraints[4];
+  uint8_t timing_constraints[NUM_TIMING_CONSTRAINTS];
 } Bank_t;
 
 typedef struct BankGroup {
@@ -59,7 +105,8 @@ typedef struct BankGroup {
 
 typedef struct DRAM {
   BankGroup_t bank_groups[NUM_BANK_GROUPS];
-  uint16_t tFAW_counters[NUM_OF_TFAW_COUNTERS];
+  uint16_t tFAW_counters[NUM_TFAW_COUNTERS];
+  uint8_t timing_constraints[NUM_BANK_GROUPS][NUM_BANKS_PER_GROUP][NUM_TIMING_CONSTRAINTS];
 } DRAM_t;
 
 typedef struct Channel {

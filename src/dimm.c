@@ -72,18 +72,36 @@ char *issue_cmd(char *cmd, MemoryRequest_t *request, uint64_t cycle) {
 }
 
 void set_tfaw_counter(DRAM_t *dram) {
-  for (int i = 0; i < NUM_OF_TFAW_COUNTERS; i++) {
+  for (int i = 0; i < NUM_TFAW_COUNTERS; i++) {
     if (dram->tFAW_counters[i] == 0) {
-      dram->tFAW_counters[i] = TFAW + 1; // add one because it gets decrement on the same clk cycle it gets set
+      dram->tFAW_counters[i] = TFAW;
       break; // only want to set one counter at a time
     }
   }
 }
 
+void set_timing_constraint(DRAM_t *dram, MemoryRequest_t *request, TimingConstraints_t constraint_type) {
+  dram->timing_constraints[request->bank_group][request->bank][constraint_type] = timing_attribute[constraint_type];
+}
+
 void decrement_tfaw_counters(DRAM_t *dram) {
-  for (int i = 0; i < NUM_OF_TFAW_COUNTERS; i++) {
+  for (int i = 0; i < NUM_TFAW_COUNTERS; i++) {
     if (dram->tFAW_counters[i] != 0) {
       dram->tFAW_counters[i]--;
+    }
+  }
+}
+
+void decrement_timing_constraints(DRAM_t *dram) {
+  // TODO: need a table to keep track of active timers. 3 nested loop is too big of a hit on performance
+  // works for now
+  for (int i = 0; i < NUM_BANK_GROUPS; i++) {
+    for (int j = 0; j < NUM_BANKS_PER_GROUP; j++) {
+      for (int k = 0; k < NUM_TIMING_CONSTRAINTS; k++) {
+        if (dram->timing_constraints[i][j][k] != 0) {
+          dram->timing_constraints[i][j][k]--;
+        }
+      }
     }
   }
 }
@@ -91,7 +109,7 @@ void decrement_tfaw_counters(DRAM_t *dram) {
 bool can_issue_act(DRAM_t *dram) {
   // if any counter is set to 0 then we can issue an ACT cmd
   // without violating the tFAW timing constraint
-  for (int i = 0; i < NUM_OF_TFAW_COUNTERS; i++) {
+  for (int i = 0; i < NUM_TFAW_COUNTERS; i++) {
     if (dram->tFAW_counters[i] == 0) {
       return true;
     }
@@ -100,73 +118,83 @@ bool can_issue_act(DRAM_t *dram) {
   return false;
 }
 
-int closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
+bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
   DRAM_t *dram = &((*dimm)->channels[request->channel].DDR5_chip[0]);
   char *cmd = NULL;
+  bool issued_cmd = false;
+
+  decrement_tfaw_counters(dram);
+  decrement_timing_constraints(dram);
 
   // Set the initial state before processing the request
-  LOG("cycle %llu, state %d \n", cycle,request->state );
-  for (int i = 0; i < 4; i++) {
-    dram->bank_groups[request->bank_group].banks[request->bank].timing_constraints[i]++;
-  }
+  LOG("cycle %llu, state %d \n", cycle, request->state);
+
   if (request->state == PENDING) {
-    if (!can_issue_act(dram)) {
+    if (!can_issue_act(dram) && 
+      dram->timing_constraints[request->bank_group][request->bank][tRP] != 0
+    ) {
         // TODO: handle this case
         decrement_tfaw_counters(dram);
-        return;
+        decrement_timing_constraints(dram);
+        return issue_cmd;
     }
  
     request->state = ACT0;
     set_tfaw_counter(dram);
+    set_timing_constraint(dram, request, tRCD);
   }
-
-  decrement_tfaw_counters(dram);
 
   // Process the request (one state per cycle)
   switch (request->state) {
     case ACT0:
-     LOG("ACT0\n");
-      
-        activate_bank(dram, request);
-        cmd = issue_cmd("ACT0", request, cycle);
-        dram->bank_groups[request->bank_group].banks[request->bank].timing_constraints[1] = 0;   
-        request->state++;
+      LOG("ACT0\n");
+      activate_bank(dram, request);
+      cmd = issue_cmd("ACT0", request, cycle);
+      request->state++;
       
       break;
 
     case ACT1:
-    LOG("ACT1\n");
+      LOG("ACT1\n");
       cmd = issue_cmd("ACT1", request, cycle);
-      
       request->state++;
+
       break;
 
     case RW0:
-    LOG("RW0\n");
-      if (dram->bank_groups[request->bank_group].banks[request->bank].timing_constraints[1] >= TRCD){
+      LOG("RW0\n");
+      if (dram->timing_constraints[request->bank_group][request->bank][tRCD] == 0){
         cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
-        dram->bank_groups[request->bank_group].banks[request->bank].timing_constraints[2] = 0;
-        dram->bank_groups[request->bank_group].banks[request->bank].timing_constraints[3] = 0;
+        set_timing_constraint(dram, request, tCL);
         request->state++;
       }
       break;
 
     case RW1:
- LOG("RW1\n");
+      LOG("RW1\n");
       cmd = issue_cmd(request->operation == DATA_WRITE ? "WR1" : "RD1", request, cycle);
       dram->bank_groups[request->bank_group].banks[request->bank].is_active = false;
+      request->state = BURST;
 
-      request->state = PRE;   
       break;
 
+    case BURST:
+      LOG("BURST\n");
+      if (dram->timing_constraints[request->bank_group][request->bank][tCL] == 0) {
+        set_timing_constraint(dram, request, tBURST);
+        request->state = PRE;
+      }
+
     case PRE:
-LOG("PRE\n");
-      if (dram->bank_groups[request->bank_group].banks[request->bank].timing_constraints[3] >= TCL + TBURST) {
+      LOG("PRE\n");
+
+      if (dram->timing_constraints[request->bank_group][request->bank][tBURST] == 0) {
         precharge_bank(dram, request);
         cmd = issue_cmd("PRE", request, cycle);
- 
+        set_timing_constraint(dram, request, tRP);
         request->state = COMPLETE; 
       }
+      
       break;
 
     case COMPLETE:
@@ -175,16 +203,17 @@ LOG("PRE\n");
     case PENDING:
     default:
       fprintf(stderr, "Error: Unknown state encountered\n");
-      return -1; 
+      exit(EXIT_FAILURE);
   }
 
   // writing commands to output file
   if (cmd != NULL) {
     fprintf((*dimm)->output_file, "%s\n", cmd);
     free(cmd);
+    issued_cmd = true;
   }
 
-  return 0;
+  return issued_cmd;
 }
 
 bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
@@ -206,15 +235,12 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
 
     } else if (is_page_empty(dram, request)) {
       if (!can_issue_act(dram)) {
-        // TODO: handle this case
         decrement_tfaw_counters(dram);
-        return;
+        return issue_cmd;
       }
       request->state = ACT0;
       set_tfaw_counter(dram);
     }
-    request->timer = cycle;
-
   }
 
   decrement_tfaw_counters(dram);
@@ -222,42 +248,34 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
   // Process the request (one state per cycle)
   switch (request->state) {
     case PRE:
-      if (cycle - request->timer >= TCL + TBURST) {
-        precharge_bank(dram, request);
-        cmd = issue_cmd("PRE", request, cycle);
-        request->timer = cycle; //update timer
-        request->state = ACT0;
-      }
+      precharge_bank(dram, request);
+      cmd = issue_cmd("PRE", request, cycle);
+      request->state = ACT0;
+      
       break;
 
     case ACT0:
-      if (cycle - request->timer >= TRAS) {
-        cmd = issue_cmd("ACT0", request, cycle);
-        request->timer = cycle; //update timer
-        request->state++;
-      }
+      cmd = issue_cmd("ACT0", request, cycle);
+      request->state++;
+      
       break;
 
     case ACT1:
       activate_bank(dram, request);
       cmd = issue_cmd("ACT1", request, cycle);
-      request->timer = cycle;
       request->state++;
       break;
 
     case RW0:
-      if (cycle - request->timer >= TRCD){
-        cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
-        request->timer = cycle; //update timer
-        request->state++;
-      }
+      cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
+      request->state++;
+      
       break;
 
     case RW1:
       cmd = issue_cmd(request->operation == DATA_WRITE ? "WR1" : "RD1", request, cycle);
       dram->bank_groups[request->bank_group].banks[request->bank].is_active = false;
 
-      request->timer = cycle;
       request->state = COMPLETE;  
       break;
 
@@ -317,6 +335,9 @@ void dram_init(DRAM_t *dram) {
       dram->bank_groups[i].banks[j].is_precharged = true;
       dram->bank_groups[i].banks[j].is_active = false;
       dram->bank_groups[i].banks[j].active_row = 0;
+      for (int k = 0; k < NUM_TIMING_CONSTRAINTS; k++) {
+        dram->timing_constraints[i][j][k] = 0;
+      }
     }
   }
 }
