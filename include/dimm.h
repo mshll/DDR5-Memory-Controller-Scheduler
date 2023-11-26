@@ -50,6 +50,7 @@ typedef struct Bank {
   bool is_active;
   bool activation_in_progress;
   uint32_t active_row;
+  uint64_t timing_constraints[4];
 } Bank_t;
 
 typedef struct BankGroup {

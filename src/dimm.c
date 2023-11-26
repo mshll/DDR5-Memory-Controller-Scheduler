@@ -53,7 +53,7 @@ char *issue_cmd(char *cmd, MemoryRequest_t *request, uint64_t cycle) {
   char *response = malloc(sizeof(char) * 100);
   char *temp = malloc(sizeof(char) * 100);
 
-  sprintf(response, "%10llu %u %4s", cycle, request->channel, cmd);
+  sprintf(response, "%10llu %u %4s", cycle/2, request->channel, cmd);
 
   if (strncmp(cmd, "ACT", 3) == 0) {
     sprintf(temp, " %u %u 0x%X", request->bank_group, request->bank, request->row);
@@ -106,12 +106,16 @@ int closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
 
   // Set the initial state before processing the request
   LOG("cycle %llu, state %d \n", cycle,request->state );
-
+  for (int i = 0; i < 4; i++) {
+    dram->bank_groups[request->bank_group].banks[request->bank].timing_constraints[i]++;
+  }
   if (request->state == PENDING) {
     if (!can_issue_act(dram)) {
         // TODO: handle this case
+        decrement_tfaw_counters(dram);
+        return;
     }
-    request->timer = cycle;
+ 
     request->state = ACT0;
     set_tfaw_counter(dram);
   }
@@ -121,40 +125,46 @@ int closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
   // Process the request (one state per cycle)
   switch (request->state) {
     case ACT0:
-      if (cycle - request->timer >= TRAS) {
+     LOG("ACT0\n");
+      
         activate_bank(dram, request);
         cmd = issue_cmd("ACT0", request, cycle);
-        request->timer = cycle; //update timer
+        dram->bank_groups[request->bank_group].banks[request->bank].timing_constraints[1] = 0;   
         request->state++;
-      }
+      
       break;
 
     case ACT1:
+    LOG("ACT1\n");
       cmd = issue_cmd("ACT1", request, cycle);
-      request->timer = cycle;
+      
       request->state++;
       break;
 
     case RW0:
-      if (cycle - request->timer >= TRCD){
+    LOG("RW0\n");
+      if (dram->bank_groups[request->bank_group].banks[request->bank].timing_constraints[1] >= TRCD){
         cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
-        request->timer = cycle; //update timer
+        dram->bank_groups[request->bank_group].banks[request->bank].timing_constraints[2] = 0;
+        dram->bank_groups[request->bank_group].banks[request->bank].timing_constraints[3] = 0;
         request->state++;
       }
       break;
 
     case RW1:
+ LOG("RW1\n");
       cmd = issue_cmd(request->operation == DATA_WRITE ? "WR1" : "RD1", request, cycle);
       dram->bank_groups[request->bank_group].banks[request->bank].is_active = false;
-      request->timer = cycle;
-      request->state = PRE;  
+
+      request->state = PRE;   
       break;
 
     case PRE:
-      if (cycle - request->timer >= TRP) {
+LOG("PRE\n");
+      if (dram->bank_groups[request->bank_group].banks[request->bank].timing_constraints[3] >= TCL + TBURST) {
         precharge_bank(dram, request);
         cmd = issue_cmd("PRE", request, cycle);
-        request->timer = cycle; //update timer
+ 
         request->state = COMPLETE; 
       }
       break;
@@ -197,6 +207,8 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
     } else if (is_page_empty(dram, request)) {
       if (!can_issue_act(dram)) {
         // TODO: handle this case
+        decrement_tfaw_counters(dram);
+        return;
       }
       request->state = ACT0;
       set_tfaw_counter(dram);
@@ -210,7 +222,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
   // Process the request (one state per cycle)
   switch (request->state) {
     case PRE:
-      if (cycle - request->timer >= TRP) {
+      if (cycle - request->timer >= TCL + TBURST) {
         precharge_bank(dram, request);
         cmd = issue_cmd("PRE", request, cycle);
         request->timer = cycle; //update timer
