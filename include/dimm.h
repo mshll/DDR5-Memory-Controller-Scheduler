@@ -69,7 +69,7 @@ typedef enum TimingConstraints {
   tCCD_S_WTR
 } TimingConstraints_t;
 
-uint8_t timing_attribute[NUM_TIMING_CONSTRAINTS] = {
+uint16_t timing_attribute[NUM_TIMING_CONSTRAINTS] = {
   TRC,
   TRAS,
   TRRD_L,
@@ -105,8 +105,8 @@ typedef struct BankGroup {
 
 typedef struct DRAM {
   BankGroup_t bank_groups[NUM_BANK_GROUPS];
-  uint16_t tFAW_counters[NUM_TFAW_COUNTERS];
-  uint8_t timing_constraints[NUM_BANK_GROUPS][NUM_BANKS_PER_GROUP][NUM_TIMING_CONSTRAINTS];
+  uint8_t tFAW_counters[NUM_TFAW_COUNTERS];
+  uint16_t timing_constraints[NUM_BANK_GROUPS][NUM_BANKS_PER_GROUP][NUM_TIMING_CONSTRAINTS];
 } DRAM_t;
 
 typedef struct Channel {

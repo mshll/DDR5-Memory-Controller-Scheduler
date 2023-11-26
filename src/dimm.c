@@ -194,7 +194,7 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
         set_timing_constraint(dram, request, tRP);
         request->state = COMPLETE; 
       }
-      
+
       break;
 
     case COMPLETE:
@@ -298,7 +298,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
   return issued_cmd;
 }
 
-int bank_level_parallelism(DIMM_t **dimm, Queue_t **q, uint64_t cycle) {
+void bank_level_parallelism(DIMM_t **dimm, Queue_t **q, uint64_t cycle) {
   bool is_cmd_issued = false;
 
   for (int index = 0; index < 16; index++) {
