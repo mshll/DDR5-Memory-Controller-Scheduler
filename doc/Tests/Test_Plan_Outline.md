@@ -153,7 +153,7 @@ Note: In level 2+, the scheduler will always pick READ1, WRITE1, and ACT1 if the
 >tRRD_S = 8, tRRD_L = 12. When switching between bank groups use _S, switching inside a bank group use _L. Timing between back to back ACTIVATES. Level 2+ only. 
 
 ### 6.7. tFAW
->tFAW = 39. Amount of time needed between every 4 ACT commands. 
+>tFAW = 32. Amount of time needed between every 4 ACT commands. 
 
 ### 6.8. tWR
 >tWR = 30. Write recovery time. 
