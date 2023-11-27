@@ -118,10 +118,10 @@ Create a trace file as an input (ASCII text file) using a test case generator.
 2. Prioritize page hits over page misses
 
 ## 5. DRAM COMMANDS FUNCTIONALLY CORRECT
-Note: In level 2+, the scheduler will always pick READ1, WRITE1, and ACT1 if they are available.
+Note: In level 2+, the scheduler will always pick READ1, WRITE1, and ACT1 if they are available. This project is using 1n mode, so there is a cycle delay between 0 -> 1. 
 
 ### 5.1. READ0, READ1
->READ0 selects the command being issued (due to MUX) and READ1 will get column address. This will take either 1 or 2 DIMM clocks between each command (**NEED to confirm with prof if its either 1n or 2n**). Followed by tCL = 40. 
+>READ0 selects the command being issued (due to MUX) and READ1 will get column address. Followed by tCL = 40. 
 
 ### 5.2. WRITE0, WRITE1
 >WRITE0 selects the command being issued (due to MUX) and WRITE1 will get the column address. Followed by tCL = 40.
