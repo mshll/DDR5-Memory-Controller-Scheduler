@@ -7,6 +7,29 @@
 
 #include "dimm.h"
 
+uint16_t timing_attribute[NUM_TIMING_CONSTRAINTS] = {
+  TRC,
+  TRAS,
+  TRRD_L,
+  TRRD_S,
+  TRP,
+  TRFC,
+  TCWD,
+  TCL,
+  TRCD,
+  TWR,
+  TRTP,
+  TCCD_L,
+  TCCD_S,
+  TCCD_L_WR,
+  TCCD_S_WR,
+  TBURST,
+  TCCD_L_RTW,
+  TCCD_S_RTW,
+  TCCD_L_WTR,
+  TCCD_S_WTR
+};
+
 /*** helper function(s) ***/
 bool is_bank_active(DRAM_t *dram, MemoryRequest_t *request) {
   bool active_result = dram->bank_groups[request->bank_group].banks[request->bank].is_active;
@@ -185,6 +208,7 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
         set_timing_constraint(dram, request, tBURST);
         request->state = PRE;
       }
+      break;
 
     case PRE:
       LOG("PRE\n");

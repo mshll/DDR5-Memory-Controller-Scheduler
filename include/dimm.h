@@ -39,7 +39,7 @@
 #define NUM_TIMING_CONSTRAINTS 20
 
 #define NUM_BANKS 32
-#define NUM_BANK_GROUPS 4
+#define NUM_BANK_GROUPS 8
 #define NUM_BANKS_PER_GROUP (NUM_BANKS / NUM_BANK_GROUPS)
 #define NUM_CHANNELS 2
 #define NUM_CHIPS_PER_CHANNEL 4
@@ -69,28 +69,7 @@ typedef enum TimingConstraints {
   tCCD_S_WTR
 } TimingConstraints_t;
 
-uint16_t timing_attribute[NUM_TIMING_CONSTRAINTS] = {
-  TRC,
-  TRAS,
-  TRRD_L,
-  TRRD_S,
-  TRP,
-  TRFC,
-  TCWD,
-  TCL,
-  TRCD,
-  TWR,
-  TRTP,
-  TCCD_L,
-  TCCD_S,
-  TCCD_L_WR,
-  TCCD_S_WR,
-  TBURST,
-  TCCD_L_RTW,
-  TCCD_S_RTW,
-  TCCD_L_WTR,
-  TCCD_S_WTR
-};
+extern uint16_t timing_attribute[NUM_TIMING_CONSTRAINTS];
 
 typedef struct Bank {
   bool is_precharged;
