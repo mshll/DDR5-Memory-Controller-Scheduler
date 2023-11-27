@@ -144,7 +144,7 @@ Note: In level 2+, the scheduler will always pick READ1, WRITE1, and ACT1 if the
 >tCL = 40. Cycles to send memory the column address. Occurs between READ -> DATA BURST.
 
 ### 6.4. tRAS
->tRAS = 76. Amount of cycles needed between ACT -> PRE. By doing the math from the previously mentioned timings, in level 0 we are able to issue the precharge command before tCL is satisfied and tRTP is satisfied. This should save 11 cycles (79 - 76 + tBURST). This won't be done in level 1+ unless we have foresignt on the next request being page miss or page hit. 
+>tRAS = 76. Amount of cycles needed between ACT -> PRE. By doing the math from the previously mentioned timings, in level 0 we are able to issue the precharge command before tCL is satisfied and tRTP is satisfied. This should save 9 cycles (79 - 76 - 1 - 1 + tBURST). This won't be done in level 1+ unless we have foresight on the next request being page miss or page hit. 
 
 ### 6.5. tRP
 >tRP = 39. Cycles to close an open row. Occurs between PRE -> ACT.
