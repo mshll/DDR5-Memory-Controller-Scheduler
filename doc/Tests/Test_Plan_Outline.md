@@ -118,19 +118,19 @@ Create a trace file as an input (ASCII text file) using a test case generator.
 2. Prioritize page hits over page misses
 
 ## 5. DRAM COMMANDS FUNCTIONALLY CORRECT
-Note: In level 2+, the scheduler will always pick READ1, WRITE1, and ACT1 if they are available. This project is using 1n mode, so there is a cycle delay between 0 -> 1. 
+Note: In level 2+, the scheduler will always pick READ1, WRITE1, and ACT1 if they are available. This project is using 1n mode, so there is a 1 cycle delay between 0 -> 1. 
 
 ### 5.1. READ0, READ1
->READ0 selects the command being issued (due to MUX) and READ1 will get column address. Followed by tCL = 40. 
+>READ0 selects the command being issued (due to MUX) and READ1 will get column address. Followed by tCL = 40. Output should show the bank, bank group, and column being accessed (same as the input column address for this project).
 
 ### 5.2. WRITE0, WRITE1
->WRITE0 selects the command being issued (due to MUX) and WRITE1 will get the column address. Followed by tCL = 40.
+>WRITE0 selects the command being issued (due to MUX) and WRITE1 will get the column address. Followed by tCL = 40. Output should show the bank, bank group, and column being accessed (same as the input column address for this project).
 
 ### 5.3. ACTIVATE0, ACTIVATE1
->ACTIVATE0 selects the command being issued (due to MUX) and ACTIVATE1 will get the row address. Followed by tRCD = 39. 
+>ACTIVATE0 selects the command being issued (due to MUX) and ACTIVATE1 will get the row address. Followed by tRCD = 39. Output should show the bank, bank group, and row being accessed.
 
 ### 5.4. PRECHARGE
->If a page is open, the data needs to return from the sense amplifiers so another activate can occur. In a closed page policy, every READ/WRITE command should be followed by PRE. In an open page policy, PRE will occur when requested row is not already open. Followed by tRP = 39. tRAS and tRTP must be satisfied before it can be issued. 
+>If a page is open, the data needs to return from the sense amplifiers so another activate can occur. In a closed page policy, every READ/WRITE command should be followed by PRE. In an open page policy, PRE will occur when requested row is not already open. Followed by tRP = 39. tRAS and tRTP must be satisfied before it can be issued. Output should show the bank, bank group being precharged. 
 
 ## 6. DRAM TIMING CORRECT
 
