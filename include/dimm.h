@@ -86,6 +86,8 @@ typedef struct DRAM {
   BankGroup_t bank_groups[NUM_BANK_GROUPS];
   uint8_t tFAW_counters[NUM_TFAW_COUNTERS];
   uint16_t timing_constraints[NUM_BANK_GROUPS][NUM_BANKS_PER_GROUP][NUM_TIMING_CONSTRAINTS];
+  int8_t last_bank_group;
+  int8_t last_operation;
 } DRAM_t;
 
 typedef struct Channel {
@@ -101,7 +103,5 @@ typedef struct __attribute__((aligned(CACHE_LINE_BOUNDARY))) DIMM {
 void dimm_create(DIMM_t **dimm, char *output_file_name);
 void dimm_destroy(DIMM_t **dimm);
 void process_request(DIMM_t **dimm, Queue_t **q, uint64_t dimm_cycle, uint8_t scheduling_algorithm);
-
-// TODO add additional functions as necessary
 
 #endif
