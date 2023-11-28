@@ -17,7 +17,8 @@ Parser_t *parser_init(char *input_file) {
   Parser_t *parser = malloc(sizeof(Parser_t));
 
   if (parser == NULL) {
-    // TODO error; malloc failed
+    perror("Error allocating memory for parser");
+    exit(EXIT_FAILURE);
   }
 
   parser->file = open_file(input_file, "r");
@@ -49,7 +50,7 @@ FILE *open_file(char *file_name, char *mode) {
   FILE *file = fopen(file_name, mode);
   if (file == NULL) {
     perror("Error opening file");
-    exit(1);
+    exit(EXIT_FAILURE);
   }
 
   return file;
@@ -60,7 +61,8 @@ void parser_next_line(Parser_t *parser) {
     parser->next_request = malloc(sizeof(MemoryRequest_t));
 
     if (parser->next_request == NULL) {
-      // TODO error; malloc failed
+      perror("Error allocating memory for next request");
+      exit(EXIT_FAILURE);
     }
 
     *parser->next_request = parse_line(parser->line);

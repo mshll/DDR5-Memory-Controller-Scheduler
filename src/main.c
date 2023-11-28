@@ -16,6 +16,7 @@
  *
  */
 
+#include <getopt.h>
 #include <stdlib.h>
 #include <string.h>
 #include "common.h"
@@ -29,20 +30,14 @@
 #define DEFAULT_INPUT_FILE "trace.txt"
 #define DEFAULT_OUTPUT_FILE "dram.txt"
 
-enum CommandLine {
-  NO_ARGS = 1,
-  INPUT_ONLY = 2,
-  INPUT_OUTPUT = 3,
-};
-
 /*** function prototype(s) ***/
-void process_args(int argc, char *argv[], char **input_file, char **output_file);
+void process_args(int argc, char *argv[], char **input_file, char **output_file, int *scheduling_policy);
 
 /*** function(s) ***/
 int main(int argc, char *argv[]) {
-  char *input_file_name = NULL;
-  char *output_file_name = NULL;
-  process_args(argc, argv, &input_file_name, &output_file_name);
+  char *input_file_name, *output_file_name;
+  int scheduling_policy = 0;  // default is level 0
+  process_args(argc, argv, &input_file_name, &output_file_name, &scheduling_policy);
 
   Parser_t *parser = parser_init(input_file_name);
   DIMM_t *PC5_38400 = NULL;
@@ -61,7 +56,7 @@ int main(int argc, char *argv[]) {
 
     // DIMM clock cycle - only process request if there is one in the queue
     if (clock_cycle % 2 == 0 && !queue_is_empty(global_queue)) {
-      process_request(&PC5_38400, &global_queue, clock_cycle, LEVEL_0);
+      process_request(&PC5_38400, &global_queue, clock_cycle, scheduling_policy);
     }
 
     // CPU clock cycle - enqueue if there is a request and queue is not full
@@ -77,7 +72,7 @@ int main(int argc, char *argv[]) {
       break;
     }
 
-    clock_cycle++; 
+    clock_cycle++;
   }
 
   if (!queue_is_empty(global_queue)) {
@@ -90,24 +85,30 @@ int main(int argc, char *argv[]) {
   return 0;
 }
 
-void process_args(int argc, char *argv[], char **input_file, char **output_file) {
-  switch (argc) {
-    case NO_ARGS:
-      *input_file = DEFAULT_INPUT_FILE;
-      *output_file = DEFAULT_OUTPUT_FILE;
-      break;
-    case INPUT_ONLY:
-      *input_file = argv[1];
-      *output_file = DEFAULT_OUTPUT_FILE;
-      break;
-    case INPUT_OUTPUT:
-      *input_file = argv[1];
-      *output_file = argv[2];
-      break;
-    default:
-      fprintf(stderr, "Usage: %s [input_file] [output_file]\n", argv[0]);
-      exit(1);
+void process_args(int argc, char *argv[], char **input_file, char **output_file, int *scheduling_policy) {
+  int opt;
+  *input_file = DEFAULT_INPUT_FILE;
+  *output_file = DEFAULT_OUTPUT_FILE;
+
+  while ((opt = getopt(argc, argv, "i:o:s:h")) != -1) {
+    switch (opt) {
+      case 'i':  // Input file
+        *input_file = optarg;
+        break;
+      case 'o':  // Output file
+        *output_file = optarg;
+        break;
+      case 's':  // Scheduling policy
+        *scheduling_policy = atoi(optarg);
+        if (*scheduling_policy < 0 || *scheduling_policy > 3) {
+          fprintf(stderr, "Invalid scheduling policy: %d. Must be between 0 and 3.\n", *scheduling_policy);
+          exit(EXIT_FAILURE);
+        }
+        break;
+      case 'h':
+      case '?':
+        fprintf(stderr, "Usage: %s [-i input_file] [-o output_file] [-s scheduling_policy]\n", argv[0]);
+        exit(EXIT_FAILURE);
+    }
   }
-  LOG("Input file: %s\n", *input_file);
-  LOG("Output file: %s\n", *output_file);
 }
