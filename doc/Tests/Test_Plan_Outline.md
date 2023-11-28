@@ -23,12 +23,12 @@
 - [6. DRAM TIMING CORRECT](#6-dram-timing-correct)
   - [6.1. tRCD](#61-trcd)
   - [6.2. tRTP](#62-trtp)
-  - [6.3. tCL](#63-tcl)
-  - [6.4. tRAS](#64-tras)
-  - [6.5. tRP](#65-trp)
-  - [6.6. tRRD\_S and tRRD\_L](#66-trrd_s-and-trrd_l)
+  - [6.3. tWR](#63-twr)
+  - [6.4. tCL](#64-tcl)
+  - [6.5. tRAS](#65-tras)
+  - [6.6. tRP](#66-trp)
   - [6.7. tFAW](#67-tfaw)
-  - [6.8. tWR](#68-twr)
+  - [6.8. tRRD\_S and tRRD\_L](#68-trrd_s-and-trrd_l)
   - [6.9. tCCD\_S and tCCD\_L](#69-tccd_s-and-tccd_l)
   - [6.10. tCCD\_S\_WR and tCCD\_L\_WR](#610-tccd_s_wr-and-tccd_l_wr)
   - [6.11. tCCD\_S\_RTW and tCCD\_L\_RTW](#611-tccd_s_rtw-and-tccd_l_rtw)
@@ -119,7 +119,7 @@ Create a trace file as an input (ASCII text file) using a test case generator.
 2. Prioritize page hits over page misses
 
 ## 5. DRAM COMMANDS FUNCTIONALLY CORRECT
-Note: In level 2+, the scheduler will always pick READ1, WRITE1, and ACT1 if they are available. This project is using 1n mode, so there is a 1 cycle delay between 0 -> 1. 
+**Note**: In level 2+, the scheduler will always pick READ1, WRITE1, and ACT1 if they are available. This project is using 1n mode, so there is a 1 cycle delay between 0 -> 1. 
 
 ### 5.1. READ0, READ1
 >READ0 selects the command being issued (due to MUX) and READ1 will get column address. Followed by tCL = 40. Output should show the bank, bank group, and column being accessed (same as the input column address for this project).
@@ -134,39 +134,45 @@ Note: In level 2+, the scheduler will always pick READ1, WRITE1, and ACT1 if the
 >If a page is open, the data needs to return from the sense amplifiers so another activate can occur. In a closed page policy, every READ/WRITE command should be followed by PRE. In an open page policy, PRE will occur when the currently open page is not the request page. Followed by tRP = 39. tRAS and tRTP must be satisfied before it can be issued. Output should show the bank, bank group being precharged. 
 
 ## 6. DRAM TIMING CORRECT
+**Note**: All the RRD and CCD timings are level 1+ or level 2+ only because the cases only occur when a page hit happens, or because our scheduler picks the required back to back commands during bank level parallelism.
 
 ### 6.1. tRCD
->tRCD = 39. Cycles to open a closed row. Occurs between ACT -> READ/WRITE.
+>tRCD = 39. Cycles to open a row. Occurs between ACT -> READ/WRITE.
 
 ### 6.2. tRTP
->tRTP = 18. Read to precharge delay. Occurs between READ -> PRECHARGE. This means a PRE can be done before we start reading out data, but we still need to wait for tRAS to be satisfied
+>tRTP = 18. Read to precharge delay. Occurs between READ -> PRECHARGE. This means a PRE can be done before we start reading out data, but we still need to wait for tRAS to be satisfied.
 
-### 6.3. tCL
->tCL = 40. Cycles to send memory the column address. Occurs between READ -> DATA BURST.
+### 6.3. tWR
+>tWR = 30. Write to precharge delay. Occurs between WRITE -> PRECHARGE. This means a PRE can be done before we start reading out data, but we still need to wait for tRAS to be satisfied.
 
-### 6.4. tRAS
->tRAS = 76. Amount of cycles needed between ACT -> PRE. By doing the math from the previously mentioned timings, in level 0 we are able to issue the precharge command before tCL is satisfied and tRTP is satisfied. This should save 9 cycles (79 - 76 - 1 - 1 + tBURST). This won't be done in level 1+ unless we have foresight on the next request being page miss or page hit. 
+### 6.4. tCL
+>tCL = 40. Cycles to begin receiving data. Occurs between READ -> DATA BURST.
 
-### 6.5. tRP
->tRP = 39. Cycles to close an open row. Occurs between PRE -> ACT.
+### 6.5. tRAS
+>tRAS = 76. Amount of cycles needed between ACT -> PRE. By doing the math from the previously mentioned timings, in level 0 we are able to issue the precharge command before tCL is satisfied and while tRTP is satisfied. This should save 13 cycles (79 + 1 + 1 + 8 - 76). This won't be done in level 1+ unless we have foresight on the next request being page miss or page hit. 
 
-### 6.6. tRRD_S and tRRD_L
->tRRD_S = 8, tRRD_L = 12. When switching between bank groups use _S, switching inside a bank group use _L. Timing between back to back ACTIVATES. Level 2+ only. 
+Math explantion:
+- 79 + 1 + 1 + 8 = tCL + tRCD + 1n + 1n + tBURST; Issue PRE after data is bursted.
+- 76 = tRAS; Issue PRE before data is bursted.
+- Total is cycles saved by issuing PRE before data burst.
+
+### 6.6. tRP
+>tRP = 39. Row precharge time. Occurs between PRE -> ACT.
 
 ### 6.7. tFAW
->tFAW = 32. Amount of time needed between every 4 ACT commands. Level 2+
+>tFAW = 32. Amount of time needed between every 4 ACT commands. Level 2+.
 
-### 6.8. tWR
->tWR = 30. Write recovery time. 
+### 6.8. tRRD_S and tRRD_L
+>tRRD_S = 8, tRRD_L = 12. Activate to activate command delay. When switching between bank groups use _S, switching inside a bank group use _L. Level 2+. 
 
 ### 6.9. tCCD_S and tCCD_L
->tCCD_S = 8, tCCD_L = 12. Read to read command delay. When switching between bank groups use _S, switching inside a bank group use _L. Level 1+ only.
+>tCCD_S = 8, tCCD_L = 12. Read to read command delay. When switching between bank groups use _S, switching inside a bank group use _L. Level 1+.
 
 ### 6.10. tCCD_S_WR and tCCD_L_WR
->tCCD_S_WR = 8, tCCD_L_WR = 48. Write to write command delay. _S for different bank group, _L for same bank group. 
+>tCCD_S_WR = 8, tCCD_L_WR = 48. Write to write command delay. _S for different bank group, _L for same bank group. Level 1+.
 
 ### 6.11. tCCD_S_RTW and tCCD_L_RTW
->tCCD_S_RTW = 16, tCCD_L_RTW = 16. Read to write command delay. _S for different bank group, _L for same bank group. 
+>tCCD_S_RTW = 16, tCCD_L_RTW = 16. Read to write command delay. _S for different bank group, _L for same bank group. Level 1+.
 
 ### 6.12. tCCD_S_WTR and tCCD_L_WTR
->tCCD_S_WTR = 70, tCCD_L_WTR = 52. Write to read command delay. _S for different bank gropu, _L for same bank in same bank group. 
+>tCCD_S_WTR = 70, tCCD_L_WTR = 52. Write to read command delay. _S for different bank gropu, _L for same bank in same bank group. Level 1+.
