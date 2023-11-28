@@ -154,7 +154,6 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
         return issue_cmd;
     }
     request->state = ACT0;
-    set_timing_constraint(dram, request, tRCD);
   }
 
   // Process the request (one state per cycle)
@@ -169,6 +168,7 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
 
     case ACT1:
       LOG("ACT1\n");
+      set_timing_constraint(dram, request, tRCD);
       cmd = issue_cmd("ACT1", request, clock);
       request->state = RW0;
 
@@ -176,16 +176,16 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
 
     case RW0:
       LOG("RW0\n");
-      if (dram->timing_constraints[request->bank_group][request->bank][tRCD] == 0){
+      if (dram->timing_constraints[request->bank_group][request->bank][tRCD] == 0) {
         cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, clock);
-        set_timing_constraint(dram, request, tCL);
-        set_timing_constraint(dram, request, tRTP);
         request->state = RW1;
       }
       break;
 
     case RW1:
       LOG("RW1\n");
+      set_timing_constraint(dram, request, tCL);
+      set_timing_constraint(dram, request, tRTP);
       cmd = issue_cmd(request->operation == DATA_WRITE ? "WR1" : "RD1", request, clock);
       dram->bank_groups[request->bank_group].banks[request->bank].is_active = false;
       request->state = BURST;
@@ -198,7 +198,10 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
         set_timing_constraint(dram, request, tBURST);
         request->state = COMPLETE;
       }
-      if (dram->timing_constraints[request->bank_group][request->bank][tRTP] == 0) {
+      if (
+        dram->timing_constraints[request->bank_group][request->bank][tRTP] == 0 &&
+        dram->timing_constraints[request->bank_group][request->bank][tRP] == 0
+      ) {
         precharge_bank(dram, request);
         cmd = issue_cmd("PRE", request, clock);
         set_timing_constraint(dram, request, tRP);
