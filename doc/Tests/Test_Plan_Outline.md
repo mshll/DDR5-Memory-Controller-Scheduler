@@ -160,7 +160,7 @@ Note: In level 2+, the scheduler will always pick READ1, WRITE1, and ACT1 if the
 >tWR = 30. Write recovery time. 
 
 ### 6.9. tCCD_S and tCCD_L
->tCCD_S = 8, tCCD_L = 12. Read to read command delay. When switching between bank groups use _S, switching inside a bank group use _L. Can only occur in open page policy. Level 1+ only.
+>tCCD_S = 8, tCCD_L = 12. Read to read command delay. When switching between bank groups use _S, switching inside a bank group use _L. Level 1+ only.
 
 ### 6.10. tCCD_S_WR and tCCD_L_WR
 >tCCD_S_WR = 8, tCCD_L_WR = 48. Write to write command delay. _S for different bank group, _L for same bank group. 
