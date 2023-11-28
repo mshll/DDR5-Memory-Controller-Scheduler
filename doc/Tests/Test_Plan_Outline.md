@@ -82,15 +82,15 @@ Create a trace file as an input (ASCII text file) using a test case generator.
 **Test Cases**:
 | \#  | OBJECTIVE | INPUT | EXPECTED RESULTS | Notes |
 | --- | --------- | ----- | ---------------- | ----- |
-|  1  | Test page empty on successive references. | Back to back references to same BG,B, same row, different column. | ACT -> READ -> PRE -> ACT -> READ -> PRE | Make the requests be reads |
-|  2  | Repeat test 1, except make the requests writes. | Back to back references to same BG,B, same row, different column. | ACT -> READ -> PRE -> ACT -> READ -> PRE |
+|  1  | Test page empty on successive references. | Back to back references to same BG,B, same row, different column. | ACT -> READ -> PRE -> ACT -> READ -> PRE | Read or write should not matter |
+|  2  | Test page empty on two different references. | Back to back references to different BG,B,ROW. | ACT -> READ -> PRE -> ACT -> READ -> PRE | 
 
 #### 4.1.2. IN-ORDER SCHEDULING
->Complete the first item in the queue before moving onto the next item. 
+>Complete the first item in the queue before moving onto the next item. For closed page, output will always be in order: ACT,RD/WR,PRE. For open page, there is more variation depending on page hit or page miss, but it should still be clear if a request is being process once the previous one is completed. 
 
 ### 4.2. LEVEL 1
 #### 4.2.1. OPEN PAGE POLICY
->Page is left open for a moment after a read/write command. It will stay open until a read/write is referencing its bank, bank group, but different row (page miss). This means page misses will incur a precharge before activate, and page hits do not need activate (but will need to keep track of tCCD).
+>Page is left open for a moment after a read/write command. It will stay open until a read/write is referencing its bank, bank group, but different row (page miss). This means page misses will incur a precharge before activate, and page hits do not need activate (but will need to be more wary of tCCD).
 
 **Test Cases**:
 | \#  | OBJECTIVE | INPUT | EXPECTED RESULTS | Notes |
