@@ -1,6 +1,6 @@
 # Test Plan Document <!-- omit in toc -->
 - [1. INTRODUCTION](#1-introduction)
-  - [1.1. Project](#11-project)
+  - [1.1. PROJECT](#11-project)
   - [1.2. PROJECT DESCRIPTION](#12-project-description)
   - [1.3. TEST STRATEGY / METHODOLOGY](#13-test-strategy--methodology)
 - [2. INPUT VALIDIFICATION](#2-input-validification)
@@ -37,20 +37,26 @@
 
 ## 1. INTRODUCTION
 
-### 1.1. Project
+### 1.1. PROJECT
 
 **Project Name:** 
 >Team 05 ECE485/585 Final Project
+
+**Members:**
+- Abdulaziz Alateeqi	
+- Meshal Almutairi	
+- Eduardo Simancas	
+- Gene Hu
 
 **Last Updated:** 
 >11/27/2023
 
 ### 1.2. PROJECT DESCRIPTION
 
-See final_project_description.pdf under docs for detailed explanation
+See final_project_description.pdf under docs for detailed explanation.
 
-**Important Infomation**
->For extra credit this project team will add bank level parallelism, open page policy, and out of order scheduling. 
+**Scheduling Aggressiveness**
+>For extra credit this project team will _try_ to add open page policy, bank level parallelism, and out of order scheduling. 
 
 ### 1.3. TEST STRATEGY / METHODOLOGY
 
@@ -106,7 +112,7 @@ Create a trace file as an input (ASCII text file) using a test case generator.
 >Scheduler is able to interleave commands to different BG,B. For example, after it issues an activate command to B0,BG0, it can issue another activate to a different BX,BGX combination before coming back and issuing the READ command.
 
 **CASES**
-1. When we are waiting for timing contraints on a command being executed in a bank, and there is a request to a different bank in the queue, start the new request (if it does not violate other timings). Repeat. 
+1. When we are waiting for timing contraints on a command being executed in a certain BG,B, and there is a request to a different BG,B in the queue, start the new request (if it does not violate other timings). Repeat. 
    - Allowed to skip over requests that are waiting for a bank to be available (technically out of order)
 
 ### 4.4. LEVEL 3
