@@ -96,13 +96,14 @@ Create a trace file as an input (ASCII text file) using a test case generator.
 | \#  | OBJECTIVE | INPUT | EXPECTED RESULTS | Notes |
 | --- | --------- | ----- | ---------------- | ----- |
 |  1  | Test page hit. | Back to back references to same BG,B, same row, different column. | ACT -> READ -> READ |
-|  2  | Test page miss followed by page hit. | Back to back references to same BG,B, different rows, and then second row gets referenced again. | ACT -> READ -> PRE -> ACT -> READ -> READ | 
-|  3  | Test open page tracking when interlearving BG,B. | Back to back references that are intersected by a page access from a different BG,B, with different ROW. | ACT -> ACT -> READ -> READ -> READ | LEVEL 2+ only |
-|  4  | Test open page tracking when intervleaving BG,B, while trying to trick it by making the ROW be the same. | Back to back references that are intersected by a page access from a different BG,B, with same ROW. | ACT -> ACT -> READ -> READ -> READ | Should be same as test 3 |
+|  2  | Test page empty followed by page miss followed by page hit. | Back to back references to same BG,B, different rows, and then second row gets referenced again. | ACT -> READ -> PRE -> ACT -> READ -> READ | 
+|  3  | Test open page tracking when interlearving BG,B, while trying to trick it by making the B number be the same. | Back to back references that are intersected by a page access from a different BG with different ROW. | ACT -> ACT -> READ -> READ -> READ | LEVEL 2+ only |
+|  4  | Test open page tracking when interlearving BG,B, while trying to trick it by making the BG number be the same. | Back to back references that are intersected by a page access from a different B with different ROW. | ACT -> ACT -> READ -> READ -> READ | Same output as 3 |
+|  5  | Test open page tracking when intervleaving BG,B, while trying to trick it by making the ROW be the same. | Back to back references that are intersected by a page access from a different BG,B, with same ROW. | ACT -> ACT -> READ -> READ -> READ | Same output as 3 |
 
 ### 4.3. LEVEL 2
 #### 4.3.1. BANK LEVEL PARALLELISM
->Scheduler is able to interleave commands to different banks. For example, after it issues an activate command to B0,BG0, it can issue another activate to a different bank before coming back and issuing the READ command.
+>Scheduler is able to interleave commands to different banks. For example, after it issues an activate command to B0,BG0, it can issue another activate to a different BX,BGX combination before coming back and issuing the READ command.
 
 **CASES**
 1. When we are waiting for timing contraints on a command being executed in a bank, and there is a request to a different bank in the queue, start the new request. Repeat. 
