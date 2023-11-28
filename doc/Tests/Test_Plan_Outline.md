@@ -43,7 +43,7 @@
 >Team 05 ECE485/585 Final Project
 
 **Last Updated:** 
->11/26/2023
+>11/27/2023
 
 ### 1.2. PROJECT DESCRIPTION
 
@@ -103,10 +103,10 @@ Create a trace file as an input (ASCII text file) using a test case generator.
 
 ### 4.3. LEVEL 2
 #### 4.3.1. BANK LEVEL PARALLELISM
->Scheduler is able to interleave commands to different banks. For example, after it issues an activate command to B0,BG0, it can issue another activate to a different BX,BGX combination before coming back and issuing the READ command.
+>Scheduler is able to interleave commands to different BG,B. For example, after it issues an activate command to B0,BG0, it can issue another activate to a different BX,BGX combination before coming back and issuing the READ command.
 
 **CASES**
-1. When we are waiting for timing contraints on a command being executed in a bank, and there is a request to a different bank in the queue, start the new request. Repeat. 
+1. When we are waiting for timing contraints on a command being executed in a bank, and there is a request to a different bank in the queue, start the new request (if it does not violate other timings). Repeat. 
    - Allowed to skip over requests that are waiting for a bank to be available (technically out of order)
 
 ### 4.4. LEVEL 3
@@ -131,7 +131,7 @@ Note: In level 2+, the scheduler will always pick READ1, WRITE1, and ACT1 if the
 >ACTIVATE0 selects the command being issued (due to MUX) and ACTIVATE1 will get the row address. Followed by tRCD = 39. Output should show the bank, bank group, and row being accessed.
 
 ### 5.4. PRECHARGE
->If a page is open, the data needs to return from the sense amplifiers so another activate can occur. In a closed page policy, every READ/WRITE command should be followed by PRE. In an open page policy, PRE will occur when requested row is not already open. Followed by tRP = 39. tRAS and tRTP must be satisfied before it can be issued. Output should show the bank, bank group being precharged. 
+>If a page is open, the data needs to return from the sense amplifiers so another activate can occur. In a closed page policy, every READ/WRITE command should be followed by PRE. In an open page policy, PRE will occur when the currently open page is not the request page. Followed by tRP = 39. tRAS and tRTP must be satisfied before it can be issued. Output should show the bank, bank group being precharged. 
 
 ## 6. DRAM TIMING CORRECT
 
@@ -154,7 +154,7 @@ Note: In level 2+, the scheduler will always pick READ1, WRITE1, and ACT1 if the
 >tRRD_S = 8, tRRD_L = 12. When switching between bank groups use _S, switching inside a bank group use _L. Timing between back to back ACTIVATES. Level 2+ only. 
 
 ### 6.7. tFAW
->tFAW = 32. Amount of time needed between every 4 ACT commands. 
+>tFAW = 32. Amount of time needed between every 4 ACT commands. Level 2+
 
 ### 6.8. tWR
 >tWR = 30. Write recovery time. 
