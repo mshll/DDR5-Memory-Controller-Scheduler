@@ -153,7 +153,6 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
     if (dram->timing_constraints[request->bank_group][request->bank][tRP] != 0) {
         return issue_cmd;
     }
- 
     request->state = ACT0;
     set_timing_constraint(dram, request, tRCD);
   }
@@ -180,6 +179,7 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
       if (dram->timing_constraints[request->bank_group][request->bank][tRCD] == 0){
         cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, clock);
         set_timing_constraint(dram, request, tCL);
+        set_timing_constraint(dram, request, tRTP);
         request->state = RW1;
       }
       break;
@@ -196,20 +196,16 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
       LOG("BURST\n");
       if (dram->timing_constraints[request->bank_group][request->bank][tCL] == 0) {
         set_timing_constraint(dram, request, tBURST);
-        request->state = PRE;
+        request->state = COMPLETE;
+      }
+      if (dram->timing_constraints[request->bank_group][request->bank][tRTP] == 0) {
+        precharge_bank(dram, request);
+        cmd = issue_cmd("PRE", request, clock);
+        set_timing_constraint(dram, request, tRP);
       }
       break;
 
     case PRE:
-      LOG("PRE\n");
-
-      if (dram->timing_constraints[request->bank_group][request->bank][tBURST] == 0) {
-        precharge_bank(dram, request);
-        cmd = issue_cmd("PRE", request, clock);
-        set_timing_constraint(dram, request, tRP);
-        request->state = COMPLETE; 
-      }
-
       break;
 
     case COMPLETE:
