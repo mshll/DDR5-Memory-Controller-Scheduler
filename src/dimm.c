@@ -176,6 +176,7 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
       return issued_cmd;
     }
     request->state = ACT0;
+    set_timing_constraint(dram, request, tRC);
   }
 
   // Process the request (one state per cycle)
@@ -218,16 +219,21 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
       LOG("BURST\n");
       if (is_timing_constraint_met(dram, request, tCL)) {
         set_timing_constraint(dram, request, tBURST);
-        request->state = COMPLETE;
+        
       }
       if (is_timing_constraint_met(dram, request, tRTP) && is_timing_constraint_met(dram, request, tRP)) {
         precharge_bank(dram, request);
         cmd = issue_cmd("PRE", request, clock);
         set_timing_constraint(dram, request, tRP);
+        request->state = PRE;
       }
       break;
 
     case PRE:
+if (is_timing_constraint_met(dram,request,tRC)){
+    request->state = COMPLETE;
+}
+    break;
     case COMPLETE:
       break;
 

@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
       current_request = NULL;
     }
 
-    if (parser->status == END_OF_FILE) {
+    if (parser->status == END_OF_FILE &&queue_is_empty(global_queue)) {
       LOG("END OF SIMULATION\n");
       break;
     }
@@ -75,9 +75,7 @@ int main(int argc, char *argv[]) {
     clock_cycle++;
   }
 
-  if (!queue_is_empty(global_queue)) {
-    LOG("ERROR: Queue is not empty by EOF\n");
-  }
+
 
   parser_destroy(parser);
   queue_destroy(&global_queue);
