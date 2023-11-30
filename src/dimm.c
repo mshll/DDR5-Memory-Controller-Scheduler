@@ -169,8 +169,10 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
   char *cmd = NULL;
   bool issued_cmd = false;
 
+  // LOG("HERE! PART 1\n");
+
   // Set the initial state before processing the request
-  LOG("cycle %llu, state %d \n", clock, request->state);
+  LOG("cycle %llu, state %d \n", clock / 2 - 1, request->state);
 
   if (request->state == PENDING) {
     request->state = ACT0;
@@ -179,7 +181,7 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
   // Process the request (one state per cycle)
   switch (request->state) {
     case ACT0:
-      LOG("ACT0\n");
+      LOG("ACT0\tBG:%hu BA:%hu\n", request->bank_group, request->bank);
       if (
         dram->timing_constraints[request->bank_group][request->bank][tRC] <= 1 &&
         dram->timing_constraints[request->bank_group][request->bank][tRP] <= 1
@@ -190,7 +192,7 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
       break;
 
     case ACT1:
-      LOG("ACT1\n");
+      LOG("ACT1\tBG:%hu BA:%hu\n", request->bank_group, request->bank);
       if (is_timing_constraint_met(dram, request, tRC) && is_timing_constraint_met(dram, request, tRP)) {
         set_timing_constraint(dram, request, tRC);
         set_timing_constraint(dram, request, tRCD);
@@ -203,7 +205,7 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
       break;
 
     case RW0:
-      LOG("RW0\n");
+      LOG("RW0\tBG:%hu BA:%hu\n", request->bank_group, request->bank);
       if (dram->timing_constraints[request->bank_group][request->bank][tRCD] == 1) {
         cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, clock);
         request->state = RW1;
@@ -211,7 +213,7 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
       break;
 
     case RW1:
-      LOG("RW1\n");
+      LOG("RW1\tBG:%hu BA:%hu\n", request->bank_group, request->bank);
       if (is_timing_constraint_met(dram, request, tRCD)) {
         set_timing_constraint(dram, request, tCL);
         set_timing_constraint(dram, request, tRTP);
@@ -221,7 +223,7 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
       break;
 
     case PRE:
-      LOG("PRE\n");
+      LOG("PRE\tBG:%hu BA:%hu\n", request->bank_group, request->bank);
       // can precharge before bursting data
       if (is_timing_constraint_met(dram, request, tRTP) && is_timing_constraint_met(dram, request, tRAS)) {
         set_timing_constraint(dram, request, tRP);
@@ -233,7 +235,7 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
 
     case BUFFER:
       // data is being stored in buffer while tCL is set
-      LOG("BUFFER\n");
+      LOG("BUFFER\tBG:%hu BA:%hu\n", request->bank_group, request->bank);
       if (is_timing_constraint_met(dram, request, tCL)) {
         set_timing_constraint(dram, request, tBURST);
         request->state = BURST;
@@ -241,7 +243,7 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
       break;
 
     case BURST:
-      LOG("BURST\n");
+      LOG("BURST\tBG:%hu BA:%hu\n", request->bank_group, request->bank);
       if (is_timing_constraint_met(dram, request, tBURST)) {
         request->state = COMPLETE;
       }
@@ -256,6 +258,7 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
       exit(EXIT_FAILURE);
   }
 
+  // LOG("HERE! PART 2\n");
   // writing commands to output file
   if (cmd != NULL) {
     fprintf((*dimm)->output_file, "%s\n", cmd);
@@ -270,7 +273,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
   DRAM_t *dram = &((*dimm)->channels[request->channel].DDR5_chip[0]);
   char *cmd = NULL;
   bool issued_cmd = false;
-
+  
   LOG("cycle %llu, state %d \n", cycle, request->state);
 
   // Set the initial state before processing the request
@@ -284,8 +287,8 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
 
     } else if (is_page_empty(dram, request)) {
       if (
-        !is_timing_constraint_met(dram, request, tRC) &&
-        !is_timing_constraint_met(dram, request, tRP) &&
+        // !is_timing_constraint_met(dram, request, tRC) &&
+        // !is_timing_constraint_met(dram, request, tRP) &&
         !can_issue_act(dram)
       ) {
         return issue_cmd;
@@ -308,21 +311,15 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
       break;
 
     case ACT0:
-      if (!is_timing_constraint_met(dram, request, tRP)) {
-        return issued_cmd;
+      if (dram->timing_constraints[request->bank_group][request->bank][tRC] <= 1) {
+        set_tfaw_counter(dram);
+        cmd = issue_cmd("ACT0", request, cycle);
+        request->state = ACT1;
       }
-
-      if (!can_issue_act(dram)) {
-        decrement_tfaw_counters(dram);
-        return issued_cmd;
-      }
-
-      set_tfaw_counter(dram);
-      cmd = issue_cmd("ACT0", request, cycle);
-      request->state = ACT1;
       break;
 
     case ACT1:
+
       activate_bank(dram, request);
       cmd = issue_cmd("ACT1", request, cycle);
       set_timing_constraint(dram, request, tRCD);
@@ -381,8 +378,6 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
     issued_cmd = true;
   }
 
-  decrement_tfaw_counters(dram);
-
   return issued_cmd;
 }
 
@@ -404,8 +399,11 @@ void level_zero_algorithm(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
 
 void bank_level_parallelism(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
   bool is_cmd_issued = false;
+  DRAM_t *dram0 = &((*dimm)->channels[0].DDR5_chip[0]);
+  DRAM_t *dram1 = &((*dimm)->channels[1].DDR5_chip[0]);
+  print_queue(*q);
 
-  for (int index = 0; index < 16; index++) {
+  for (int index = 0; index < (*q)->size; index++) {
     MemoryRequest_t *request = queue_peek_at(*q, index);
     DRAM_t *dram = &((*dimm)->channels[request->channel].DDR5_chip[0]);
 
@@ -416,16 +414,20 @@ void bank_level_parallelism(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
     }
 
     // skip if older process is in progess for the same BA/BG of current request
-    if (index != 0 && is_bank_active(dram, request)) {
+    if (is_bank_active(dram, request) && request->state == PENDING) {
       continue;
     }
 
-    is_cmd_issued = open_page(dimm, request, clock);
+    // is_cmd_issued = open_page(dimm, request, clock);
+    is_cmd_issued = closed_page(dimm, request, clock);
 
     if (is_cmd_issued) {
       break;
     }
   }
+
+  decrement_timing_constraints(dram0);
+  decrement_timing_constraints(dram1);
 }
 
 void out_of_order() {

@@ -297,32 +297,33 @@ MemoryRequest_t doubly_ll_delete_at(
 
   // traverse list
   node_t *temp = NULL;
-  node_t *current_node = (*list)->list_head;
+  node_t *current_node = (*list)->list_tail;
 
-  // if deleting head node
+  // if deleting tail node
   if (index == 0) {
-    (*list)->list_head = current_node->next_node;
+    (*list)->list_tail = current_node->prev_node;
+    // (*list)->list_head = current_node->next_node;
     MemoryRequest_t stored_item = current_node->item;
 
     // check if node is the last one in list
     if ((*list)->size == 1) {
-      (*list)->list_tail = NULL;
+      (*list)->list_head = NULL;
       (*list)->size--;
       free(current_node);
 
       return stored_item;
     }
 
-    (*list)->list_head->prev_node = NULL;
+    (*list)->list_tail->next_node = NULL;
     (*list)->size--;
     free(current_node);
 
     return stored_item;
   }
 
-  // if deleting last node
+  // if deleting last node in queue
   if (index == (*list)->size - 1) {
-    current_node = (*list)->list_tail;
+    current_node = (*list)->list_head;
     MemoryRequest_t stored_item = current_node->item;
 
     // case 1; only one node in list
@@ -335,8 +336,8 @@ MemoryRequest_t doubly_ll_delete_at(
       return stored_item;
     }
 
-    (*list)->list_tail = current_node->prev_node;
-    (*list)->list_tail->next_node = NULL;
+    (*list)->list_head = current_node->next_node;
+    (*list)->list_head->prev_node = NULL;
     (*list)->size--;
 
     free(current_node);
@@ -345,19 +346,19 @@ MemoryRequest_t doubly_ll_delete_at(
 
   // current_node stops at node right before node at index
   while (index != 1) {
-    current_node = current_node->next_node;
+    current_node = current_node->prev_node;
     index--;
   }
 
   // temp points to node that will be deleted
-  temp = current_node->next_node;
+  temp = current_node->prev_node;
   MemoryRequest_t stored_item = temp->item;
 
   // have current node point to temp's next node cuz temp node will be del
-  current_node->next_node = temp->next_node;
+  current_node->prev_node = temp->prev_node;
 
   // have next node point back to current node cuz temp node will be del
-  temp->next_node->prev_node = current_node;
+  temp->prev_node->next_node = current_node;
 
   (*list)->size--;
   free(temp);  // delete the node temp is pointing to
@@ -642,35 +643,28 @@ int8_t doubly_ll_print_list(
    ***/
   node_t *temp = list->list_head;
 
-  LOG("queue: \n");
+  LOG("queue (size = %d): \n", list->size);
 
   // traverse linked list
   while (temp != NULL) {
     LOG(
-        "%8llu \n"
-        "%8hhu\n"
-        "%8hhu\n"
-        "%8hhu\n"
-        "%8hhu\n"
-        "%8hhu\n"
-        "%8hhu\n"
-        "%8hhu\n"
-        "%8hhu\n"
-        "%8u  \n"
-        "   |   \n"
-        "   V   \n",
-        temp->item.time,
-        temp->item.core,
-        temp->item.operation,
-        temp->item.byte_select,
-        temp->item.column_low,
-        temp->item.channel,
+        "BG: %hhu "
+        "BA: %hhu\n"
+        "ROW: %04X "
+        "COLH: %02X "
+        "COLL: %0X\n"
+        "|   \n"
+        "V   \n",
         temp->item.bank_group,
         temp->item.bank,
+        temp->item.row,
         temp->item.column_high,
-        temp->item.row);
+        temp->item.column_low
+    );
     temp = temp->next_node;
   }
+
+  LOG("NULL\n\n");
 
   return LL_EXIT_SUCCESS;
 }

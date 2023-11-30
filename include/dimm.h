@@ -86,6 +86,7 @@ typedef struct DRAM {
   uint8_t tFAW_counters[NUM_TFAW_COUNTERS];
   uint16_t timing_constraints[NUM_BANK_GROUPS][NUM_BANKS_PER_GROUP][NUM_TIMING_CONSTRAINTS];
   int8_t last_bank_group;
+  int8_t last_bank; 
   int8_t last_operation;
 } DRAM_t;
 

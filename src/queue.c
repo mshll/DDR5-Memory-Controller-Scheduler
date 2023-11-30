@@ -185,3 +185,13 @@ bool queue_is_empty(Queue_t *q) {
 
     return (q->size == 0) ? true : false;
 }
+
+void print_queue(Queue_t *q) {
+    if (q == NULL || q->list == NULL)
+        return; 
+
+    if (queue_is_empty(q))
+        return;
+
+    doubly_ll_print_list(q->list);
+}
