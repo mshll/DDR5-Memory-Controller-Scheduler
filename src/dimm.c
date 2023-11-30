@@ -63,6 +63,7 @@ void activate_bank(DRAM_t *dram, MemoryRequest_t *request) {
 
 void precharge_bank(DRAM_t *dram, MemoryRequest_t *request) {
   dram->bank_groups[request->bank_group].banks[request->bank].is_precharged = true;
+  dram->bank_groups[request->bank_group].banks[request->bank].is_active = false;
 }
 
 char *issue_cmd(char *cmd, MemoryRequest_t *request, uint64_t cycle) {
@@ -76,7 +77,7 @@ char *issue_cmd(char *cmd, MemoryRequest_t *request, uint64_t cycle) {
   char *response = malloc(sizeof(char) * 100);
   char *temp = malloc(sizeof(char) * 100);
 
-  sprintf(response, "%10llu %u %4s", cycle, request->channel, cmd);
+  sprintf(response, "%10llu %u %4s", cycle / 2 - 1, request->channel, cmd);
 
   if (strncmp(cmd, "ACT", 3) == 0) {
     sprintf(temp, " %u %u 0x%X", request->bank_group, request->bank, request->row);
@@ -172,34 +173,38 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
   LOG("cycle %llu, state %d \n", clock, request->state);
 
   if (request->state == PENDING) {
-    if (!is_timing_constraint_met(dram, request, tRP)) {
-      return issued_cmd;
-    }
     request->state = ACT0;
-    set_timing_constraint(dram, request, tRC);
   }
 
   // Process the request (one state per cycle)
   switch (request->state) {
     case ACT0:
       LOG("ACT0\n");
-      cmd = issue_cmd("ACT0", request, clock);
-      request->state = ACT1;
-
+      if (
+        dram->timing_constraints[request->bank_group][request->bank][tRC] <= 1 &&
+        dram->timing_constraints[request->bank_group][request->bank][tRP] <= 1
+      ) {
+        cmd = issue_cmd("ACT0", request, clock);
+        request->state = ACT1;
+      }
       break;
 
     case ACT1:
       LOG("ACT1\n");
-      set_timing_constraint(dram, request, tRCD);
-      activate_bank(dram, request);
-      cmd = issue_cmd("ACT1", request, clock);
-      request->state = RW0;
-
+      if (is_timing_constraint_met(dram, request, tRC) && is_timing_constraint_met(dram, request, tRP)) {
+        set_timing_constraint(dram, request, tRC);
+        set_timing_constraint(dram, request, tRCD);
+        set_timing_constraint(dram, request, tRAS);
+        activate_bank(dram, request);
+        cmd = issue_cmd("ACT1", request, clock);
+        request->state = RW0;
+      }
+      
       break;
 
     case RW0:
       LOG("RW0\n");
-      if (is_timing_constraint_met(dram, request, tRCD)) {
+      if (dram->timing_constraints[request->bank_group][request->bank][tRCD] == 1) {
         cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, clock);
         request->state = RW1;
       }
@@ -207,33 +212,41 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
 
     case RW1:
       LOG("RW1\n");
-      set_timing_constraint(dram, request, tCL);
-      set_timing_constraint(dram, request, tRTP);
-      cmd = issue_cmd(request->operation == DATA_WRITE ? "WR1" : "RD1", request, clock);
-      dram->bank_groups[request->bank_group].banks[request->bank].is_active = false;
-      request->state = BURST;
-
-      break;
-
-    case BURST:
-      LOG("BURST\n");
-      if (is_timing_constraint_met(dram, request, tCL)) {
-        set_timing_constraint(dram, request, tBURST);
-        
-      }
-      if (is_timing_constraint_met(dram, request, tRTP) && is_timing_constraint_met(dram, request, tRP)) {
-        precharge_bank(dram, request);
-        cmd = issue_cmd("PRE", request, clock);
-        set_timing_constraint(dram, request, tRP);
+      if (is_timing_constraint_met(dram, request, tRCD)) {
+        set_timing_constraint(dram, request, tCL);
+        set_timing_constraint(dram, request, tRTP);
+        cmd = issue_cmd(request->operation == DATA_WRITE ? "WR1" : "RD1", request, clock);
         request->state = PRE;
       }
       break;
 
     case PRE:
-if (is_timing_constraint_met(dram,request,tRC)){
-    request->state = COMPLETE;
-}
-    break;
+      LOG("PRE\n");
+      // can precharge before bursting data
+      if (is_timing_constraint_met(dram, request, tRTP) && is_timing_constraint_met(dram, request, tRAS)) {
+        set_timing_constraint(dram, request, tRP);
+        precharge_bank(dram, request);
+        cmd = issue_cmd("PRE", request, clock);
+        request->state = BUFFER;
+      }
+      break;
+
+    case BUFFER:
+      // data is being stored in buffer while tCL is set
+      LOG("BUFFER\n");
+      if (is_timing_constraint_met(dram, request, tCL)) {
+        set_timing_constraint(dram, request, tBURST);
+        request->state = BURST;
+      }
+      break;
+
+    case BURST:
+      LOG("BURST\n");
+      if (is_timing_constraint_met(dram, request, tBURST)) {
+        request->state = COMPLETE;
+      }
+      break;
+
     case COMPLETE:
       break;
 
@@ -270,6 +283,13 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
       request->state = PRE;
 
     } else if (is_page_empty(dram, request)) {
+      if (
+        !is_timing_constraint_met(dram, request, tRC) &&
+        !is_timing_constraint_met(dram, request, tRP) &&
+        !can_issue_act(dram)
+      ) {
+        return issue_cmd;
+      }
       request->state = ACT0;
 
     } else {
@@ -299,7 +319,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
 
       set_tfaw_counter(dram);
       cmd = issue_cmd("ACT0", request, cycle);
-      request->state++;
+      request->state = ACT1;
       break;
 
     case ACT1:
@@ -319,7 +339,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
       }
 
       cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
-      request->state++;
+      request->state = RW1;
       break;
 
     case RW1:
@@ -340,6 +360,9 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
       dram->last_bank_group = request->bank_group;
       dram->last_operation = request->operation;
       request->state = COMPLETE;
+      break;
+
+    case BURST:
       break;
 
     case COMPLETE:
@@ -375,8 +398,7 @@ void level_zero_algorithm(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
     log_memory_request("Dequeued:", request, clock);
     dequeue(q);
   }
-
-  decrement_tfaw_counters(dram);
+  
   decrement_timing_constraints(dram);
 }
 

@@ -37,7 +37,7 @@ void parser_destroy(Parser_t *parser) {
 }
 
 MemoryRequest_t *parser_next_request(Parser_t *parser, uint64_t cycle) {
-  if (parser->status == OK && parser->next_request->time <= cycle) {
+  if (parser->status == OK) {
     MemoryRequest_t *request = parser->next_request;
     parser_next_line(parser);
     return request;

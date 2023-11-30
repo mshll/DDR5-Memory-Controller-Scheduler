@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
       current_request = NULL;
     }
 
-    if (parser->status == END_OF_FILE &&queue_is_empty(global_queue)) {
+    if (parser->status == END_OF_FILE && queue_is_empty(global_queue)) {
       LOG("END OF SIMULATION\n");
       break;
     }

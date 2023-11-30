@@ -75,7 +75,6 @@ typedef struct Bank {
   bool is_precharged;
   bool is_active;
   uint32_t active_row;
-  uint8_t timing_constraints[NUM_TIMING_CONSTRAINTS];
 } Bank_t;
 
 typedef struct BankGroup {
