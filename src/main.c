@@ -61,7 +61,48 @@ int main(int argc, char *argv[]) {
 
     // CPU clock cycle - enqueue if there is a request and queue is not full
     if (current_request != NULL && !queue_is_full(global_queue)) {
+
+      if(scheduling_policy == 3){
+        bool inserted = false; //flag so we dont insert it twice
+        
+        if (current_request->operation == DATA_WRITE) {
+      
+          for (int i = 0; i < global_queue->size && !inserted; i++) {
+          MemoryRequest_t *read_request = queue_peek_at(global_queue, i);
+          if (read_request->operation == DATA_READ &&
+            read_request->bank_group == current_request->bank_group &&
+            read_request->bank == current_request->bank &&
+            (read_request->row != current_request->row || read_request->column_low != current_request->column_low || read_request->column_high != current_request->column_high)) {
+          //we put DATA_WRITE after the DATA_READ
+            queue_insert_at(&global_queue, i + 1, *current_request);
+            inserted = true;
+        }
+      }
+    } else if (current_request->operation == DATA_READ) {
+
+      for (int i = 0; i < global_queue->size && !inserted; i++) {
+        MemoryRequest_t *write_request = queue_peek_at(global_queue, i);
+        if (write_request->operation == DATA_WRITE &&
+            write_request->bank_group == current_request->bank_group &&
+            write_request->bank == current_request->bank &&
+            (write_request->row != current_request->row || write_request->column_low != current_request->column_low || write_request->column_high != current_request->column_high)) {
+          //we put the DATA_READ before the DATA_WRITE
+          queue_insert_at(&global_queue, i, *current_request);
+          inserted = true;
+        }
+      }
+    }
+    
+    //flag not up we do it normally
+    if (!inserted) {
       enqueue(&global_queue, *current_request);
+    }
+
+      }
+
+      else{
+      enqueue(&global_queue, *current_request);
+      }
       log_memory_request("Enqueued:", current_request, clock_cycle);
       free(current_request);
       current_request = NULL;
@@ -74,8 +115,6 @@ int main(int argc, char *argv[]) {
 
     clock_cycle++;
   }
-
-
 
   parser_destroy(parser);
   queue_destroy(&global_queue);

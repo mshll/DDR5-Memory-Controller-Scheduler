@@ -397,6 +397,8 @@ void level_zero_algorithm(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
   decrement_timing_constraints(dram);
 }
 
+
+
 void bank_level_parallelism(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
   bool is_cmd_issued = false;
   DRAM_t *dram0 = &((*dimm)->channels[0].DDR5_chip[0]);
@@ -430,8 +432,8 @@ void bank_level_parallelism(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
   decrement_timing_constraints(dram1);
 }
 
-void out_of_order() {
-  // TODO: implement out of order scheduling
+void out_of_order(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
+
 }
 
 void dram_init(DRAM_t *dram) {
@@ -499,6 +501,7 @@ void process_request(DIMM_t **dimm, Queue_t **q, uint64_t clock, uint8_t schedul
       break;
 
     case LEVEL_3:
+      bank_level_parallelism(dimm, q, clock);
       break;
 
     default:
