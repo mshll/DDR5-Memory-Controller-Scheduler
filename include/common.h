@@ -38,35 +38,12 @@ enum Operation {
   IFETCH = 2,
 };
 
-// TODO 'REF' not implemented yet
-typedef enum MemoryRequestState {
-  REF,
-  PENDING,
-  ACT0,
-  ACT1,
-  RW0,
-  RW1,
-  BUFFER,
-  BURST,
+typedef enum Commands {
+  ACT,
+  RD,
+  WR,
   PRE,
-  COMPLETE
-} MemoryRequestState_t;
-
-
-typedef struct __attribute__((__packed__)) MemoryRequest {
-  uint64_t time;
-  uint8_t core;
-  uint8_t operation;
-  uint16_t byte_select : 2;  // 2 bits
-  uint16_t column_low : 4;   // 4 bits (column[3:0])
-  uint16_t channel : 1;      // 1 bit
-  uint16_t bank_group : 3;   // 3 bits
-  uint16_t bank : 2;         // 2 bits
-  uint16_t column_high : 6;  // 6 bits (column[9:4])
-  uint16_t row : 16;         // 16 bits
-  uint16_t error_bit : 1;    // for the event the queue failed
-  MemoryRequestState_t state;
-  uint32_t aging;
-} MemoryRequest_t;
+  REF
+} Commands_t;
 
 #endif

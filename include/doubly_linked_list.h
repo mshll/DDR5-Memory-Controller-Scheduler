@@ -14,6 +14,7 @@
 
 /*** includes ***/
 #include "common.h"
+#include "memory_request.h"
 
 /*** enums ***/
 enum err_code {

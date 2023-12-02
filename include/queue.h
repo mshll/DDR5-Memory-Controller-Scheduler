@@ -13,11 +13,13 @@
 #define __QUEUE_H__
 
 /*** includes ***/
-#include "doubly_linked_list.h"
 #include <stdbool.h>
 #include <stdint.h>
 
-/*** struct(s) ***/
+#include "doubly_linked_list.h"
+#include "memory_request.h"
+
+/*** marco(s), enum(s), struct(s) ***/
 typedef struct Queue {
     DoublyLinkedList_t *list;
     uint64_t size;
