@@ -12,17 +12,17 @@
 /*** macro(s), enum(s), struct(s) ***/
 // #define OPEN_PAGE_POLICY  // comment out to use closed page policy
 #ifdef DEBUG
-  #define LOG_DEBUG(format, ...) printf("%s:%d: " format, __FILE__, __LINE__, ##__VA_ARGS__)
-  #define LOG(format, ...) printf(format, ##__VA_ARGS__)
+#define LOG_DEBUG(format, ...) printf("%s:%d: " format, __FILE__, __LINE__, ##__VA_ARGS__)
+#define LOG(format, ...) printf(format, ##__VA_ARGS__)
 #else
-  #define LOG_DEBUG(...) /*** expands to nothing ***/
-  #define LOG(...)       /*** expands to nothing ***/
+#define LOG_DEBUG(...) /*** expands to nothing ***/
+#define LOG(...)       /*** expands to nothing ***/
 #endif
 
 #ifdef __linux__
-  #define UINT64_T "%lu"
+#define UINT64_T "%lu"
 #elif __APPLE__
-  #define UINT64_T "%llu"
+#define UINT64_T "%llu"
 #endif
 
 enum SchedulingAlgorithms {
@@ -32,18 +32,18 @@ enum SchedulingAlgorithms {
   LEVEL_3
 };
 
-enum Operation {
+typedef enum Operation {
   DATA_READ = 0,
   DATA_WRITE = 1,
   IFETCH = 2,
-};
+} Operation_t;
 
 typedef enum Commands {
-  ACT,
-  RD,
-  WR,
-  PRE,
-  REF
+  ACTIVATE,
+  READ,
+  WRITE,
+  PRECHARGE,
+  REFRESH
 } Commands_t;
 
 #endif

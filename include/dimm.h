@@ -90,7 +90,7 @@ extern uint8_t consecutive_cmd_attribute[NUM_CONSECUTIVE_CMD_CONSTRAINTS];
 typedef struct Bank {
   bool is_precharged;
   bool is_active;
-  Commands_t last_request_operation;
+  Operation_t last_request_operation;
   uint32_t active_row;
 } Bank_t;
 

@@ -6,7 +6,6 @@
  */
 
 #include "parser.h"
-#include "memory_request.h"
 
 /** helper function(s) **/
 FILE *open_file(char *file_name, char *mode);

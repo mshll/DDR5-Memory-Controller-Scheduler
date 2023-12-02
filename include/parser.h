@@ -9,6 +9,7 @@
 #define __PARSER_H__
 
 #include "common.h"
+#include "memory_request.h"
 
 #define LINE_LENGTH 256
 

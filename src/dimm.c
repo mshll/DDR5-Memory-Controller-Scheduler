@@ -216,9 +216,8 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
       activate_bank(dram, request);
 
       cmd = issue_cmd("ACT1", request, clock);
-      dram->last_interface_cmd = ACT;
+      dram->last_interface_cmd = ACTIVATE;
       dram->last_bank_group = request->bank_group;
-      dram->bank_groups[request->bank_group].banks[request->bank].last_request_operation == ACT;
 
       set_timing_constraint(dram, request, tRCD);
       set_timing_constraint(dram, request, tRAS);
@@ -245,9 +244,8 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
       LOG("RD1\tBG:%hu BA:%hu\n", request->bank_group, request->bank);
       // issue cmd
       cmd = issue_cmd(request->operation == DATA_WRITE ? "WR1" : "RD1", request, clock);
-      dram->last_interface_cmd = RD;
+      dram->last_interface_cmd = READ;
       dram->last_bank_group = request->bank_group;
-      dram->bank_groups[request->bank_group].banks[request->bank].last_request_operation == RD;
 
       // set timers
       set_timing_constraint(dram, request, tCL);
@@ -267,9 +265,8 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
     case WR1:
       // issue cmd
       cmd = issue_cmd(request->operation == DATA_WRITE ? "WR1" : "RD1", request, clock);
-      dram->last_interface_cmd = WR;
+      dram->last_interface_cmd = WRITE;
       dram->last_bank_group = request->bank_group;
-      dram->bank_groups[request->bank_group].banks[request->bank].last_request_operation == WR;
 
       // set timers
       set_timing_constraint(dram, request, tCWL);
@@ -287,9 +284,8 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
           precharge_bank(dram, request);
 
           cmd = issue_cmd("PRE", request, clock);
-          dram->last_interface_cmd = PRE;
+          dram->last_interface_cmd = PRECHARGE;
           dram->last_bank_group = request->bank_group;
-          dram->bank_groups[request->bank_group].banks[request->bank].last_request_operation == PRE;
 
           set_timing_constraint(dram, request, tRP);
 
@@ -301,9 +297,8 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
           precharge_bank(dram, request);
 
           cmd = issue_cmd("PRE", request, clock);
-          dram->last_interface_cmd = PRE;
+          dram->last_interface_cmd = PRECHARGE;
           dram->last_bank_group = request->bank_group;
-          dram->bank_groups[request->bank_group].banks[request->bank].last_request_operation == PRE;
 
           set_timing_constraint(dram, request, tRP);
 
@@ -393,15 +388,15 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
   // Process the request (one state per cycle)
   switch (request->state) {
     case PRE:
-      if (dram->bank_groups[request->bank_group].banks[request->bank].last_request_operation == DATA_READ) {
+      if (dram->bank_groups[request->bank_group].banks[request->bank].last_request_operation = DATA_READ) {
         if (is_timing_constraint_met(dram, request, tRTP) && is_timing_constraint_met(dram, request, tRAS)) {
           precharge_bank(dram, request);
 
           // issue cmd
           cmd = issue_cmd("PRE", request, cycle);
-          dram->last_interface_cmd = PRE;
+          dram->last_interface_cmd = PRECHARGE;
           dram->last_bank_group = request->bank_group;
-          dram->bank_groups[request->bank_group].banks[request->bank].last_request_operation == PRE;
+          dram->bank_groups[request->bank_group].banks[request->bank].last_request_operation = request->operation;
           
           // set timers
           set_timing_constraint(dram, request, tRP);
@@ -416,9 +411,9 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
 
           // issue cmd
           cmd = issue_cmd("PRE", request, cycle);
-          dram->last_interface_cmd = PRE;
+          dram->last_interface_cmd = PRECHARGE;
           dram->last_bank_group = request->bank_group;
-          dram->bank_groups[request->bank_group].banks[request->bank].last_request_operation == PRE;
+          dram->bank_groups[request->bank_group].banks[request->bank].last_request_operation = request->operation;
           
           // set timers
           set_timing_constraint(dram, request, tRP);
@@ -431,7 +426,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
       break;
 
     case ACT0:
-      if (dram->last_interface_cmd == ACT) {
+      if (dram->last_interface_cmd == ACTIVATE) {
         if (dram->last_bank_group == request->bank_group) {
           if (
             is_timing_constraint_met(dram, request, tRC) &&
@@ -472,9 +467,8 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
 
       // issue cmd
       cmd = issue_cmd("ACT1", request, cycle);
-      dram->last_interface_cmd = ACT;
+      dram->last_interface_cmd = ACTIVATE;
       dram->last_bank_group = request->bank_group;
-      dram->bank_groups[request->bank_group].banks[request->bank].last_request_operation == ACT;
 
       // set timers
       set_timing_constraint(dram, request, tRCD);
@@ -493,7 +487,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
       break;
 
     case RD0:
-      if (dram->last_interface_cmd == RD) {
+      if (dram->last_interface_cmd == READ) {
         if (dram->last_bank_group == request->bank_group) {
           if (
             is_timing_constraint_met(dram, request, tRCD) &&
@@ -513,7 +507,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
           }
         }
       }
-      else if (dram->last_interface_cmd == WR) {
+      else if (dram->last_interface_cmd == WRITE) {
         if (dram->last_bank_group == request->bank_group) {
           if (
             is_timing_constraint_met(dram, request, tRCD) &&
@@ -539,9 +533,8 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
     case RD1:
       // issue cmd
       cmd = issue_cmd(request->operation == DATA_WRITE ? "WR1" : "RD1", request, cycle);
-      dram->last_interface_cmd = RD;
+      dram->last_interface_cmd = READ;
       dram->last_bank_group = request->bank_group;
-      dram->bank_groups[request->bank_group].banks[request->bank].last_request_operation == RD;
 
       // set timers
       set_timing_constraint(dram, request, tCL);
@@ -552,7 +545,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
       break;
 
     case WR0:
-      if (dram->last_interface_cmd == WR) {
+      if (dram->last_interface_cmd == WRITE) {
         if (dram->last_bank_group == request->bank_group) {
           if (
             is_timing_constraint_met(dram, request, tRCD) &&
@@ -572,7 +565,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
           }
         }
       }
-      else if (dram->last_interface_cmd == RD) {
+      else if (dram->last_interface_cmd == READ) {
         if (dram->last_bank_group == request->bank_group) {
           if (
             is_timing_constraint_met(dram, request, tRCD) &&
@@ -597,9 +590,8 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
     case WR1:
       // issue cmd
       cmd = issue_cmd(request->operation == DATA_WRITE ? "WR1" : "RD1", request, cycle);
-      dram->last_interface_cmd = WR;
+      dram->last_interface_cmd = WRITE;
       dram->last_bank_group = request->bank_group;
-      dram->bank_groups[request->bank_group].banks[request->bank].last_request_operation == WR;
 
       // set timers
       set_timing_constraint(dram, request, tCWL);
@@ -702,8 +694,7 @@ void bank_level_parallelism(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
       continue;
     }
 
-    // is_cmd_issued = open_page(dimm, request, clock);
-    is_cmd_issued = closed_page(dimm, request, clock);
+    is_cmd_issued = open_page(dimm, request, clock);
 
     if (is_cmd_issued) {
       break;
