@@ -33,6 +33,7 @@
   - [6.10. tCCD\_S\_WR and tCCD\_L\_WR](#610-tccd_s_wr-and-tccd_l_wr)
   - [6.11. tCCD\_S\_RTW and tCCD\_L\_RTW](#611-tccd_s_rtw-and-tccd_l_rtw)
   - [6.12. tCCD\_S\_WTR and tCCD\_L\_WTR](#612-tccd_s_wtr-and-tccd_l_wtr)
+- [copy paste thingy, remove later](#copy-paste-thingy-remove-later)
 
 
 ## 1. INTRODUCTION
@@ -88,7 +89,7 @@ Create a trace file as an input (ASCII text file) using a test case generator.
 **Test Cases**:
 | \#  | OBJECTIVE | INPUT | EXPECTED RESULTS | Notes |
 | --- | --------- | ----- | ---------------- | ----- |
-|  1  | Test page empty on successive references. | Back to back references to same BG,B, same row, different column. | ACT -> READ -> PRE -> ACT -> READ -> PRE | Read or write should not matter |
+|  1  | Test page empty on successive references. | Back to back references to same BG,BA, same row, different column. | ACT -> READ -> PRE -> ACT -> READ -> PRE | Read or write should not matter |
 |  2  | Test page empty on two different references. | Back to back references to different BG,B,ROW. | ACT -> READ -> PRE -> ACT -> READ -> PRE | 
 
 #### 4.1.2. IN-ORDER SCHEDULING
@@ -101,19 +102,26 @@ Create a trace file as an input (ASCII text file) using a test case generator.
 **Test Cases**:
 | \#  | OBJECTIVE | INPUT | EXPECTED RESULTS | Notes |
 | --- | --------- | ----- | ---------------- | ----- |
-|  1  | Test page hit. | Back to back references to same BG,B, same row, different column. | ACT -> READ -> READ |
-|  2  | Test page empty followed by page miss followed by page hit. | Back to back references to same BG,B, different rows, and then second row gets referenced again. | ACT -> READ -> PRE -> ACT -> READ -> READ | 
-|  3  | Test open page tracking when interlearving BG,B, while trying to trick it by making the B number be the same. | Back to back references that are intersected by a page access from a different BG with different ROW. | ACT -> ACT -> READ -> READ -> READ | LEVEL 2+ only |
-|  4  | Test open page tracking when interlearving BG,B, while trying to trick it by making the BG number be the same. | Back to back references that are intersected by a page access from a different B with different ROW. | ACT -> ACT -> READ -> READ -> READ | Same output as 3 |
-|  5  | Test open page tracking when intervleaving BG,B, while trying to trick it by making the ROW be the same. | Back to back references that are intersected by a page access from a different BG,B, with same ROW. | ACT -> ACT -> READ -> READ -> READ | Same output as 3 |
+|  1  | Test page hit. | Back to back references to same BG,BA, same row, different column. | ACT -> READ -> READ |
+|  2  | Test page empty followed by page miss followed by page hit. | Back to back references to same BG,BA, different rows, and then second row gets referenced again. | ACT -> READ -> PRE -> ACT -> READ -> READ | 
+|  3  | Test open page tracking when interlearving BG,BA, while trying to trick it by making the BA number be the same. | Back to back references that are intersected by a page access from a different BG with different ROW. | ACT -> ACT -> READ -> READ -> READ | LEVEL 2+ only |
+|  4  | Test open page tracking when interlearving BG,BA, while trying to trick it by making the BG number be the same. | Back to back references that are intersected by a page access from a different BA with different ROW. | ACT -> ACT -> READ -> READ -> READ | Same output as 3 |
+|  5  | Test open page tracking when intervleaving BG,BA, while trying to trick it by making the ROW be the same. | Back to back references that are intersected by a page access from a different BG,BA, with same ROW. | ACT -> ACT -> READ -> READ -> READ | Same output as 3 |
 
 ### 4.3. LEVEL 2
 #### 4.3.1. BANK LEVEL PARALLELISM
->Scheduler is able to interleave commands to different BG,B. For example, after it issues an activate command to B0,BG0, it can issue another activate to a different BX,BGX combination before coming back and issuing the READ command.
+>Scheduler is able to interleave commands to different BG,BA. For example, after it issues an activate command to BA0,BG0, it can issue another activate to a different BX,BGX combination before coming back and issuing the READ command.
 
 **CASES**
 1. When we are waiting for timing contraints on a command being executed in a certain BG,B, and there is a request to a different BG,B in the queue, start the new request (if it does not violate other timings). Repeat. 
    - Allowed to skip over requests that are waiting for a bank to be available (technically out of order)
+
+**Test Cases**:
+| \#  | OBJECTIVE | INPUT | EXPECTED RESULTS | Notes |
+| --- | --------- | ----- | ---------------- | ----- |
+|  1  | BLP when each request is going to a different BA in the same BG. | 4 requests going to same BG, each with different BA. | ACT -> ACT -> ACT -> ACT -> RD -> RD -> RD -> RD | Testing BG 0, 3, 6 to check 0, even, and odd checks. |
+|  2  | BLP is working correctly when there are two requests vying for same BG,BA. | 3 requests, first two will go to same BG,BA, and the third will go to different BG,BA. | ACT -> ACT -> RD -> RD -> PRE -> ACT -> RD | First two ACT are for request 1 and 3 respectively. Second request page miss. |
+|  x  | On the same even _CPU_ cycle for when a command should be executed, add a request for a different BG,BA. This new request should not start in that exact cycle, instead it needs to wait for idle time. |       |                  | Not created yet |
 
 ### 4.4. LEVEL 3
 #### 4.4.1. OUT-OF-ORDER SCHEDULING
@@ -123,6 +131,15 @@ Create a trace file as an input (ASCII text file) using a test case generator.
 1. READ over WRITES
    - Only when the addresses are different. If this is done when the addresses are the same, it will lead to reading stale data. 
 2. Prioritize page hits over page misses
+
+**Test Cases**:
+| \#  | OBJECTIVE | INPUT | EXPECTED RESULTS | Notes |
+| --- | --------- | ----- | ---------------- | ----- |
+|  1  | Read over write when valid | 3 requests all going to the same BG,BA. R1 will be read, R2 will be write, and R3 will be read. All are going to different ROW,COL. | RD -> RD -> WR | Activates and precharge are omitted |
+|  2  | No read over write when not valid (SAME addresses). | 3 requests all going to the same BG,BA. R1 will be read, R2 will be write, and R3 will be read. All are going to the SAME ROW,COL. | RD -> WR -> RD | Also tests how simulator handles when a page hit over page miss is possible, but invalid due to not being able to put read over write.  |
+|  3  | Prioritize page hits over page misses. | 3 requests all going to the same BG,BA. R1 will be read, R2 will be read (different row from R1), R3 will be read(same row as R1).| ACT -> RD -> RD -> PRE -> ACT -> RD |       |
+
+note: (R# = request number)
 
 ## 5. DRAM COMMANDS FUNCTIONALLY CORRECT
 **Note**: In level 2+, the scheduler will always pick READ1, WRITE1, and ACT1 if they are available. This project is using 1n mode, so there is a 1 cycle delay between 0 -> 1. 
@@ -182,3 +199,13 @@ Math explantion:
 
 ### 6.12. tCCD_S_WTR and tCCD_L_WTR
 >tCCD_S_WTR = 70, tCCD_L_WTR = 52. Write to read command delay. _S for different bank gropu, _L for same bank in same bank group. Level 1+.
+
+
+## copy paste thingy, remove later
+**Test Cases**:
+| \#  | OBJECTIVE | INPUT | EXPECTED RESULTS | Notes |
+| --- | --------- | ----- | ---------------- | ----- |
+|  1  |           |       |                  |       |
+|  2  |           |       |                  |       |
+|  3  |           |       |                  |       |
+|  4  |           |       |                  |       |
