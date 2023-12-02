@@ -368,6 +368,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
       else {
         request->state = WR0;
       }
+      dram->bank_groups[request->bank_group].banks[request->bank].last_request_operation = request->operation;
     } 
     else if (is_page_miss(dram, request)) {
       request->state = PRE;
@@ -378,6 +379,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
       }
 
       request->state = ACT0;
+      dram->bank_groups[request->bank_group].banks[request->bank].last_request_operation = request->operation;
     } 
     else {
       fprintf(stderr, "Error: Unknown page state encountered\n");
@@ -396,7 +398,6 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
           cmd = issue_cmd("PRE", request, cycle);
           dram->last_interface_cmd = PRECHARGE;
           dram->last_bank_group = request->bank_group;
-          dram->bank_groups[request->bank_group].banks[request->bank].last_request_operation = request->operation;
           
           // set timers
           set_timing_constraint(dram, request, tRP);
@@ -413,7 +414,6 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
           cmd = issue_cmd("PRE", request, cycle);
           dram->last_interface_cmd = PRECHARGE;
           dram->last_bank_group = request->bank_group;
-          dram->bank_groups[request->bank_group].banks[request->bank].last_request_operation = request->operation;
           
           // set timers
           set_timing_constraint(dram, request, tRP);
@@ -719,6 +719,8 @@ void bank_level_parallelism(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
   decrement_timing_constraints(dram1);
   decrement_tfaw_timers(dram0);
   decrement_tfaw_timers(dram1);
+  decrement_consecutive_cmd_timers(dram0);
+  decrement_consecutive_cmd_timers(dram1);
 }
 
 void dram_init(DRAM_t *dram) {
