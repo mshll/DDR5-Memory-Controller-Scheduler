@@ -58,6 +58,9 @@
 
 #define CACHE_LINE_BOUNDARY 64
 
+extern uint16_t timing_attribute[NUM_TIMING_CONSTRAINTS];
+extern uint8_t consecutive_cmd_attribute[NUM_CONSECUTIVE_CMD_CONSTRAINTS];
+
 typedef enum TimingConstraints {
   tRC,
   tRAS,
@@ -84,8 +87,6 @@ typedef enum ConsecutiveCmdConstraints {
   tCCD_S_WTR
 } ConsecutiveCmdConstraints_t;
 
-extern uint16_t timing_attribute[NUM_TIMING_CONSTRAINTS];
-extern uint8_t consecutive_cmd_attribute[NUM_CONSECUTIVE_CMD_CONSTRAINTS];
 
 typedef struct Bank {
   bool is_precharged;

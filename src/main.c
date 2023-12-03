@@ -53,7 +53,12 @@ int main(int argc, char *argv[]) {
   while (true) {
     if (current_request == NULL) {
       current_request = parser_next_request(parser, clock_cycle);  // only returns the request if the current cycle >= request's time
+      if (current_request != NULL) {
+      printf("read new request at %llu\n", clock_cycle);
     }
+    }
+
+    
 
     // DIMM clock cycle - only process request if there is one in the queue
     if (clock_cycle % 2 == 0 && !queue_is_empty(global_queue)) {
@@ -63,7 +68,7 @@ int main(int argc, char *argv[]) {
     // CPU clock cycle - enqueue if there is a request and queue is not full
     if (current_request != NULL && !queue_is_full(global_queue)) {
 
-      if(scheduling_policy == LEVEL_3){
+      if (scheduling_policy == LEVEL_3) {
         out_of_order(&global_queue, current_request);
       } else {
         enqueue(&global_queue, *current_request);

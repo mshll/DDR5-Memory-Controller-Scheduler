@@ -73,7 +73,7 @@ void parser_next_line(Parser_t *parser) {
 
 MemoryRequest_t parse_line(char *line) {
   uint64_t time, address;
-  uint8_t core, operation;
+  uint32_t core, operation;
   MemoryRequest_t memory_request;
 
   sscanf(line, "%llu %u %u %llx", &time, &core, &operation, &address);

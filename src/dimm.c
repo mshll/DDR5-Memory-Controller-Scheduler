@@ -80,7 +80,7 @@ char *issue_cmd(char *cmd, MemoryRequest_t *request, uint64_t cycle) {
   char *response = malloc(sizeof(char) * 100);
   char *temp = malloc(sizeof(char) * 100);
 
-  sprintf(response, "%10llu %u %4s", cycle / 2 - 1, request->channel, cmd);
+  sprintf(response, "%10llu %u %4s", cycle, request->channel, cmd);
 
   if (strncmp(cmd, "ACT", 3) == 0) {
     sprintf(temp, " %u %u 0x%X", request->bank_group, request->bank, request->row);
@@ -192,7 +192,7 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
   bool issued_cmd = false;
 
   // Set the initial state before processing the request
-  LOG("cycle %llu, state %d \n", clock / 2 - 1, request->state);
+  LOG("cycle %llu, state %d \n", clock, request->state);
 
   if (request->state == PENDING) {
     request->state = ACT0;
@@ -380,7 +380,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
   // Process the request (one state per cycle)
   switch (request->state) {
     case PRE:
-      if (dram->bank_groups[request->bank_group].banks[request->bank].last_request_operation = DATA_READ) {
+      if (dram->bank_groups[request->bank_group].banks[request->bank].last_request_operation == DATA_READ) {
         if (is_timing_constraint_met(dram, request, tRTP) && is_timing_constraint_met(dram, request, tRAS)) {
           precharge_bank(dram, request);
 

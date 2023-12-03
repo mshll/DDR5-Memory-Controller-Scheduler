@@ -648,13 +648,13 @@ int8_t doubly_ll_print_list(
   // traverse linked list
   while (temp != NULL) {
     LOG(
-        "BG: %hhu "
-        "BA: %hhu\n"
-        "ROW: %04X "
-        "COLH: %02X "
-        "COLL: %0X\n"
+        "CORE: %hhu, OPERATION: %hhu\n"
+        "BG: %hhu, BA: %hhu\n"
+        "ROW: %04X, COLH: %02X, COLL: %0X\n"
         "|   \n"
         "V   \n",
+        temp->item.core,
+        temp->item.operation,
         temp->item.bank_group,
         temp->item.bank,
         temp->item.row,
