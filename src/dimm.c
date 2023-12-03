@@ -353,11 +353,11 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
   // Set the initial state before processing the request
   if (request->state == PENDING) {
     if (is_page_hit(dram, request)) {
-      if (request->operation == DATA_READ) {
-        request->state = RD0;
+      if (request->operation == DATA_WRITE) {
+        request->state = WR0;
       }
       else {
-        request->state = WR0;
+        request->state = RD0;
       }
       dram->bank_groups[request->bank_group].banks[request->bank].last_request_operation = request->operation;
     } 
@@ -366,7 +366,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
     } 
     else if (is_page_empty(dram, request)) {
       if (!can_issue_act(dram)) {
-        return issue_cmd;
+        return issued_cmd;
       }
 
       request->state = ACT0;

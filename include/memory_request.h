@@ -10,9 +10,8 @@
 
 #include "common.h"
 
-// TODO 'REF' not implemented yet
+
 typedef enum MemoryRequestState {
-  REF,
   PENDING,
   ACT0,
   ACT1,
