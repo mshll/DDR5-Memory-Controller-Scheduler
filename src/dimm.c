@@ -80,7 +80,7 @@ char *issue_cmd(char *cmd, MemoryRequest_t *request, uint64_t cycle) {
   char *response = malloc(sizeof(char) * 100);
   char *temp = malloc(sizeof(char) * 100);
 
-  sprintf(response, "%10llu %u %4s", cycle, request->channel, cmd);
+  sprintf(response, "%10llu %u %4s", cycle/2 - 1, request->channel, cmd);
 
   if (strncmp(cmd, "ACT", 3) == 0) {
     sprintf(temp, " %u %u 0x%X", request->bank_group, request->bank, request->row);
@@ -219,6 +219,7 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
 
       set_timing_constraint(dram, request, tRCD);
       set_timing_constraint(dram, request, tRAS);
+      set_timing_constraint(dram, request, tRC);
       
       // next state
       if (request->operation == DATA_WRITE) {
@@ -380,8 +381,8 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
   // Process the request (one state per cycle)
   switch (request->state) {
     case PRE:
-      if (dram->bank_groups[request->bank_group].banks[request->bank].last_request_operation == DATA_READ) {
-        if (is_timing_constraint_met(dram, request, tRTP) && is_timing_constraint_met(dram, request, tRAS)) {
+      if (dram->bank_groups[request->bank_group].banks[request->bank].last_request_operation == DATA_WRITE) {
+        if (is_timing_constraint_met(dram, request, tWR) && is_timing_constraint_met(dram, request, tRAS)) {
           precharge_bank(dram, request);
 
           // issue cmd
@@ -397,7 +398,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
         }
       }
       else {
-        if (is_timing_constraint_met(dram, request, tWR) && is_timing_constraint_met(dram, request, tRAS)) {
+        if (is_timing_constraint_met(dram, request, tRTP) && is_timing_constraint_met(dram, request, tRAS)) {
           precharge_bank(dram, request);
 
           // issue cmd
@@ -463,6 +464,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
       // set timers
       set_timing_constraint(dram, request, tRCD);
       set_timing_constraint(dram, request, tRAS);
+      set_timing_constraint(dram, request, tRC);
       set_trrd_timers(dram);
       set_tfaw_timer(dram);
 
@@ -477,27 +479,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
       break;
 
     case RD0:
-      if (dram->last_interface_cmd == READ) {
-        if (dram->last_bank_group == request->bank_group) {
-          if (
-            is_timing_constraint_met(dram, request, tRCD) &&
-            is_tccds_met(dram, tCCD_L)
-          ) {
-            cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
-            request->state = RD1;
-          }
-        }
-        else {
-          if (
-            is_timing_constraint_met(dram, request, tRCD) &&
-            is_tccds_met(dram, tCCD_S)
-          ) {
-            cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
-            request->state = RD1;
-          }
-        }
-      }
-      else if (dram->last_interface_cmd == WRITE) {
+      if (dram->last_interface_cmd == WRITE) {
         if (dram->last_bank_group == request->bank_group) {
           if (
             is_timing_constraint_met(dram, request, tRCD) &&
@@ -511,6 +493,27 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
           if (
             is_timing_constraint_met(dram, request, tRCD) &&
             is_tccds_met(dram, tCCD_S_WTR)
+          ) {
+            cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
+            request->state = RD1;
+          }
+        }
+
+      }
+      else {
+        if (dram->last_bank_group == request->bank_group) {
+          if (
+            is_timing_constraint_met(dram, request, tRCD) &&
+            is_tccds_met(dram, tCCD_L)
+          ) {
+            cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
+            request->state = RD1;
+          }
+        }
+        else {
+          if (
+            is_timing_constraint_met(dram, request, tRCD) &&
+            is_tccds_met(dram, tCCD_S)
           ) {
             cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
             request->state = RD1;
@@ -555,7 +558,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
           }
         }
       }
-      else if (dram->last_interface_cmd == READ) {
+      else {
         if (dram->last_bank_group == request->bank_group) {
           if (
             is_timing_constraint_met(dram, request, tRCD) &&

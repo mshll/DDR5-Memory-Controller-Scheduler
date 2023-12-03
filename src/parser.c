@@ -73,10 +73,10 @@ void parser_next_line(Parser_t *parser) {
 
 MemoryRequest_t parse_line(char *line) {
   uint64_t time, address;
-  uint32_t core, operation;
+  uint8_t core, operation;
   MemoryRequest_t memory_request;
 
-  sscanf(line, "%llu %u %u %llx", &time, &core, &operation, &address);
+  sscanf(line, "%llu %hhu %hhu %llx", &time, &core, &operation, &address);
   memory_request_init(&memory_request, time, core, operation, address);
 
   // LOG("Parsed: time = %5llu, core = %2u, operation = %u, address = %#016llX\n", time, core, operation, address);
