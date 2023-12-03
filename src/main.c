@@ -19,6 +19,8 @@
 #include <getopt.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
+
 #include "common.h"
 #include "dimm.h"
 #include "memory_request.h"
@@ -36,6 +38,7 @@ void out_of_order(Queue_t *global_queue, MemoryRequest_t *current_request);
 
 /*** function(s) ***/
 int main(int argc, char *argv[]) {
+  clock_t begin_execution = clock();  
   char *input_file_name, *output_file_name;
   int scheduling_policy = 0;  // default is level 0
   process_args(argc, argv, &input_file_name, &output_file_name, &scheduling_policy);
@@ -53,12 +56,7 @@ int main(int argc, char *argv[]) {
   while (true) {
     if (current_request == NULL) {
       current_request = parser_next_request(parser, clock_cycle);  // only returns the request if the current cycle >= request's time
-      if (current_request != NULL) {
-      printf("read new request at %llu\n", clock_cycle);
     }
-    }
-
-    
 
     // DIMM clock cycle - only process request if there is one in the queue
     if (clock_cycle % 2 == 0 && !queue_is_empty(global_queue)) {
@@ -89,6 +87,8 @@ int main(int argc, char *argv[]) {
   parser_destroy(parser);
   queue_destroy(&global_queue);
   dimm_destroy(&PC5_38400);
+  clock_t end_execution = clock();
+  printf("Program Execution Time: %lf\n", (double)(end_execution - begin_execution) / CLOCKS_PER_SEC);
   return 0;
 }
 

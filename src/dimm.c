@@ -83,13 +83,13 @@ char *issue_cmd(char *cmd, MemoryRequest_t *request, uint64_t cycle) {
   sprintf(response, "%10llu %u %4s", cycle/2 - 1, request->channel, cmd);
 
   if (strncmp(cmd, "ACT", 3) == 0) {
-    sprintf(temp, " %u %u 0x%X", request->bank_group, request->bank, request->row);
+    sprintf(temp, " %u %u 0x%04X", request->bank_group, request->bank, request->row);
 
   } else if (strncmp(cmd, "PRE", 3) == 0) {
     sprintf(temp, " %u %u", request->bank_group, request->bank);
 
   } else if (strncmp(cmd, "RD", 2) == 0 || strncmp(cmd, "WR", 2) == 0) {
-    sprintf(temp, " %u %u 0x%X", request->bank_group, request->bank, get_column(request));
+    sprintf(temp, " %u %u 0x%04X", request->bank_group, request->bank, get_column(request));
   }
 
   strcat(response, temp);
@@ -684,9 +684,9 @@ void bank_level_parallelism(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
     }
 
     // skip if older process is in progess for the same BA/BG of current request
-    if (is_bank_active(dram, request) && request->state == PENDING) {
-      continue;
-    }
+    // if (request->state == PENDING) {
+    //   continue;
+    // }
 
     is_cmd_issued = open_page(dimm, request, clock);
 
@@ -711,10 +711,10 @@ void bank_level_parallelism(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
   );
   decrement_timing_constraints(dram0);
   decrement_timing_constraints(dram1);
-  decrement_tfaw_timers(dram0);
-  decrement_tfaw_timers(dram1);
   decrement_consecutive_cmd_timers(dram0);
   decrement_consecutive_cmd_timers(dram1);
+  decrement_tfaw_timers(dram0);
+  decrement_tfaw_timers(dram1);
 }
 
 void dram_init(DRAM_t *dram) {
