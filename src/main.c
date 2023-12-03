@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
     if (current_request != NULL && !queue_is_full(global_queue)) {
 
       if (scheduling_policy == LEVEL_3) {
-        out_of_order(&global_queue, current_request);
+        out_of_order(global_queue, current_request);
       } else {
         enqueue(&global_queue, *current_request);
       }
@@ -122,7 +122,6 @@ void process_args(int argc, char *argv[], char **input_file, char **output_file,
 
 void out_of_order(Queue_t *global_queue, MemoryRequest_t *current_request) {
   bool inserted = false; //flag so we dont insert it twice
-        
   if (current_request->operation == DATA_WRITE) {
 
     for (int i = 0; i < global_queue->size && !inserted; i++) {
