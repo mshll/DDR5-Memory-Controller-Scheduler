@@ -20,7 +20,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
-
 #include "common.h"
 #include "dimm.h"
 #include "memory_request.h"
@@ -42,6 +41,12 @@ int main(int argc, char *argv[]) {
   char *input_file_name, *output_file_name;
   int scheduling_policy = 0;  // default is level 0
   process_args(argc, argv, &input_file_name, &output_file_name, &scheduling_policy);
+
+  printf("--- Simulation Parameters ---\n");
+  printf("Scheduling Policy Level: %d\n", scheduling_policy);
+  printf("Input File: %s\n", input_file_name);
+  printf("Output File: %s\n", output_file_name);
+  printf("-----------------------------\n");
 
   Parser_t *parser = parser_init(input_file_name);
   DIMM_t *PC5_38400 = NULL;
@@ -65,7 +70,6 @@ int main(int argc, char *argv[]) {
 
     // CPU clock cycle - enqueue if there is a request and queue is not full
     if (current_request != NULL && !queue_is_full(global_queue)) {
-
       if (scheduling_policy == LEVEL_3) {
         out_of_order(global_queue, current_request);
       } else {
@@ -88,7 +92,8 @@ int main(int argc, char *argv[]) {
   queue_destroy(&global_queue);
   dimm_destroy(&PC5_38400);
   clock_t end_execution = clock();
-  printf("Program Execution Time: %lf\n", (double)(end_execution - begin_execution) / CLOCKS_PER_SEC);
+  printf("Total Clock Cycles: %" PRIu64 "\n", clock_cycle);
+  printf("Program Execution Time: %lf seconds\n", (double)(end_execution - begin_execution) / CLOCKS_PER_SEC);
   return 0;
 }
 
