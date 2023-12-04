@@ -8,6 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <inttypes.h>
 
 /*** macro(s), enum(s), struct(s) ***/
 // #define OPEN_PAGE_POLICY  // comment out to use closed page policy
@@ -19,11 +20,6 @@
 #define LOG(...)       /*** expands to nothing ***/
 #endif
 
-#ifdef __linux__
-#define UINT64_T "%lu"
-#elif __APPLE__
-#define UINT64_T "%llu"
-#endif
 
 enum SchedulingAlgorithms {
   LEVEL_0,

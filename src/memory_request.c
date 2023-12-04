@@ -34,6 +34,6 @@ uint16_t get_column(MemoryRequest_t *memory_request) {
  * Format: [cycle] prefix core operation [bank_group bank row column]
  */
 void log_memory_request(char *prefix, MemoryRequest_t *memory_request, uint64_t cycle) {
-  LOG("[%llu] %s %u %u [%X %X %X %X]\n", cycle, prefix, memory_request->core, memory_request->operation, memory_request->bank_group,
+  LOG("[%" PRIu64 "] %s %u %u [%X %X %X %X]\n", cycle, prefix, memory_request->core, memory_request->operation, memory_request->bank_group,
       memory_request->bank, memory_request->row, get_column(memory_request));
 }

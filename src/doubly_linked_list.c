@@ -643,7 +643,7 @@ int8_t doubly_ll_print_list(
    ***/
   node_t *temp = list->list_head;
 
-  LOG("queue (size = %d): \n", list->size);
+  LOG("queue (size = %" PRIu64 "): \n", list->size);
 
   // traverse linked list
   while (temp != NULL) {
@@ -688,7 +688,7 @@ int8_t doubly_ll_list_status(
       "\tlist @%p\n"
       "\thead @%p\n"
       "\ttail @%p\n"
-      "\tsize = %llu\n",
+      "\tsize = %" PRIu64 "\n",
       list,
       list->list_head,
       list->list_tail,
@@ -728,7 +728,7 @@ int8_t doubly_ll_node_status(
       "next node: @%p\n"
       "prev node: @%p\n"
       "item:\n"
-      "\ttime: %8llu \n"
+      "\ttime: %8" PRIu64 " \n"
       "\tcore: %8hhu\n"
       "\toperation: %8hhu\n"
       "\tbyte_select: %8hhu\n"
