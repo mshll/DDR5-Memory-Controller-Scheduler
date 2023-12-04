@@ -38,7 +38,7 @@ void out_of_order(Queue_t *global_queue, MemoryRequest_t *current_request);
 
 /*** function(s) ***/
 int main(int argc, char *argv[]) {
-  clock_t begin_execution = clock();  
+  clock_t begin_execution = clock();
   char *input_file_name, *output_file_name;
   int scheduling_policy = 0;  // default is level 0
   process_args(argc, argv, &input_file_name, &output_file_name, &scheduling_policy);
@@ -126,17 +126,17 @@ void out_of_order(Queue_t *global_queue, MemoryRequest_t *current_request) {
 
     for (int i = 0; i < global_queue->size && !inserted; i++) {
       MemoryRequest_t *read_request = queue_peek_at(global_queue, i);
-      if (read_request->operation == DATA_READ &&
+      if (read_request->operation != DATA_WRITE &&
         read_request->bank_group == current_request->bank_group &&
         read_request->bank == current_request->bank &&
         (read_request->row != current_request->row || read_request->column_low != current_request->column_low || read_request->column_high != current_request->column_high)
       ) {
-      //we put DATA_WRITE after the DATA_READ
+        // we put DATA_WRITE after the DATA_READ or IFETCH
         queue_insert_at(&global_queue, i + 1, *current_request);
         inserted = true;
       }
     }
-  } else if (current_request->operation == DATA_READ) {
+  } else {
 
     for (int i = 0; i < global_queue->size && !inserted; i++) {
       MemoryRequest_t *write_request = queue_peek_at(global_queue, i);
@@ -145,7 +145,7 @@ void out_of_order(Queue_t *global_queue, MemoryRequest_t *current_request) {
           write_request->bank == current_request->bank &&
           (write_request->row != current_request->row || write_request->column_low != current_request->column_low || write_request->column_high != current_request->column_high)
       ) {
-        //we put the DATA_READ before the DATA_WRITE
+        // we put the DATA_READ or IFETCH before the DATA_WRITE
         queue_insert_at(&global_queue, i, *current_request);
         inserted = true;
       }
