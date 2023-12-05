@@ -57,6 +57,7 @@
 #define NUM_CHIPS_PER_CHANNEL 4
 
 #define CACHE_LINE_BOUNDARY 64
+#define BANK_ALIGN 8
 
 extern uint16_t timing_attribute[NUM_TIMING_CONSTRAINTS];
 extern uint8_t consecutive_cmd_attribute[NUM_CONSECUTIVE_CMD_CONSTRAINTS];
@@ -91,15 +92,15 @@ typedef enum ConsecutiveCmdConstraints {
 typedef struct __attribute__((__packed__)) Bank {
   bool is_precharged;
   bool is_active;
-  uint8_t last_request_operation;
+  Operation_t last_request_operation;
   uint32_t active_row;
 } Bank_t;
 
-typedef struct __attribute__((__packed__)) BankGroup {
+typedef struct __attribute__((aligned(CACHE_LINE_BOUNDARY))) BankGroup {
   Bank_t banks[NUM_BANKS_PER_GROUP];
 } BankGroup_t;
 
-typedef struct __attribute__((__packed__)) DRAM {
+typedef struct DRAM {
   BankGroup_t bank_groups[NUM_BANK_GROUPS];
   uint16_t timing_constraints[NUM_BANK_GROUPS][NUM_BANKS_PER_GROUP][NUM_TIMING_CONSTRAINTS];
   uint8_t tFAW_timers[NUM_TFAW_COUNTERS];
@@ -108,11 +109,11 @@ typedef struct __attribute__((__packed__)) DRAM {
   Commands_t last_interface_cmd;
 } DRAM_t;
 
-typedef struct __attribute__((__packed__)) Channel {
+typedef struct Channel {
   DRAM_t DDR5_chip[NUM_CHIPS_PER_CHANNEL];
 } Channel_t;
 
-typedef struct __attribute__((aligned(1024))) DIMM {
+typedef struct DIMM {
   Channel_t channels[NUM_CHANNELS];
   FILE *output_file;
 } DIMM_t;

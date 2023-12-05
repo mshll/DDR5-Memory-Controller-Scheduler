@@ -121,16 +121,15 @@ int8_t doubly_ll_insert_at(
   }
 
   new_node->item = new_item;
-  new_node->item.error_bit = 0; // no error occured during insertion
 
   // insert at head
   if (index == 0) {
-    new_node->next_node = (*list)->list_head;
-    new_node->prev_node = NULL;
-    (*list)->list_head = new_node;
+    new_node->prev_node = (*list)->list_tail;
+    new_node->next_node = NULL;
+    (*list)->list_tail = new_node;
 
     if ((*list)->size == 0) {
-      (*list)->list_tail = new_node;
+      (*list)->list_head = new_node;
     }
 
     (*list)->size++;
@@ -138,13 +137,13 @@ int8_t doubly_ll_insert_at(
     return LL_EXIT_SUCCESS;
   }
 
-  // insert at tail
+  // insert at head
   if (index == (*list)->size) {
-    new_node->prev_node = (*list)->list_tail;  // prev points to old tail
-    new_node->next_node = NULL;
+    new_node->next_node = (*list)->list_head;  // prev points to old tail
+    new_node->prev_node = NULL;
 
-    (*list)->list_tail->next_node = new_node;
-    (*list)->list_tail = new_node;
+    (*list)->list_head->prev_node = new_node;
+    (*list)->list_head = new_node;
 
     (*list)->size++;
 
@@ -152,24 +151,24 @@ int8_t doubly_ll_insert_at(
   }
 
   // insert inbetween list
-  node_t *current_node = (*list)->list_head;
+  node_t *current_node = (*list)->list_tail;
 
   /*** current node points to node right before insertion point
    *   when index equals 1. This is required to insert node at appropriate location.
    ***/
   while (index != 1) {
-    current_node = current_node->next_node;
+    current_node = current_node->prev_node;
     index--;
   }
 
   // new node points to next node and prev node (aka current node)
-  new_node->next_node = current_node->next_node;
-  new_node->prev_node = current_node;
+  new_node->prev_node = current_node->prev_node;
+  new_node->next_node = current_node;
 
   // have the old next node point back new node (the node that took its place)
-  current_node->next_node->prev_node = new_node;
+  current_node->prev_node->next_node = new_node;
   // current node (aka prev node) point to new node
-  current_node->next_node = new_node;
+  current_node->prev_node = new_node;
 
   (*list)->size++;
 
@@ -201,7 +200,6 @@ int8_t doubly_ll_insert_head(
   }
   new_node->item = new_item;
   new_node->prev_node = NULL;
-  new_node->item.error_bit = 0; // no error occured during insertion
 
   // case 1; list is empty
   if ((*list)->size == 0) {
@@ -248,7 +246,6 @@ int8_t doubly_ll_insert_tail(
   }
   new_node->item = new_item;
   new_node->next_node = NULL;
-  new_node->item.error_bit = 0; // no error occured during insertion
 
   // attach to tail if list is empty
   if ((*list)->list_tail == NULL) {
@@ -285,14 +282,14 @@ MemoryRequest_t doubly_ll_delete_at(
 
   // list existane or empty list
   if ((*list) == NULL || (*list)->size == 0) {
-    MemoryRequest_t error_value = {.error_bit = 1};
-    return error_value;
+    fprintf(stderr, "%s:%d: delete_at failed\n", __FILE__, __LINE__);
+    exit(EXIT_FAILURE);
   }
 
   // check if index is in range
   if (index > (*list)->size - 1) {
-    MemoryRequest_t error_value = {.error_bit = 1};
-    return error_value;
+    fprintf(stderr, "%s:%d: delete_at failed\n", __FILE__, __LINE__);
+    exit(EXIT_FAILURE);
   }
 
   // traverse list
@@ -377,8 +374,8 @@ MemoryRequest_t doubly_ll_delete_head(
 
   // check if list exist or is empty
   if (*list == NULL || (*list)->size == 0) {
-    MemoryRequest_t error_value = {.error_bit = 1};
-    return error_value;
+    fprintf(stderr, "%s:%d: delete_head failed\n", __FILE__, __LINE__);
+    exit(EXIT_FAILURE);
   }
 
   // point to node that will be deleted
@@ -419,8 +416,8 @@ MemoryRequest_t doubly_ll_delete_tail(
 
   // check if list exist or is empty
   if (*list == NULL || (*list)->size == 0) {
-    MemoryRequest_t error_value = {.error_bit = 1};
-    return error_value;
+    fprintf(stderr, "%s:%d: delete_tail failed\n", __FILE__, __LINE__);
+    exit(EXIT_FAILURE);
   }
 
   node_t *temp = NULL;
