@@ -21,19 +21,23 @@
   - [5.3. ACTIVATE0, ACTIVATE1](#53-activate0-activate1)
   - [5.4. PRECHARGE](#54-precharge)
 - [6. DRAM TIMING CORRECT](#6-dram-timing-correct)
-  - [6.1. tRCD](#61-trcd)
-  - [6.2. tRTP](#62-trtp)
-  - [6.3. tWR](#63-twr)
-  - [6.4. tCL](#64-tcl)
-  - [6.5. tRAS](#65-tras)
-  - [6.6. tRP](#66-trp)
-  - [6.7. tFAW](#67-tfaw)
-  - [6.8. tRRD\_S and tRRD\_L](#68-trrd_s-and-trrd_l)
-  - [6.9. tCCD\_S and tCCD\_L](#69-tccd_s-and-tccd_l)
-  - [6.10. tCCD\_S\_WR and tCCD\_L\_WR](#610-tccd_s_wr-and-tccd_l_wr)
-  - [6.11. tCCD\_S\_RTW and tCCD\_L\_RTW](#611-tccd_s_rtw-and-tccd_l_rtw)
-  - [6.12. tCCD\_S\_WTR and tCCD\_L\_WTR](#612-tccd_s_wtr-and-tccd_l_wtr)
-- [copy paste thingy, remove later](#copy-paste-thingy-remove-later)
+  - [6.1. Level 0](#61-level-0)
+  - [6.2. Timing Descriptions](#62-timing-descriptions)
+    - [6.2.1. tRCD](#621-trcd)
+    - [6.2.2. tRTP](#622-trtp)
+    - [6.2.3. tWR](#623-twr)
+    - [6.2.4. tCL](#624-tcl)
+    - [6.2.5. tCWL](#625-tcwl)
+    - [6.2.6. tRAS](#626-tras)
+    - [6.2.7. tRP](#627-trp)
+    - [6.2.8. tRC](#628-trc)
+    - [6.2.9. tFAW](#629-tfaw)
+    - [6.2.10. tRRD\_S and tRRD\_L](#6210-trrd_s-and-trrd_l)
+    - [6.2.11. tCCD\_S and tCCD\_L](#6211-tccd_s-and-tccd_l)
+    - [6.2.12. tCCD\_S\_WR and tCCD\_L\_WR](#6212-tccd_s_wr-and-tccd_l_wr)
+    - [6.2.13. tCCD\_S\_RTW and tCCD\_L\_RTW](#6213-tccd_s_rtw-and-tccd_l_rtw)
+    - [6.2.14. tCCD\_S\_WTR and tCCD\_L\_WTR](#6214-tccd_s_wtr-and-tccd_l_wtr)
+- [7. copy paste thingy, remove later](#7-copy-paste-thingy-remove-later)
 
 
 ## 1. INTRODUCTION
@@ -162,51 +166,74 @@ note: (R# = request number)
 >If a page is open, the data needs to return from the sense amplifiers so another activate can occur. In a closed page policy, every READ/WRITE command should be followed by PRE. In an open page policy, PRE will occur when the currently open page is not the request page. Followed by tRP = 39. tRAS and tRTP must be satisfied before it can be issued. Output should show the bank, bank group being precharged. 
 
 ## 6. DRAM TIMING CORRECT
-**Note**: All the RRD and CCD timings are level 1+ or level 2+ only because the cases only occur when a page hit happens, or because our scheduler picks the required back to back commands during bank level parallelism.
 
-### 6.1. tRCD
+### 6.1. Level 0
+
+**Test Cases**:
+| \#  | OBJECTIVE | INPUT | EXPECTED RESULTS | Notes |
+| --- | --------- | ----- | ---------------- | ----- |
+|  1  | tRCD,tCL,tRAS, for a read. | Read request at CPU 199. | ACT0 at DIMM 100,<br/>ACT1 at DIMM 101,<br/>RD0 at DIMM 139,<br/>RD1 at DIMM 140,<br/>PRE at DIMM 177,<br/>BURST at DIMM 180,<br/>Dequeue at DIMM 188. |       |
+|  2  | tRCD,tCWL,tRAS, for a write. | Write request at CPU 199. | ACT0 at DIMM 100,<br/>ACT1 at DIMM 101,<br/>WR0 at DIMM 139,<br/>WR1 at DIMM 140,<br/>BURST at DIMM 178,<br/>Dequeue at DIMM 186,<br/>PRE at DIMM 216 |       |
+|  3  |           |       |                  |       |
+|  4  |           |       |                  |       |
+
+### 6.2. Timing Descriptions
+
+**Note**: 
+1) All the RRD and CCD timings are level 1+ or level 2+ only because the cases only occur when a page hit happens, or because our scheduler picks the required back to back commands during bank level parallelism.
+2) Delay starts counting from the second 1/2 of the first command to the second 1/2 of the second command. This means the timing from activate to getting data = 1+tRCD+tCL, there is only a single "+1" because the second is overlapped by tRCD. 
+
+#### 6.2.1. tRCD
 >tRCD = 39. Cycles to open a row. Occurs between ACT -> READ/WRITE.
 
-### 6.2. tRTP
->tRTP = 18. Read to precharge delay. Occurs between READ -> PRECHARGE. This means a PRE can be done before we start reading out data, but we still need to wait for tRAS to be satisfied.
+**Test Cases**:
+| \#  | OBJECTIVE | INPUT | EXPECTED RESULTS | Notes |
+| --- | --------- | ----- | ---------------- | ----- |
+|  1  | tRCD in closed page policy (level 0). | Request for read then write at timings 99 and 299 (both CPU). | ACT1 at DIMM 51,<br /> READ1 at DIMM 90. <br /> ACT1 at DIMM 151,<br /> WRITE1 at DIMM 190 | Only check for tRCD. |
+|  2  | tRCD in open page policy (level 1). | Request for read then write at timings 99 and 299 (both CPU),<br /> both page empty. | ACT1 at DIMM 51,<br /> READ1 at DIMM 90. <br />ACT1 at DIMM 151,<br /> WRITE at DIMM 190 |       |
+|  3  | tRCD when two banks are in parallel (level 2). | Two requests at CPU clock 199,200, <br /> both page empty. | ACT1 at DIMM 101,<br /> ACT1 at DIMM ###,<br /> READ1 at DIMM 140,<br /> READ1 at DIMM (###+39). | Don't care for tRRD right now, but tRCD should still be +39 later |
 
-### 6.3. tWR
->tWR = 30. Write to precharge delay. Occurs between WRITE -> PRECHARGE. This means a PRE can be done before we start reading out data, but we still need to wait for tRAS to be satisfied.
+#### 6.2.2. tRTP
+>tRTP = 18. Read to precharge delay. Occurs between READ -> PRECHARGE. This means a PRE can be done before we start (or during) reading out data, but we still need to wait for tRAS to be satisfied if necessary. This is possible because the data is moved to a buffer when the RD command is issued, so we can close the page prematurely.
 
-### 6.4. tCL
->tCL = 40. Cycles to begin receiving data. Occurs between READ -> DATA BURST.
+#### 6.2.3. tWR
+>tWR = 30. Write recovery time. Occurs between WRITE DATA -> PRECHARGE. This means the time it takes from issuing a WRITE to PRE is tCWL + tBURST + tWR = 76 from WR1 -> PRE.
 
-### 6.5. tRAS
->tRAS = 76. Amount of cycles needed between ACT -> PRE. By doing the math from the previously mentioned timings, in level 0 we are able to issue the precharge command before tCL is satisfied and while tRTP is satisfied. This should save 13 cycles (79 + 1 + 1 + 8 - 76). This won't be done in level 1+ unless we have foresight on the next request being page miss or page hit. 
+#### 6.2.4. tCL
+>tCL = 40. Cycles to begin receiving data (from read). Occurs between READ -> DATA.
 
-Math explantion:
-- 79 + 1 + 1 + 8 = tCL + tRCD + 1n + 1n + tBURST; Issue PRE after data is bursted.
-- 76 = tRAS; Issue PRE before data is bursted.
-- Total is cycles saved by issuing PRE before data burst.
+#### 6.2.5. tCWL
+>tCWL = 38. Column write delay (WR replacement for tCL). Occurs between WRITE -> DATA. 
 
-### 6.6. tRP
+#### 6.2.6. tRAS
+>tRAS = 76. Amount of cycles needed between ACT -> PRE. By doing the math from the previously mentioned timings, in level 0 we are able to issue the precharge command before tCL is satisfied and while tRTP is satisfied. For example if ACT1 finished at DIMM clock 1, tRAS will finish at DIMM clock 77, two cycles before tCL. 
+
+#### 6.2.7. tRP
 >tRP = 39. Row precharge time. Occurs between PRE -> ACT.
 
-### 6.7. tFAW
->tFAW = 32. Amount of time needed between every 4 ACT commands. Level 2+.
+#### 6.2.8. tRC
+>tRC = tRAS + tRP = 115. Minimum time between activates in a bank. As long as tRP and tRAS are tested correctly, this should be satisfied as well. 
 
-### 6.8. tRRD_S and tRRD_L
+#### 6.2.9. tFAW
+>tFAW = 39. Amount of time needed between every 4 ACT commands. Level 2+.
+
+#### 6.2.10. tRRD_S and tRRD_L
 >tRRD_S = 8, tRRD_L = 12. Activate to activate command delay. When switching between bank groups use _S, switching inside a bank group use _L. Level 2+. 
 
-### 6.9. tCCD_S and tCCD_L
+#### 6.2.11. tCCD_S and tCCD_L
 >tCCD_S = 8, tCCD_L = 12. Read to read command delay. When switching between bank groups use _S, switching inside a bank group use _L. Level 1+.
 
-### 6.10. tCCD_S_WR and tCCD_L_WR
+#### 6.2.12. tCCD_S_WR and tCCD_L_WR
 >tCCD_S_WR = 8, tCCD_L_WR = 48. Write to write command delay. _S for different bank group, _L for same bank group. Level 1+.
 
-### 6.11. tCCD_S_RTW and tCCD_L_RTW
+#### 6.2.13. tCCD_S_RTW and tCCD_L_RTW
 >tCCD_S_RTW = 16, tCCD_L_RTW = 16. Read to write command delay. _S for different bank group, _L for same bank group. Level 1+.
 
-### 6.12. tCCD_S_WTR and tCCD_L_WTR
+#### 6.2.14. tCCD_S_WTR and tCCD_L_WTR
 >tCCD_S_WTR = 70, tCCD_L_WTR = 52. Write to read command delay. _S for different bank gropu, _L for same bank in same bank group. Level 1+.
 
 
-## copy paste thingy, remove later
+## 7. copy paste thingy, remove later
 **Test Cases**:
 | \#  | OBJECTIVE | INPUT | EXPECTED RESULTS | Notes |
 | --- | --------- | ----- | ---------------- | ----- |
