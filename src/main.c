@@ -67,12 +67,15 @@ int main(int argc, char *argv[]) {
     // DIMM clock cycle - only process request if there is one in the queue
     if (clock_cycle % 2 == 0 && !queue_is_empty(global_queue)) {
       process_request(&PC5_38400, &global_queue, clock_cycle, scheduling_policy);
+      increment_aging_in_queue(global_queue);
+
     }
 
     // CPU clock cycle - enqueue if there is a request and queue is not full
     if (current_request != NULL && !queue_is_full(global_queue)) {
       if (scheduling_policy == LEVEL_3) {
         out_of_order(global_queue, current_request);
+        
       } else {
         enqueue(&global_queue, *current_request);
       }
@@ -136,6 +139,9 @@ void process_args(int argc, char *argv[], char **input_file, char **output_file,
 }
 
 void out_of_order(Queue_t *global_queue, MemoryRequest_t *current_request) {
+  
+  check_requests_age(global_queue);
+  
   bool inserted = false; //flag so we dont insert it twice
   if (current_request->operation == DATA_WRITE) {
 
@@ -147,6 +153,7 @@ void out_of_order(Queue_t *global_queue, MemoryRequest_t *current_request) {
         (read_request->row != current_request->row)
       ) {
         // we put DATA_WRITE after the DATA_READ or IFETCH
+        LOG("INSERTED AFTER\n");
         queue_insert_at(&global_queue, i + 1, *current_request);
         inserted = true;
       }
@@ -172,3 +179,6 @@ void out_of_order(Queue_t *global_queue, MemoryRequest_t *current_request) {
     enqueue(&global_queue, *current_request);
   }
 }
+
+
+

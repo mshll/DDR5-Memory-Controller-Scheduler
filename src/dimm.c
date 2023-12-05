@@ -186,6 +186,51 @@ bool can_issue_act(DRAM_t *dram) {
   return false;
 }
 
+
+void check_requests_age(Queue_t *global_queue){
+
+    if (global_queue == NULL || global_queue->list == NULL) {
+        NULL; 
+    }
+
+    
+    int old_request_age =-1;
+    int young_request_age =-1;
+        for (int i = 0; i < global_queue->size; i++) {
+            MemoryRequest_t *request = queue_peek_at(global_queue, i);
+            if (request != NULL) {
+                if (request->aging >= 100000 && old_request_age == -1) {
+                    old_request_age = i;
+                } else if (request->aging < 10 && young_request_age == -1) {
+                    young_request_age = i;
+                }
+
+                if (old_request_age != -1 && young_request_age != -1) {
+                    break;
+                }
+            }
+        }
+
+        if (old_request_age != -1 && young_request_age != -1) {
+            queue_insert_at(&global_queue, young_request_age,queue_delete_at(&global_queue,old_request_age));
+        }
+
+
+}
+
+void increment_aging_in_queue(Queue_t *global_queue) {
+    if (global_queue == NULL || global_queue->list == NULL) {
+        return; 
+    }
+
+    for (uint8_t i = 0; i < global_queue->size; i++) {
+        MemoryRequest_t *request = queue_peek_at(global_queue, i);
+        if (request != NULL) {
+            request->aging++; 
+        }
+    }
+}
+
 bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
   DRAM_t *dram = &((*dimm)->channels[request->channel].DDR5_chip[0]);
   char *cmd = NULL;
@@ -355,7 +400,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
   bool cmd_is_issued = false;
 
   LOG("cycle %" PRIu64 ", state %d \n", cycle/2 - 1, request->state);
-
+  LOG("AGE:%u\n", request->aging);
   // Set the initial state before processing the request
   if (request->state == PENDING) {
     if (is_page_hit(dram, request)) {
@@ -556,7 +601,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
       // set timers
       set_timing_constraint(dram, request, tCL);
       set_timing_constraint(dram, request, tRTP);
-
+      set_tccd_timers(dram );
       // nest state
       request->state = BUFFER;
       break;
@@ -612,7 +657,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
 
       // set timers
       set_timing_constraint(dram, request, tCWL);
-
+      set_tccd_timers(dram );
       // nest state
       request->state = BUFFER;
       break;

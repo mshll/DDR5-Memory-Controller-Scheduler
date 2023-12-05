@@ -23,6 +23,7 @@ void memory_request_init(MemoryRequest_t *memory_request, uint64_t time, uint8_t
   memory_request->operation = operation;
   map_address(memory_request, address);
   memory_request->state = PENDING;
+  memory_request->aging = 0;
 }
 
 uint16_t get_column(MemoryRequest_t *memory_request) {

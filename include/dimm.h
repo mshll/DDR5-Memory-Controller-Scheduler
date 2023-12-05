@@ -122,5 +122,7 @@ typedef struct DIMM {
 void dimm_create(DIMM_t **dimm, char *output_file_name);
 void dimm_destroy(DIMM_t **dimm);
 void process_request(DIMM_t **dimm, Queue_t **q, uint64_t dimm_cycle, uint8_t scheduling_algorithm);
+void check_requests_age(Queue_t *global_queue);
+void increment_aging_in_queue(Queue_t *global_queue);
 
 #endif
