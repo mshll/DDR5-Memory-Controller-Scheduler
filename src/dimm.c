@@ -707,6 +707,7 @@ void bank_level_parallelism(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
     // delete once done
     if (request->state == COMPLETE) {
       queue_delete_at(q, index);
+      index--; // decrement index to account for the deleted element
       continue;
     }
 
