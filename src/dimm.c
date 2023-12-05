@@ -445,6 +445,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
           cmd = issue_cmd("PRE", request, cycle);
           dram->last_interface_cmd = PRECHARGE;
           dram->last_bank_group = request->bank_group;
+          dram->bank_groups[request->bank_group].banks[request->bank].in_progress = true;
 
           // set timers
           set_timing_constraint(dram, request, tRP);
@@ -465,6 +466,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
           cmd = issue_cmd("PRE", request, cycle);
           dram->last_interface_cmd = PRECHARGE;
           dram->last_bank_group = request->bank_group;
+          dram->bank_groups[request->bank_group].banks[request->bank].in_progress = true;
 
           // set timers
           set_timing_constraint(dram, request, tRP);
@@ -490,6 +492,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
           ) {
             cmd = issue_cmd("ACT0", request, cycle);
             request->state = ACT1;
+            dram->bank_groups[request->bank_group].banks[request->bank].in_progress = true;
           }
         }
         else {
@@ -500,6 +503,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
           ) {
             cmd = issue_cmd("ACT0", request, cycle);
             request->state = ACT1;
+            dram->bank_groups[request->bank_group].banks[request->bank].in_progress = true;
           }
         }
       }
@@ -510,6 +514,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
         ) {
           cmd = issue_cmd("ACT0", request, cycle);
           request->state = ACT1;
+          dram->bank_groups[request->bank_group].banks[request->bank].in_progress = true;
         }
       }
 
@@ -549,6 +554,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
           ) {
             cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
             request->state = RD1;
+            dram->bank_groups[request->bank_group].banks[request->bank].in_progress = true;
           }
         }
         else {
@@ -559,6 +565,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
           ) {
             cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
             request->state = RD1;
+            dram->bank_groups[request->bank_group].banks[request->bank].in_progress = true;
           }
         }
 
@@ -572,6 +579,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
           ) {
             cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
             request->state = RD1;
+            dram->bank_groups[request->bank_group].banks[request->bank].in_progress = true;
           }
         }
         else {
@@ -581,6 +589,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
           ) {
             cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
             request->state = RD1;
+            dram->bank_groups[request->bank_group].banks[request->bank].in_progress = true;
           }
         }
       }
@@ -588,6 +597,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
         if (is_timing_constraint_met(dram, request, tRCD)) {
           cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
           request->state = RD1;
+          dram->bank_groups[request->bank_group].banks[request->bank].in_progress = true;
         }
       }
 
@@ -617,6 +627,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
           ) {
             cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
             request->state = WR1;
+            dram->bank_groups[request->bank_group].banks[request->bank].in_progress = true;
           }
         }
         else {
@@ -626,6 +637,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
           ) {
             cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
             request->state = WR1;
+            dram->bank_groups[request->bank_group].banks[request->bank].in_progress = true;
           }
         }
       }
@@ -637,6 +649,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
           ) {
             cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
             request->state = WR1;
+            dram->bank_groups[request->bank_group].banks[request->bank].in_progress = true;
           }
         }
         else {
@@ -646,6 +659,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
           ) {
             cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
             request->state = WR1;
+            dram->bank_groups[request->bank_group].banks[request->bank].in_progress = true;
           }
         }
       }
@@ -653,6 +667,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
         if (is_timing_constraint_met(dram, request, tRCD)) {
           cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
           request->state = WR1;
+          dram->bank_groups[request->bank_group].banks[request->bank].in_progress = true;
         }
       }
       break;
@@ -693,6 +708,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
           set_timing_constraint(dram, request, tWR);
         }
         request->state = COMPLETE;
+        dram->bank_groups[request->bank_group].banks[request->bank].in_progress = false;
       }
       break;
 
@@ -752,7 +768,7 @@ void level_one_algorithm(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
 
 void bank_level_parallelism(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
   bool is_cmd_issued = false;
-  DRAM_t *dram0 = &((*dimm)->channels[0].DDR5_chip[0]);
+  DRAM_t *dram = &((*dimm)->channels[0].DDR5_chip[0]);
   print_queue(*q);
 
   for (int index = 0; index < (*q)->size; index++) {
@@ -762,6 +778,10 @@ void bank_level_parallelism(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
     if (request->state == COMPLETE) {
       queue_delete_at(q, index);
       index--; // decrement index to account for the deleted element
+      continue;
+    }
+
+    if (dram->bank_groups[request->bank_group].banks[request->bank].in_progress && index != 0) {
       continue;
     }
 
@@ -779,9 +799,9 @@ void bank_level_parallelism(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
     dram0->tFAW_timers[2],
     dram0->tFAW_timers[3]
   );
-  decrement_timing_constraints(dram0);
-  decrement_consecutive_cmd_timers(dram0);
-  decrement_tfaw_timers(dram0);
+  decrement_timing_constraints(dram);
+  decrement_consecutive_cmd_timers(dram);
+  decrement_tfaw_timers(dram);
 }
 
 void dram_init(DRAM_t *dram) {
@@ -791,6 +811,7 @@ void dram_init(DRAM_t *dram) {
       dram->bank_groups[i].banks[j].is_precharged = true;
       dram->bank_groups[i].banks[j].is_active = false;
       dram->bank_groups[i].banks[j].active_row = 0;
+      dram->bank_groups[i].banks[j].in_progress = false;
 
       // zero out bank timers
       for (int k = 0; k < NUM_TIMING_CONSTRAINTS; k++) {
