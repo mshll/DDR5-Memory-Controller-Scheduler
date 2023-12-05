@@ -537,6 +537,28 @@ int8_t doubly_ll_replace_tail(
   return LL_EXIT_SUCCESS;
 }
 
+void doubly_ll_swap(
+  DoublyLinkedList_t **list,
+  uint16_t index1,
+  uint16_t index2
+) {
+  // list existane or empty list
+  if ((*list) == NULL || (*list)->size == 0) {
+    fprintf(stderr, "%s:%d: swap function failed\n", __FILE__, __LINE__);
+    exit(EXIT_FAILURE);
+  }
+
+  // check if index is in range
+  if (index1 >= (*list)->size || index2 >= (*list)->size || index1 == index2) {
+    fprintf(stderr, "%s:%d: Invalid index for swap\n", __FILE__, __LINE__);
+    exit(EXIT_FAILURE);
+  }
+
+  
+
+
+}
+
 /***
  * functions to retrieve values stored in nodes
  ***/

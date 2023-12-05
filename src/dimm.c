@@ -186,7 +186,6 @@ bool can_issue_act(DRAM_t *dram) {
   return false;
 }
 
-
 void check_requests_age(Queue_t *global_queue){
 
     if (global_queue == NULL || global_queue->list == NULL) {
@@ -601,7 +600,8 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
       // set timers
       set_timing_constraint(dram, request, tCL);
       set_timing_constraint(dram, request, tRTP);
-      set_tccd_timers(dram );
+      set_tccd_timers(dram);
+
       // nest state
       request->state = BUFFER;
       break;
@@ -627,7 +627,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
           }
         }
       }
-      else {
+      else if (dram->last_interface_cmd == READ) {
         if (dram->last_bank_group == request->bank_group) {
           if (
             is_timing_constraint_met(dram, request, tRCD) &&
@@ -647,6 +647,12 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
           }
         }
       }
+      else {
+        if (is_timing_constraint_met(dram, request, tRCD)) {
+          cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
+          request->state = WR1;
+        }
+      }
       break;
 
     case WR1:
@@ -657,7 +663,8 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
 
       // set timers
       set_timing_constraint(dram, request, tCWL);
-      set_tccd_timers(dram );
+      set_tccd_timers(dram);
+
       // nest state
       request->state = BUFFER;
       break;
@@ -743,7 +750,6 @@ void level_one_algorithm(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
 void bank_level_parallelism(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
   bool is_cmd_issued = false;
   DRAM_t *dram0 = &((*dimm)->channels[0].DDR5_chip[0]);
-  DRAM_t *dram1 = &((*dimm)->channels[1].DDR5_chip[0]);
   print_queue(*q);
 
   for (int index = 0; index < (*q)->size; index++) {
@@ -770,19 +776,9 @@ void bank_level_parallelism(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
     dram0->tFAW_timers[2],
     dram0->tFAW_timers[3]
   );
-  LOG(
-    "TFAW1 %hu, %hu, %hu, %hu\n",
-    dram1->tFAW_timers[0],
-    dram1->tFAW_timers[1],
-    dram1->tFAW_timers[2],
-    dram1->tFAW_timers[3]
-  );
   decrement_timing_constraints(dram0);
-  decrement_timing_constraints(dram1);
   decrement_consecutive_cmd_timers(dram0);
-  decrement_consecutive_cmd_timers(dram1);
   decrement_tfaw_timers(dram0);
-  decrement_tfaw_timers(dram1);
 }
 
 void dram_init(DRAM_t *dram) {
