@@ -433,6 +433,10 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
       break;
 
     case ACT0:
+      if (!can_issue_act(dram)) {
+        return cmd_is_issued;
+      }
+
       if (dram->last_interface_cmd == ACTIVATE) {
         if (dram->last_bank_group == request->bank_group) {
           if (
