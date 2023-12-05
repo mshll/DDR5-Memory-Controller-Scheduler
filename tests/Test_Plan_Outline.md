@@ -112,6 +112,8 @@ Create a trace file as an input (ASCII text file) using a test case generator.
 |  4  | Test open page tracking by intersecting a successive request with another request, while trying to trick it by making the BG number be the same. | Back to back references that are intersected by a page access from a different BA with different ROW. | ACT -> READ -> ACT -> READ -> READ | Same result as 3 |
 |  5  | Test open page tracking by intersecting a successive request with another request, while trying to trick it by making the ROW be the same. | Back to back references that are intersected by a page access from a different BG,BA, with same ROW. | ACT -> READ -> ACT -> READ -> READ | Same result as 3 |
 |  6  | Test open page tracking by intersecting a successive request with another request, while trying to trick it by making the BA,ROW the same. | Back to back references that are intersected by a page access from a different BG, with same BA,ROW. | ACT -> READ -> ACT -> READ -> READ | Same result as 3 |
+|  7  | Page hit with read and write combo. | Read followed by write request to same BG,BA,ROW | ACT -> READ -> WRITE |       |
+|  8  | Page miss with read and write, then a page hit with read. | Read followed by write to same BG,BA, different ROW, then a read to the same BG,BA,ROW as write. | ACT -> READ -> PRE -> WRITE -> READ |       |
 
 ### 4.3. LEVEL 2
 #### 4.3.1. BANK LEVEL PARALLELISM
@@ -130,6 +132,8 @@ Create a trace file as an input (ASCII text file) using a test case generator.
 |  4  | Test open page tracking when interlearving BG,BA, while trying to trick it by making the BG number be the same. | Back to back references that are intersected by a page access from a different BA with different ROW. | ACT -> ACT -> READ -> READ -> READ | Same output as 3 |
 |  5  | Test open page tracking when intervleaving BG,BA, while trying to trick it by making the ROW be the same. | Back to back references that are intersected by a page access from a different BG,BA, with same ROW. | ACT -> ACT -> READ -> READ -> READ | Same output as 3 |
 |  6  | Test open page tracking when intervleaving BG,BA, while trying to trick it by making the BA,ROW the same. | Back to back references that are intersected by a page access from a different BG, with same BA,ROW. | ACT -> ACT -> READ -> READ -> READ | Same result as 3 |
+|  7  | Page hit with read and write combo. | Read followed by write request to same BG,BA,ROW | ACT -> READ -> WRITE | Result should be same as open page policy |
+|  8  | Page miss with read and write, then a page hit with read. | Read followed by write to same BG,BA, different ROW, then a read to the same BG,BA,ROW as write. | ACT -> READ -> PRE -> WRITE -> READ | Result should be same as open page policy |
 |  x  | On the same even _CPU_ cycle for when a command should be executed, add a request for a different BG,BA. This new request should not start in that exact cycle, instead it needs to wait for idle time. |       |                  | Not created yet |
 
 ### 4.4. LEVEL 3
