@@ -66,6 +66,12 @@ void parser_next_line(Parser_t *parser) {
 
     *parser->next_request = parse_line(parser->line);
     parser->status = OK;
+
+    if (parser->next_request->channel != 0) {
+      fprintf(stderr, "Error: request at time %" PRIu64 " has channel %u != 0\n", parser->next_request->time, parser->next_request->channel);
+      exit(EXIT_FAILURE);
+    }
+
   } else {
     parser->status = END_OF_FILE;
   }

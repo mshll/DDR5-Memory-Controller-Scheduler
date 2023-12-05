@@ -34,6 +34,7 @@
 /*** function prototype(s) ***/
 void process_args(int argc, char *argv[], char **input_file, char **output_file, int *scheduling_policy);
 void out_of_order(Queue_t *global_queue, MemoryRequest_t *current_request);
+void advance_clock(uint64_t *clock_cycle, Queue_t **global_queue, Parser_t **parser);
 
 /*** function(s) ***/
 int main(int argc, char *argv[]) {
@@ -85,7 +86,7 @@ int main(int argc, char *argv[]) {
       break;
     }
 
-    clock_cycle++;
+    advance_clock(&clock_cycle, &global_queue, &parser);
   }
 
   parser_destroy(parser);
@@ -95,6 +96,15 @@ int main(int argc, char *argv[]) {
   printf("Total Clock Cycles: %" PRIu64 "\n", clock_cycle);
   printf("Program Execution Time: %lf seconds\n", (double)(end_execution - begin_execution) / CLOCKS_PER_SEC);
   return 0;
+}
+
+void advance_clock(uint64_t *clock_cycle, Queue_t **global_queue, Parser_t **parser) {
+  if (queue_is_empty(*global_queue) && (*parser)->next_request->time > *clock_cycle) {
+    LOG("No requests in queue and no requests in parser. Advancing clock to next request time (%" PRIu64 ")\n", (*parser)->next_request_time);
+    *clock_cycle = (*parser)->next_request->time;
+  } else {
+    *clock_cycle += 1;
+  }
 }
 
 void process_args(int argc, char *argv[], char **input_file, char **output_file, int *scheduling_policy) {
