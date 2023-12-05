@@ -39,6 +39,7 @@ typedef struct __attribute__((__packed__)) MemoryRequest {
   uint16_t row : 16;         // 16 bits
   MemoryRequestState_t state;
   uint32_t aging;
+  bool is_finished;
 } MemoryRequest_t;
 
 void memory_request_init(MemoryRequest_t *memoryRequest, uint64_t time, uint8_t core, uint8_t operation, uint64_t address);
