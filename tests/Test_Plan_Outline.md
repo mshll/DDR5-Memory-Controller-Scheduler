@@ -179,8 +179,8 @@ note: (R# = request number)
 **Test Cases**:
 | \#  | OBJECTIVE | INPUT | EXPECTED RESULTS | Notes |
 | --- | --------- | ----- | ---------------- | ----- |
-|  1  | ACT -> READ -> PRE -> ACT:<br/> tRCD,tCL,tRAS,tRP | Read request at CPU 199 and 200. | ACT0 at DIMM 100,<br/>ACT1 at DIMM 101,<br/>RD0 at DIMM 139,<br/>RD1 at DIMM 140,<br/>PRE at DIMM 177,<br/>ACT0 at DIMM 215,<br/>ACT1 at DIMM 216 | BURST at DIMM 180,<br/>Dequeue at DIMM 188, (check debug if you want).<br/> If PRE goes early, maybe bug in tRTP. |
-|  2  | ACT -> WRITE -> PRE -> ACT:<br/> tRCD,tCWL,tBURST,tWR,tRP | Write request at CPU 199 and 200. | ACT0 at DIMM 100,<br/>ACT1 at DIMM 101,<br/>WR0 at DIMM 139,<br/>WR1 at DIMM 140,<br/>PRE at DIMM 216,<br/>ACT0 at DIMM 255 | <br/>BURST at DIMM 178,<br/>Dequeue at DIMM 186. |
+|  1  | ACT -> READ -> PRE -> ACT:<br/> tRCD,tCL,tRAS,tRP | Read request at CPU 197 and 198. | ACT0 at DIMM 99,<br/>ACT1 at DIMM 100,<br/>RD0 at DIMM 138,<br/>RD1 at DIMM 139,<br/>PRE at DIMM 176,<br/>ACT0 at DIMM 214,<br/>ACT1 at DIMM 215 | BURST at DIMM 179,<br/>Dequeue at DIMM 187, (check debug if you want).<br/> If PRE goes early, maybe bug in tRTP. |
+|  2  | ACT -> WRITE -> PRE -> ACT:<br/> tRCD,tCWL,tBURST,tWR,tRP | Write request at CPU 197 and 198. | ACT0 at DIMM 99,<br/>ACT1 at DIMM 100,<br/>WR0 at DIMM 138,<br/>WR1 at DIMM 139,<br/>PRE at DIMM 215,<br/>ACT0 at DIMM 254 | <br/>BURST at DIMM 177,<br/>Dequeue at DIMM 185. |
 
 ### Level 1
 Bolded is what we are looking for. 
@@ -188,8 +188,8 @@ Bolded is what we are looking for.
 **Test Cases**:
 | \#  | OBJECTIVE | INPUT | EXPECTED RESULTS | Notes |
 | --- | --------- | ----- | ---------------- | ----- |
-|  1  | ACT -> **READ -> READ -> PRE** -> ACT:<br/>tCCD_L,tRTP,tRP,tCL | Two reads to same BG,BA,ROW, at times 199 and 200.<br/>Read to same BG,BA, different ROW at time 201.  | RD1 at DIMM 140,<br/>RD0 at DIMM 152<br/>PRE at DIMM 170,<br/>ACT0 at DIMM 209. |  |
-|  2  | ACT -> WRITE -> READ -> PRE -> ACT:<br/>tCCDL_WTR,t |       |                  |       |
+|  1  | ACT -> **READ -> READ -> PRE** -> ACT:<br/>tCCD_L,tRTP,tRP,tCL | Two reads to same BG,BA,ROW, at times 199 and 200.<br/>Read to same BG,BA, different ROW at time 201.  | RD1 at DIMM 140,<br/>RD1 at DIMM 152<br/>PRE at DIMM 170,<br/>ACT1 at DIMM 209. |  |
+|  2  | ACT -> **WRITE -> READ -> PRE** -> ACT:<br/>tCCDL_WTR,tCWL+tBURST+tWR, | Read and write to same BG,BA,ROW at times 199 and 200.<br/> Read to same BG,BA, different row at time 201. | WR1 at DIMM 140,<br/>RD1 at DIMM 192,<br/>PRE at DIMM 216,<br/> |       |
 |  3  |           |       |                  |       |
 |  4  |           |       |                  |       |
 
