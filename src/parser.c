@@ -76,7 +76,7 @@ MemoryRequest_t parse_line(char *line) {
   uint8_t core, operation;
   MemoryRequest_t memory_request;
 
-  sscanf(line, "%" PRIu64 " %hhu %hhu %llx", &time, &core, &operation, &address);
+  sscanf(line, "%" SCNu64 " %hhu %hhu %" SCNx64, &time, &core, &operation, &address);
   memory_request_init(&memory_request, time, core, operation, address);
 
   // LOG("Parsed: time = %5" PRIu64 ", core = %2u, operation = %u, address = %#016llX\n", time, core, operation, address);

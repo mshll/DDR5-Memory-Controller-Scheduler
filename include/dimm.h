@@ -88,18 +88,18 @@ typedef enum ConsecutiveCmdConstraints {
 } ConsecutiveCmdConstraints_t;
 
 
-typedef struct Bank {
+typedef struct __attribute__((__packed__)) Bank {
   bool is_precharged;
   bool is_active;
-  Operation_t last_request_operation;
+  uint8_t last_request_operation;
   uint32_t active_row;
 } Bank_t;
 
-typedef struct BankGroup {
+typedef struct __attribute__((__packed__)) BankGroup {
   Bank_t banks[NUM_BANKS_PER_GROUP];
 } BankGroup_t;
 
-typedef struct DRAM {
+typedef struct __attribute__((__packed__)) DRAM {
   BankGroup_t bank_groups[NUM_BANK_GROUPS];
   uint16_t timing_constraints[NUM_BANK_GROUPS][NUM_BANKS_PER_GROUP][NUM_TIMING_CONSTRAINTS];
   uint8_t tFAW_timers[NUM_TFAW_COUNTERS];
@@ -108,11 +108,11 @@ typedef struct DRAM {
   Commands_t last_interface_cmd;
 } DRAM_t;
 
-typedef struct Channel {
+typedef struct __attribute__((__packed__)) Channel {
   DRAM_t DDR5_chip[NUM_CHIPS_PER_CHANNEL];
 } Channel_t;
 
-typedef struct __attribute__((aligned(CACHE_LINE_BOUNDARY))) DIMM {
+typedef struct __attribute__((aligned(1024))) DIMM {
   Channel_t channels[NUM_CHANNELS];
   FILE *output_file;
 } DIMM_t;
