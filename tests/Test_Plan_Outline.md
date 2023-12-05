@@ -174,6 +174,14 @@ note: (R# = request number)
 | --- | --------- | ----- | ---------------- | ----- |
 |  1  | Two reads to test:<br/> tRCD,tCL,tRAS,tRP | Read request at CPU 199 and 200. | ACT0 at DIMM 100,<br/>ACT1 at DIMM 101,<br/>RD0 at DIMM 139,<br/>RD1 at DIMM 140,<br/>PRE at DIMM 177,<br/>BURST at DIMM 180,<br/>Dequeue at DIMM 188,<br/>ACT0 at DIMM 216 | To check commands after second activate, reference the timing descriptions (if you want). If PRE goes early, maybe bug in tRTP. |
 |  2  | Two writes to test:<br/> tRCD,tCWL,tBURST,tWR | Write request at CPU 199 and 200. | ACT0 at DIMM 100,<br/>ACT1 at DIMM 101,<br/>WR0 at DIMM 139,<br/>WR1 at DIMM 140,<br/>BURST at DIMM 178,<br/>Dequeue at DIMM 186,<br/>PRE at DIMM 216,<br/>ACT0 at DIMM 255 | Won't see burst or dequeue in output file, but as long as WR1->PRE is 76 cycles it should be fine. |
+
+### Level 1
+
+**Test Cases**:
+| \#  | OBJECTIVE | INPUT | EXPECTED RESULTS | Notes |
+| --- | --------- | ----- | ---------------- | ----- |
+|  1  | Page hit to test:<br/>tCCD_L | Two reads to same BG,BA,ROW, at times 199 and 200. | RD1 at DIMM 140,<br/>RD0 at DIMM 142<br/>BURST at DIMM 180,<br/> | Incomlete |
+|  2  |           |       |                  |       |
 |  3  |           |       |                  |       |
 |  4  |           |       |                  |       |
 
@@ -187,7 +195,7 @@ note: (R# = request number)
 >tRCD = 39. Cycles to open a row. Occurs between ACT -> READ/WRITE.
 
 #### 6.2.2. tRTP
->tRTP = 18. Read to precharge delay. Occurs between READ -> PRECHARGE. This means a PRE can be done before we start (or during) reading out data, but we still need to wait for tRAS to be satisfied if necessary. This is possible because the data is moved to a buffer when the RD command is issued, so we can close the page prematurely.
+>tRTP = 18. Read to precharge delay. Occurs between READ -> PRECHARGE. This means a PRE can be done before we start (or during) reading out data, but we still need to wait for tRAS to be satisfied if necessary. This is possible because the data is moved to a buffer when the RD command is issued, so we can close the page prematurely. Level 1+ (page hits).
 
 #### 6.2.3. tWR
 >tWR = 30. Write recovery time. Occurs between WRITE DATA -> PRECHARGE. This means the time it takes from issuing a WRITE to PRE is tCWL + tBURST + tWR = 76 from WR1 -> PRE.
@@ -225,6 +233,8 @@ note: (R# = request number)
 #### 6.2.14. tCCD_S_WTR and tCCD_L_WTR
 >tCCD_S_WTR = 70, tCCD_L_WTR = 52. Write to read command delay. _S for different bank gropu, _L for same bank in same bank group. Level 1+.
 
+#### tBURST
+>tBURST = 8. Burst length 16 with half cycle for each data = 8 cycles total. 
 
 ## 7. copy paste thingy, remove later
 **Test Cases**:
