@@ -1,587 +1,2713 @@
 --- Simulation Parameters ---
-Scheduling Policy Level: 1
-Input File: tests/4_Policy_Implemented_Correctly/4_2_1_OPEN_PAGE_POLICY/test_case_8.txt
-Output File: tests/4_Policy_Implemented_Correctly/4_2_1_OPEN_PAGE_POLICY/test_case_8_results.txt
+Scheduling Policy Level: 2
+Input File: tests/4_Policy_Implemented_Correctly/4_4_1_OUT_OF_ORDER_SCHEDULING/test_case_2.txt
+Output File: tests/4_Policy_Implemented_Correctly/4_3_1_BANK_LEVEL_PARALLELISM/test_case_22_results.txt
 -----------------------------
 No requests are processing. Advancing clock to next request time (1)
-[1] Enqueued: 0 0 [0 0 0 0]
+[1] Enqueued: 1 0 [0 0 0 0]
+queue (size = 1): 
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 0, state 0 
 AGE:0
-[2] Enqueued: 1 1 [0 0 1 0]
-[3] Enqueued: 2 2 [0 0 1 1]
+TFAW0 0, 0, 0, 0
+[2] Enqueued: 2 1 [0 0 0 0]
+[3] Enqueued: 3 0 [0 0 0 0]
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 1, state 2 
 AGE:1
+TFAW0 39, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 2, state 3 
 AGE:2
+cycle 2, state 0 
+AGE:1
+cycle 2, state 0 
+AGE:1
+TFAW0 38, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 3, state 3 
 AGE:3
+cycle 3, state 5 
+AGE:2
+cycle 3, state 3 
+AGE:2
+TFAW0 37, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 4, state 3 
 AGE:4
+cycle 4, state 5 
+AGE:3
+cycle 4, state 3 
+AGE:3
+TFAW0 36, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 5, state 3 
 AGE:5
+cycle 5, state 5 
+AGE:4
+cycle 5, state 3 
+AGE:4
+TFAW0 35, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 6, state 3 
 AGE:6
+cycle 6, state 5 
+AGE:5
+cycle 6, state 3 
+AGE:5
+TFAW0 34, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 7, state 3 
 AGE:7
+cycle 7, state 5 
+AGE:6
+cycle 7, state 3 
+AGE:6
+TFAW0 33, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 8, state 3 
 AGE:8
+cycle 8, state 5 
+AGE:7
+cycle 8, state 3 
+AGE:7
+TFAW0 32, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 9, state 3 
 AGE:9
+cycle 9, state 5 
+AGE:8
+cycle 9, state 3 
+AGE:8
+TFAW0 31, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 10, state 3 
 AGE:10
+cycle 10, state 5 
+AGE:9
+cycle 10, state 3 
+AGE:9
+TFAW0 30, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 11, state 3 
 AGE:11
+cycle 11, state 5 
+AGE:10
+cycle 11, state 3 
+AGE:10
+TFAW0 29, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 12, state 3 
 AGE:12
+cycle 12, state 5 
+AGE:11
+cycle 12, state 3 
+AGE:11
+TFAW0 28, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 13, state 3 
 AGE:13
+cycle 13, state 5 
+AGE:12
+cycle 13, state 3 
+AGE:12
+TFAW0 27, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 14, state 3 
 AGE:14
+cycle 14, state 5 
+AGE:13
+cycle 14, state 3 
+AGE:13
+TFAW0 26, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 15, state 3 
 AGE:15
+cycle 15, state 5 
+AGE:14
+cycle 15, state 3 
+AGE:14
+TFAW0 25, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 16, state 3 
 AGE:16
+cycle 16, state 5 
+AGE:15
+cycle 16, state 3 
+AGE:15
+TFAW0 24, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 17, state 3 
 AGE:17
+cycle 17, state 5 
+AGE:16
+cycle 17, state 3 
+AGE:16
+TFAW0 23, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 18, state 3 
 AGE:18
+cycle 18, state 5 
+AGE:17
+cycle 18, state 3 
+AGE:17
+TFAW0 22, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 19, state 3 
 AGE:19
+cycle 19, state 5 
+AGE:18
+cycle 19, state 3 
+AGE:18
+TFAW0 21, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 20, state 3 
 AGE:20
+cycle 20, state 5 
+AGE:19
+cycle 20, state 3 
+AGE:19
+TFAW0 20, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 21, state 3 
 AGE:21
+cycle 21, state 5 
+AGE:20
+cycle 21, state 3 
+AGE:20
+TFAW0 19, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 22, state 3 
 AGE:22
+cycle 22, state 5 
+AGE:21
+cycle 22, state 3 
+AGE:21
+TFAW0 18, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 23, state 3 
 AGE:23
+cycle 23, state 5 
+AGE:22
+cycle 23, state 3 
+AGE:22
+TFAW0 17, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 24, state 3 
 AGE:24
+cycle 24, state 5 
+AGE:23
+cycle 24, state 3 
+AGE:23
+TFAW0 16, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 25, state 3 
 AGE:25
+cycle 25, state 5 
+AGE:24
+cycle 25, state 3 
+AGE:24
+TFAW0 15, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 26, state 3 
 AGE:26
+cycle 26, state 5 
+AGE:25
+cycle 26, state 3 
+AGE:25
+TFAW0 14, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 27, state 3 
 AGE:27
+cycle 27, state 5 
+AGE:26
+cycle 27, state 3 
+AGE:26
+TFAW0 13, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 28, state 3 
 AGE:28
+cycle 28, state 5 
+AGE:27
+cycle 28, state 3 
+AGE:27
+TFAW0 12, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 29, state 3 
 AGE:29
+cycle 29, state 5 
+AGE:28
+cycle 29, state 3 
+AGE:28
+TFAW0 11, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 30, state 3 
 AGE:30
+cycle 30, state 5 
+AGE:29
+cycle 30, state 3 
+AGE:29
+TFAW0 10, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 31, state 3 
 AGE:31
+cycle 31, state 5 
+AGE:30
+cycle 31, state 3 
+AGE:30
+TFAW0 9, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 32, state 3 
 AGE:32
+cycle 32, state 5 
+AGE:31
+cycle 32, state 3 
+AGE:31
+TFAW0 8, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 33, state 3 
 AGE:33
+cycle 33, state 5 
+AGE:32
+cycle 33, state 3 
+AGE:32
+TFAW0 7, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 34, state 3 
 AGE:34
+cycle 34, state 5 
+AGE:33
+cycle 34, state 3 
+AGE:33
+TFAW0 6, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 35, state 3 
 AGE:35
+cycle 35, state 5 
+AGE:34
+cycle 35, state 3 
+AGE:34
+TFAW0 5, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 36, state 3 
 AGE:36
+cycle 36, state 5 
+AGE:35
+cycle 36, state 3 
+AGE:35
+TFAW0 4, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 37, state 3 
 AGE:37
+cycle 37, state 5 
+AGE:36
+cycle 37, state 3 
+AGE:36
+TFAW0 3, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 38, state 3 
 AGE:38
+cycle 38, state 5 
+AGE:37
+cycle 38, state 3 
+AGE:37
+TFAW0 2, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 39, state 3 
 AGE:39
+TFAW0 1, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 40, state 4 
 AGE:40
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 41, state 7 
 AGE:41
+cycle 41, state 5 
+AGE:40
+cycle 41, state 3 
+AGE:40
+TRCD :0
+ tCCD_L: 10
+,TCCD_S: 6
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 42, state 7 
 AGE:42
+cycle 42, state 5 
+AGE:41
+cycle 42, state 3 
+AGE:41
+TRCD :0
+ tCCD_L: 9
+,TCCD_S: 5
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 43, state 7 
 AGE:43
+cycle 43, state 5 
+AGE:42
+cycle 43, state 3 
+AGE:42
+TRCD :0
+ tCCD_L: 8
+,TCCD_S: 4
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 44, state 7 
 AGE:44
+cycle 44, state 5 
+AGE:43
+cycle 44, state 3 
+AGE:43
+TRCD :0
+ tCCD_L: 7
+,TCCD_S: 3
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 45, state 7 
 AGE:45
+cycle 45, state 5 
+AGE:44
+cycle 45, state 3 
+AGE:44
+TRCD :0
+ tCCD_L: 6
+,TCCD_S: 2
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 46, state 7 
 AGE:46
+cycle 46, state 5 
+AGE:45
+cycle 46, state 3 
+AGE:45
+TRCD :0
+ tCCD_L: 5
+,TCCD_S: 1
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 47, state 7 
 AGE:47
+cycle 47, state 5 
+AGE:46
+cycle 47, state 3 
+AGE:46
+TRCD :0
+ tCCD_L: 4
+,TCCD_S: 0
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 48, state 7 
 AGE:48
+cycle 48, state 5 
+AGE:47
+cycle 48, state 3 
+AGE:47
+TRCD :0
+ tCCD_L: 3
+,TCCD_S: 0
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 49, state 7 
 AGE:49
+cycle 49, state 5 
+AGE:48
+cycle 49, state 3 
+AGE:48
+TRCD :0
+ tCCD_L: 2
+,TCCD_S: 0
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 50, state 7 
 AGE:50
+cycle 50, state 5 
+AGE:49
+cycle 50, state 3 
+AGE:49
+TRCD :0
+ tCCD_L: 1
+,TCCD_S: 0
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 51, state 7 
 AGE:51
+cycle 51, state 5 
+AGE:50
+cycle 51, state 3 
+AGE:50
+TRCD :0
+ tCCD_L: 0
+,TCCD_S: 0
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 52, state 7 
 AGE:52
+cycle 52, state 5 
+AGE:51
+cycle 52, state 4 
+AGE:51
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 53, state 7 
 AGE:53
+cycle 53, state 5 
+AGE:52
+cycle 53, state 7 
+AGE:52
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 54, state 7 
 AGE:54
+cycle 54, state 5 
+AGE:53
+cycle 54, state 7 
+AGE:53
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 55, state 7 
 AGE:55
+cycle 55, state 5 
+AGE:54
+cycle 55, state 7 
+AGE:54
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 56, state 7 
 AGE:56
+cycle 56, state 5 
+AGE:55
+cycle 56, state 7 
+AGE:55
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 57, state 7 
 AGE:57
+cycle 57, state 5 
+AGE:56
+cycle 57, state 7 
+AGE:56
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 58, state 7 
 AGE:58
+cycle 58, state 5 
+AGE:57
+cycle 58, state 7 
+AGE:57
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 59, state 7 
 AGE:59
+cycle 59, state 5 
+AGE:58
+cycle 59, state 7 
+AGE:58
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 60, state 7 
 AGE:60
+cycle 60, state 5 
+AGE:59
+cycle 60, state 7 
+AGE:59
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 61, state 7 
 AGE:61
+cycle 61, state 5 
+AGE:60
+cycle 61, state 7 
+AGE:60
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 62, state 7 
 AGE:62
+cycle 62, state 5 
+AGE:61
+cycle 62, state 7 
+AGE:61
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 63, state 7 
 AGE:63
+cycle 63, state 5 
+AGE:62
+cycle 63, state 7 
+AGE:62
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 64, state 7 
 AGE:64
+cycle 64, state 5 
+AGE:63
+cycle 64, state 7 
+AGE:63
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 65, state 7 
 AGE:65
+cycle 65, state 5 
+AGE:64
+cycle 65, state 7 
+AGE:64
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 66, state 7 
 AGE:66
+cycle 66, state 5 
+AGE:65
+cycle 66, state 7 
+AGE:65
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 67, state 7 
 AGE:67
+cycle 67, state 5 
+AGE:66
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 68, state 7 
 AGE:68
+cycle 68, state 6 
+AGE:67
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 69, state 7 
 AGE:69
+cycle 69, state 7 
+AGE:68
+cycle 69, state 7 
+AGE:68
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 70, state 7 
 AGE:70
+cycle 70, state 7 
+AGE:69
+cycle 70, state 7 
+AGE:69
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 71, state 7 
 AGE:71
+cycle 71, state 7 
+AGE:70
+cycle 71, state 7 
+AGE:70
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 72, state 7 
 AGE:72
+cycle 72, state 7 
+AGE:71
+cycle 72, state 7 
+AGE:71
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 73, state 7 
 AGE:73
+cycle 73, state 7 
+AGE:72
+cycle 73, state 7 
+AGE:72
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 74, state 7 
 AGE:74
+cycle 74, state 7 
+AGE:73
+cycle 74, state 7 
+AGE:73
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 75, state 7 
 AGE:75
+cycle 75, state 7 
+AGE:74
+cycle 75, state 7 
+AGE:74
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 76, state 7 
 AGE:76
+cycle 76, state 7 
+AGE:75
+cycle 76, state 7 
+AGE:75
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 77, state 7 
 AGE:77
+cycle 77, state 7 
+AGE:76
+cycle 77, state 7 
+AGE:76
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 78, state 7 
 AGE:78
+cycle 78, state 7 
+AGE:77
+cycle 78, state 7 
+AGE:77
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 79, state 7 
 AGE:79
+cycle 79, state 7 
+AGE:78
+cycle 79, state 7 
+AGE:78
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
 cycle 80, state 7 
 AGE:80
-cycle 81, state 8 
+cycle 80, state 7 
+AGE:79
+cycle 80, state 7 
+AGE:79
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 81, state 7 
 AGE:81
-cycle 82, state 8 
+cycle 81, state 7 
+AGE:80
+cycle 81, state 7 
+AGE:80
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 82, state 7 
 AGE:82
-cycle 83, state 8 
+cycle 82, state 7 
+AGE:81
+cycle 82, state 7 
+AGE:81
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 83, state 7 
 AGE:83
-cycle 84, state 8 
+cycle 83, state 7 
+AGE:82
+cycle 83, state 7 
+AGE:82
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 84, state 7 
 AGE:84
-cycle 85, state 8 
+cycle 84, state 7 
+AGE:83
+cycle 84, state 7 
+AGE:83
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 85, state 7 
 AGE:85
-cycle 86, state 8 
+cycle 85, state 7 
+AGE:84
+cycle 85, state 7 
+AGE:84
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 86, state 7 
 AGE:86
-cycle 87, state 8 
+cycle 86, state 7 
+AGE:85
+cycle 86, state 7 
+AGE:85
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 87, state 7 
 AGE:87
-cycle 88, state 8 
+cycle 87, state 7 
+AGE:86
+cycle 87, state 7 
+AGE:86
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 88, state 7 
 AGE:88
-[178] Dequeued: 0 0 [0 0 0 0]
-cycle 89, state 0 
-AGE:88
-cycle 90, state 1 
+cycle 88, state 7 
+AGE:87
+cycle 88, state 7 
+AGE:87
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 89, state 7 
 AGE:89
-cycle 91, state 1 
+cycle 89, state 7 
+AGE:88
+cycle 89, state 7 
+AGE:88
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 90, state 7 
 AGE:90
-cycle 92, state 1 
+cycle 90, state 7 
+AGE:89
+cycle 90, state 7 
+AGE:89
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 91, state 7 
 AGE:91
-cycle 93, state 1 
+cycle 91, state 7 
+AGE:90
+cycle 91, state 7 
+AGE:90
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 92, state 7 
 AGE:92
-cycle 94, state 1 
+cycle 92, state 7 
+AGE:91
+cycle 92, state 7 
+AGE:91
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 93, state 8 
 AGE:93
-cycle 95, state 1 
+cycle 93, state 7 
+AGE:92
+cycle 93, state 8 
+AGE:92
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 94, state 8 
 AGE:94
-cycle 96, state 1 
+cycle 94, state 7 
+AGE:93
+cycle 94, state 8 
+AGE:93
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 95, state 8 
 AGE:95
-cycle 97, state 1 
+cycle 95, state 7 
+AGE:94
+cycle 95, state 8 
+AGE:94
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 96, state 8 
 AGE:96
-cycle 98, state 1 
+cycle 96, state 7 
+AGE:95
+cycle 96, state 8 
+AGE:95
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 97, state 8 
 AGE:97
-cycle 99, state 1 
+cycle 97, state 7 
+AGE:96
+cycle 97, state 8 
+AGE:96
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 98, state 8 
 AGE:98
-cycle 100, state 1 
+cycle 98, state 7 
+AGE:97
+cycle 98, state 8 
+AGE:97
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 99, state 8 
 AGE:99
-cycle 101, state 1 
+cycle 99, state 7 
+AGE:98
+cycle 99, state 8 
+AGE:98
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 100, state 8 
 AGE:100
-cycle 102, state 1 
+cycle 100, state 7 
+AGE:99
+cycle 100, state 8 
+AGE:99
+TFAW0 0, 0, 0, 0
+queue (size = 3): 
+CORE: 3, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+CORE: 1, OPERATION: 0
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 101, state 7 
+AGE:100
+TFAW0 0, 0, 0, 0
+queue (size = 1): 
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 102, state 7 
 AGE:101
-cycle 103, state 1 
+TFAW0 0, 0, 0, 0
+queue (size = 1): 
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 103, state 7 
 AGE:102
-cycle 104, state 1 
+TFAW0 0, 0, 0, 0
+queue (size = 1): 
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 104, state 7 
 AGE:103
-cycle 105, state 1 
+TFAW0 0, 0, 0, 0
+queue (size = 1): 
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 105, state 7 
 AGE:104
-cycle 106, state 1 
+TFAW0 0, 0, 0, 0
+queue (size = 1): 
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 106, state 7 
 AGE:105
-cycle 107, state 1 
+TFAW0 0, 0, 0, 0
+queue (size = 1): 
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 107, state 8 
 AGE:106
-cycle 108, state 1 
+TFAW0 0, 0, 0, 0
+queue (size = 1): 
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 108, state 8 
 AGE:107
-cycle 109, state 1 
+TFAW0 0, 0, 0, 0
+queue (size = 1): 
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 109, state 8 
 AGE:108
-cycle 110, state 1 
+TFAW0 0, 0, 0, 0
+queue (size = 1): 
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 110, state 8 
 AGE:109
-cycle 111, state 1 
+TFAW0 0, 0, 0, 0
+queue (size = 1): 
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 111, state 8 
 AGE:110
-cycle 112, state 1 
+TFAW0 0, 0, 0, 0
+queue (size = 1): 
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 112, state 8 
 AGE:111
-cycle 113, state 1 
+TFAW0 0, 0, 0, 0
+queue (size = 1): 
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 113, state 8 
 AGE:112
-cycle 114, state 1 
+TFAW0 0, 0, 0, 0
+queue (size = 1): 
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+cycle 114, state 8 
 AGE:113
-cycle 115, state 1 
-AGE:114
-cycle 116, state 1 
-AGE:115
-cycle 117, state 1 
-AGE:116
-cycle 118, state 1 
-AGE:117
-cycle 119, state 1 
-AGE:118
-cycle 120, state 1 
-AGE:119
-cycle 121, state 1 
-AGE:120
-cycle 122, state 1 
-AGE:121
-cycle 123, state 1 
-AGE:122
-cycle 124, state 1 
-AGE:123
-cycle 125, state 1 
-AGE:124
-cycle 126, state 1 
-AGE:125
-cycle 127, state 1 
-AGE:126
-cycle 128, state 2 
-AGE:127
-cycle 129, state 5 
-AGE:128
-cycle 130, state 5 
-AGE:129
-cycle 131, state 5 
-AGE:130
-cycle 132, state 5 
-AGE:131
-cycle 133, state 5 
-AGE:132
-cycle 134, state 5 
-AGE:133
-cycle 135, state 5 
-AGE:134
-cycle 136, state 5 
-AGE:135
-cycle 137, state 5 
-AGE:136
-cycle 138, state 5 
-AGE:137
-cycle 139, state 5 
-AGE:138
-cycle 140, state 5 
-AGE:139
-cycle 141, state 5 
-AGE:140
-cycle 142, state 5 
-AGE:141
-cycle 143, state 5 
-AGE:142
-cycle 144, state 5 
-AGE:143
-cycle 145, state 5 
-AGE:144
-cycle 146, state 5 
-AGE:145
-cycle 147, state 5 
-AGE:146
-cycle 148, state 5 
-AGE:147
-cycle 149, state 5 
-AGE:148
-cycle 150, state 5 
-AGE:149
-cycle 151, state 5 
-AGE:150
-cycle 152, state 5 
-AGE:151
-cycle 153, state 5 
-AGE:152
-cycle 154, state 5 
-AGE:153
-cycle 155, state 5 
-AGE:154
-cycle 156, state 5 
-AGE:155
-cycle 157, state 5 
-AGE:156
-cycle 158, state 5 
-AGE:157
-cycle 159, state 5 
-AGE:158
-cycle 160, state 5 
-AGE:159
-cycle 161, state 5 
-AGE:160
-cycle 162, state 5 
-AGE:161
-cycle 163, state 5 
-AGE:162
-cycle 164, state 5 
-AGE:163
-cycle 165, state 5 
-AGE:164
-cycle 166, state 5 
-AGE:165
-cycle 167, state 6 
-AGE:166
-cycle 168, state 7 
-AGE:167
-cycle 169, state 7 
-AGE:168
-cycle 170, state 7 
-AGE:169
-cycle 171, state 7 
-AGE:170
-cycle 172, state 7 
-AGE:171
-cycle 173, state 7 
-AGE:172
-cycle 174, state 7 
-AGE:173
-cycle 175, state 7 
-AGE:174
-cycle 176, state 7 
-AGE:175
-cycle 177, state 7 
-AGE:176
-cycle 178, state 7 
-AGE:177
-cycle 179, state 7 
-AGE:178
-cycle 180, state 7 
-AGE:179
-cycle 181, state 7 
-AGE:180
-cycle 182, state 7 
-AGE:181
-cycle 183, state 7 
-AGE:182
-cycle 184, state 7 
-AGE:183
-cycle 185, state 7 
-AGE:184
-cycle 186, state 7 
-AGE:185
-cycle 187, state 7 
-AGE:186
-cycle 188, state 7 
-AGE:187
-cycle 189, state 7 
-AGE:188
-cycle 190, state 7 
-AGE:189
-cycle 191, state 7 
-AGE:190
-cycle 192, state 7 
-AGE:191
-cycle 193, state 7 
-AGE:192
-cycle 194, state 7 
-AGE:193
-cycle 195, state 7 
-AGE:194
-cycle 196, state 7 
-AGE:195
-cycle 197, state 7 
-AGE:196
-cycle 198, state 7 
-AGE:197
-cycle 199, state 7 
-AGE:198
-cycle 200, state 7 
-AGE:199
-cycle 201, state 7 
-AGE:200
-cycle 202, state 7 
-AGE:201
-cycle 203, state 7 
-AGE:202
-cycle 204, state 7 
-AGE:203
-cycle 205, state 7 
-AGE:204
-cycle 206, state 8 
-AGE:205
-cycle 207, state 8 
-AGE:206
-cycle 208, state 8 
-AGE:207
-cycle 209, state 8 
-AGE:208
-cycle 210, state 8 
-AGE:209
-cycle 211, state 8 
-AGE:210
-cycle 212, state 8 
-AGE:211
-cycle 213, state 8 
-AGE:212
-[428] Dequeued: 1 1 [0 0 1 0]
-cycle 214, state 0 
-AGE:213
-cycle 215, state 3 
-AGE:214
-cycle 216, state 3 
-AGE:215
-cycle 217, state 3 
-AGE:216
-cycle 218, state 3 
-AGE:217
-cycle 219, state 3 
-AGE:218
-cycle 220, state 3 
-AGE:219
-cycle 221, state 3 
-AGE:220
-cycle 222, state 3 
-AGE:221
-cycle 223, state 3 
-AGE:222
-cycle 224, state 3 
-AGE:223
-cycle 225, state 3 
-AGE:224
-cycle 226, state 3 
-AGE:225
-cycle 227, state 3 
-AGE:226
-cycle 228, state 3 
-AGE:227
-cycle 229, state 3 
-AGE:228
-cycle 230, state 3 
-AGE:229
-cycle 231, state 3 
-AGE:230
-cycle 232, state 3 
-AGE:231
-cycle 233, state 3 
-AGE:232
-cycle 234, state 3 
-AGE:233
-cycle 235, state 3 
-AGE:234
-cycle 236, state 3 
-AGE:235
-cycle 237, state 4 
-AGE:236
-cycle 238, state 7 
-AGE:237
-cycle 239, state 7 
-AGE:238
-cycle 240, state 7 
-AGE:239
-cycle 241, state 7 
-AGE:240
-cycle 242, state 7 
-AGE:241
-cycle 243, state 7 
-AGE:242
-cycle 244, state 7 
-AGE:243
-cycle 245, state 7 
-AGE:244
-cycle 246, state 7 
-AGE:245
-cycle 247, state 7 
-AGE:246
-cycle 248, state 7 
-AGE:247
-cycle 249, state 7 
-AGE:248
-cycle 250, state 7 
-AGE:249
-cycle 251, state 7 
-AGE:250
-cycle 252, state 7 
-AGE:251
-cycle 253, state 7 
-AGE:252
-cycle 254, state 7 
-AGE:253
-cycle 255, state 7 
-AGE:254
-cycle 256, state 7 
-AGE:255
-cycle 257, state 7 
-AGE:256
-cycle 258, state 7 
-AGE:257
-cycle 259, state 7 
-AGE:258
-cycle 260, state 7 
-AGE:259
-cycle 261, state 7 
-AGE:260
-cycle 262, state 7 
-AGE:261
-cycle 263, state 7 
-AGE:262
-cycle 264, state 7 
-AGE:263
-cycle 265, state 7 
-AGE:264
-cycle 266, state 7 
-AGE:265
-cycle 267, state 7 
-AGE:266
-cycle 268, state 7 
-AGE:267
-cycle 269, state 7 
-AGE:268
-cycle 270, state 7 
-AGE:269
-cycle 271, state 7 
-AGE:270
-cycle 272, state 7 
-AGE:271
-cycle 273, state 7 
-AGE:272
-cycle 274, state 7 
-AGE:273
-cycle 275, state 7 
-AGE:274
-cycle 276, state 7 
-AGE:275
-cycle 277, state 7 
-AGE:276
-cycle 278, state 8 
-AGE:277
-cycle 279, state 8 
-AGE:278
-cycle 280, state 8 
-AGE:279
-cycle 281, state 8 
-AGE:280
-cycle 282, state 8 
-AGE:281
-cycle 283, state 8 
-AGE:282
-cycle 284, state 8 
-AGE:283
-cycle 285, state 8 
-AGE:284
-[572] Dequeued: 2 2 [0 0 1 1]
+TFAW0 0, 0, 0, 0
+queue (size = 1): 
+CORE: 2, OPERATION: 1
+BG: 0, BA: 0
+ROW: 0000, COLH: 00, COLL: 0
+|   
+V   
+NULL
+
+TFAW0 0, 0, 0, 0
 END OF SIMULATION
-Total Clock Cycles: 572
-Program Execution Time: 0.000000 seconds
+Total Clock Cycles: 232
+Program Execution Time: 0.015000 seconds
