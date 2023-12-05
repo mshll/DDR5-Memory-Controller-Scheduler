@@ -552,6 +552,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
           }
         }
         else {
+          
           if (
             is_timing_constraint_met(dram, request, tRCD) &&
             is_tccds_met(dram, tCCD_S_WTR)
@@ -563,6 +564,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
 
       }
       else if (dram->last_interface_cmd == READ) {
+        LOG("TRCD :%u\n tCCD_L: %u\n,TCCD_S: %u\n",dram->timing_constraints[request->bank_group][request->bank][tRCD],dram->consecutive_cmd_timers[tCCD_L],dram->consecutive_cmd_timers[tCCD_S]);
         if (dram->last_bank_group == request->bank_group) {
           if (
             is_timing_constraint_met(dram, request, tRCD) &&
@@ -745,6 +747,7 @@ void level_one_algorithm(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
 
   decrement_tfaw_timers(dram);
   decrement_timing_constraints(dram);
+  decrement_consecutive_cmd_timers(dram);
 }
 
 void bank_level_parallelism(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
