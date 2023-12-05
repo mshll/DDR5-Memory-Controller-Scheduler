@@ -57,6 +57,12 @@ FILE *open_file(char *file_name, char *mode) {
 
 void parser_next_line(Parser_t *parser) {
   if (fgets(parser->line, sizeof(parser->line), parser->file)) {
+    // skip empty lines
+    if (strlen(parser->line) == 1) {
+      parser_next_line(parser);
+      return;
+    }
+
     parser->next_request = malloc(sizeof(MemoryRequest_t));
 
     if (parser->next_request == NULL) {
@@ -82,7 +88,11 @@ MemoryRequest_t parse_line(char *line) {
   uint8_t core, operation;
   MemoryRequest_t memory_request;
 
-  sscanf(line, "%" SCNu64 " %hhu %hhu %" SCNx64, &time, &core, &operation, &address);
+  if (sscanf(line, "%" SCNu64 " %" SCNu8 " %" SCNu8 " %" SCNx64, &time, &core, &operation, &address) != 4) {
+    fprintf(stderr, "Error parsing line: %s\n", line);
+    exit(EXIT_FAILURE);
+  }
+
   memory_request_init(&memory_request, time, core, operation, address);
 
   // LOG("Parsed: time = %5" PRIu64 ", core = %2u, operation = %u, address = %#016llX\n", time, core, operation, address);
