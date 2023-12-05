@@ -392,7 +392,8 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
           is_timing_constraint_met(dram, request, tRAS) &&
           is_timing_constraint_met(dram, request, tCWL) &&
           is_timing_constraint_met(dram, request, tBURST) &&
-          is_timing_constraint_met(dram, request, tWR) 
+          is_timing_constraint_met(dram, request, tWR) &&
+          is_timing_constraint_met(dram, request, tRP) 
         ) {
           precharge_bank(dram, request);
 
@@ -411,7 +412,8 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
       else {
         if (
           is_timing_constraint_met(dram, request, tRAS) &&
-          is_timing_constraint_met(dram, request, tRTP)
+          is_timing_constraint_met(dram, request, tRTP) &&
+          is_timing_constraint_met(dram, request, tRP)
         ) {
           precharge_bank(dram, request);
 
@@ -466,9 +468,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
       break;
 
     case ACT1:
-      if (!is_bank_active(dram, request)) {
-        activate_bank(dram, request);
-      }
+      activate_bank(dram, request);
 
       // issue cmd
       cmd = issue_cmd("ACT1", request, cycle);
@@ -514,7 +514,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
         }
 
       }
-      else {
+      else if (dram->last_interface_cmd == READ) {
         if (dram->last_bank_group == request->bank_group) {
           if (
             is_timing_constraint_met(dram, request, tRCD) &&
@@ -532,6 +532,12 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
             cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
             request->state = RD1;
           }
+        }
+      }
+      else {
+        if (is_timing_constraint_met(dram, request, tRCD)) {
+          cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, cycle);
+          request->state = RD1;
         }
       }
 
