@@ -126,7 +126,7 @@ Create a trace file as an input (ASCII text file) using a test case generator.
 | --- | --------- | ----- | ---------------- | ----- |
 |  1  | BLP when each request is going to a different BA in the same BG. | 4 requests going to same BG, each with different BA. | ACT -> ACT -> ACT -> ACT -> RD -> RD -> RD -> RD | Testing BG 0, 3, 6 to check 0, even, and odd checks. |
 |  2  | BLP is working correctly when there are two requests vying for same BG,BA. | 3 requests, first two will go to same BG,BA, and the third will go to different BG,BA. | ACT -> ACT -> RD -> RD -> PRE -> ACT -> RD | First two ACT are for request 1 and 3 respectively. Second request page miss. |
-|  3  | Test open page tracking when interlearving BG,BA, while trying to trick it by making the BA number be the same. | Back to back references that are intersected by a page access from a different BG with different ROW. | ACT -> ACT -> READ -> READ -> READ | Output order is important. It should be REQ1->REQ2->REQ1->REQ2->REQ3 |
+|  3  | Test open page tracking when interlearving BG,BA, while trying to trick it by making the BA number be the same. | Back to back references that are intersected by a page access from a different BG with different ROW. | ACT -> ACT -> READ -> READ -> READ | Output order is important. It should be [TBD] |
 |  4  | Test open page tracking when interlearving BG,BA, while trying to trick it by making the BG number be the same. | Back to back references that are intersected by a page access from a different BA with different ROW. | ACT -> ACT -> READ -> READ -> READ | Same output as 3 |
 |  5  | Test open page tracking when intervleaving BG,BA, while trying to trick it by making the ROW be the same. | Back to back references that are intersected by a page access from a different BG,BA, with same ROW. | ACT -> ACT -> READ -> READ -> READ | Same output as 3 |
 |  6  | Test open page tracking when intervleaving BG,BA, while trying to trick it by making the BA,ROW the same. | Back to back references that are intersected by a page access from a different BG, with same BA,ROW. | ACT -> ACT -> READ -> READ -> READ | Same result as 3 |
@@ -172,8 +172,8 @@ note: (R# = request number)
 **Test Cases**:
 | \#  | OBJECTIVE | INPUT | EXPECTED RESULTS | Notes |
 | --- | --------- | ----- | ---------------- | ----- |
-|  1  | tRCD,tCL,tRAS, for a read. | Read request at CPU 199. | ACT0 at DIMM 100,<br/>ACT1 at DIMM 101,<br/>RD0 at DIMM 139,<br/>RD1 at DIMM 140,<br/>PRE at DIMM 177,<br/>BURST at DIMM 180,<br/>Dequeue at DIMM 188. |       |
-|  2  | tRCD,tCWL,tRAS, for a write. | Write request at CPU 199. | ACT0 at DIMM 100,<br/>ACT1 at DIMM 101,<br/>WR0 at DIMM 139,<br/>WR1 at DIMM 140,<br/>BURST at DIMM 178,<br/>Dequeue at DIMM 186,<br/>PRE at DIMM 216 |       |
+|  1  | Two reads to test:<br/> tRCD,tCL,tRAS,tRP | Read request at CPU 199 and 200. | ACT0 at DIMM 100,<br/>ACT1 at DIMM 101,<br/>RD0 at DIMM 139,<br/>RD1 at DIMM 140,<br/>PRE at DIMM 177,<br/>BURST at DIMM 180,<br/>Dequeue at DIMM 188,<br/>ACT0 at DIMM 216 | To check commands after second activate, reference the timing descriptions (if you want). If PRE goes early, maybe bug in tRTP. |
+|  2  | Two writes to test:<br/> tRCD,tCWL,tBURST,tWR | Write request at CPU 199 and 200. | ACT0 at DIMM 100,<br/>ACT1 at DIMM 101,<br/>WR0 at DIMM 139,<br/>WR1 at DIMM 140,<br/>BURST at DIMM 178,<br/>Dequeue at DIMM 186,<br/>PRE at DIMM 216,<br/>ACT0 at DIMM 255 | Won't see burst or dequeue in output file, but as long as WR1->PRE is 76 cycles it should be fine. |
 |  3  |           |       |                  |       |
 |  4  |           |       |                  |       |
 
@@ -185,13 +185,6 @@ note: (R# = request number)
 
 #### 6.2.1. tRCD
 >tRCD = 39. Cycles to open a row. Occurs between ACT -> READ/WRITE.
-
-**Test Cases**:
-| \#  | OBJECTIVE | INPUT | EXPECTED RESULTS | Notes |
-| --- | --------- | ----- | ---------------- | ----- |
-|  1  | tRCD in closed page policy (level 0). | Request for read then write at timings 99 and 299 (both CPU). | ACT1 at DIMM 51,<br /> READ1 at DIMM 90. <br /> ACT1 at DIMM 151,<br /> WRITE1 at DIMM 190 | Only check for tRCD. |
-|  2  | tRCD in open page policy (level 1). | Request for read then write at timings 99 and 299 (both CPU),<br /> both page empty. | ACT1 at DIMM 51,<br /> READ1 at DIMM 90. <br />ACT1 at DIMM 151,<br /> WRITE at DIMM 190 |       |
-|  3  | tRCD when two banks are in parallel (level 2). | Two requests at CPU clock 199,200, <br /> both page empty. | ACT1 at DIMM 101,<br /> ACT1 at DIMM ###,<br /> READ1 at DIMM 140,<br /> READ1 at DIMM (###+39). | Don't care for tRRD right now, but tRCD should still be +39 later |
 
 #### 6.2.2. tRTP
 >tRTP = 18. Read to precharge delay. Occurs between READ -> PRECHARGE. This means a PRE can be done before we start (or during) reading out data, but we still need to wait for tRAS to be satisfied if necessary. This is possible because the data is moved to a buffer when the RD command is issued, so we can close the page prematurely.
