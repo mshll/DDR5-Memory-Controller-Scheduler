@@ -92,6 +92,7 @@ typedef enum ConsecutiveCmdConstraints {
 typedef struct __attribute__((__packed__)) Bank {
   bool is_precharged;
   bool is_active;
+  bool in_progress;
   Operation_t last_request_operation;
   uint32_t active_row;
 } Bank_t;
