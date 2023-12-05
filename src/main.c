@@ -55,7 +55,7 @@ int main(int argc, char *argv[]) {
   dimm_create(&PC5_38400, output_file_name);    // create DIMM
   queue_create(&global_queue, MAX_QUEUE_SIZE);  // create queue of size 16
 
-  unsigned long long clock_cycle = 0;  // tracking the clock cycle (CPU clock). DIMM clock cycle is 1/2.
+  uint64_t clock_cycle = 0;  // tracking the clock cycle (CPU clock). DIMM clock cycle is 1/2.
   MemoryRequest_t *current_request = NULL;
 
   while (true) {

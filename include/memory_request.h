@@ -19,8 +19,7 @@ typedef enum MemoryRequestState {
   RD1,
   WR0,
   WR1,
-  BUFFER_RD,
-  BUFFER_WR,
+  BUFFER,
   BURST,
   PRE,
   COMPLETE
