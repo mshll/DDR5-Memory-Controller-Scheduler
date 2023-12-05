@@ -187,3 +187,26 @@ void print_queue(Queue_t *q) {
 
     doubly_ll_print_list(q->list);
 }
+
+void queue_swap(Queue_t **q, uint8_t i1, uint8_t i2) {
+    if (*q == NULL || (*q)->list == NULL) {
+        fprintf(stderr, "%s:%d: Invalid index for swap\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
+    }
+
+    if (i1 >= (*q)->size || i2 >= (*q)->size || i1 == i2) {
+        fprintf(stderr, "%s:%d: Invalid index for swap\n", __FILE__, __LINE__);
+        exit(EXIT_FAILURE);
+    }
+
+    MemoryRequest_t *request1 = doubly_ll_value_at((*q)->list, i1);
+    MemoryRequest_t *request2 = doubly_ll_value_at((*q)->list, i2);
+
+    // Swap the values in the queue
+    doubly_ll_delete_at(&((*q)->list), i1);
+    doubly_ll_insert_at(&((*q)->list), i1, *request2);
+
+    doubly_ll_delete_at(&((*q)->list), i2);
+    doubly_ll_insert_at(&((*q)->list), i2, *request1);
+}
+

@@ -38,5 +38,5 @@ MemoryRequest_t *queue_peek_at(Queue_t *q, uint8_t index);
 bool queue_is_full(Queue_t *q);
 bool queue_is_empty(Queue_t *q);
 void print_queue(Queue_t *q);
-
+int8_t queue_swap(Queue_t **q, uint8_t i1, uint8_t i2);
 #endif

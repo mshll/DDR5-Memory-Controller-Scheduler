@@ -144,7 +144,7 @@ void out_of_order(Queue_t *global_queue, MemoryRequest_t *current_request) {
       if (read_request->operation != DATA_WRITE &&
         read_request->bank_group == current_request->bank_group &&
         read_request->bank == current_request->bank &&
-        (read_request->row != current_request->row || read_request->column_low != current_request->column_low || read_request->column_high != current_request->column_high)
+        (read_request->row != current_request->row)
       ) {
         // we put DATA_WRITE after the DATA_READ or IFETCH
         queue_insert_at(&global_queue, i + 1, *current_request);
@@ -158,7 +158,7 @@ void out_of_order(Queue_t *global_queue, MemoryRequest_t *current_request) {
       if (write_request->operation == DATA_WRITE &&
           write_request->bank_group == current_request->bank_group &&
           write_request->bank == current_request->bank &&
-          (write_request->row != current_request->row || write_request->column_low != current_request->column_low || write_request->column_high != current_request->column_high)
+          (write_request->row != current_request->row)
       ) {
         // we put the DATA_READ or IFETCH before the DATA_WRITE
         queue_insert_at(&global_queue, i, *current_request);
