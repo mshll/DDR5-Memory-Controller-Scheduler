@@ -785,7 +785,7 @@ void level_one_algorithm(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
 void bank_level_parallelism(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
   bool is_cmd_issued = false;
   DRAM_t *dram = &((*dimm)->channels[0].DDR5_chip[0]);
-  print_queue(*q);
+  // print_queue(*q);
 
   for (int index = 0; index < (*q)->size; index++) {
     MemoryRequest_t *request = queue_peek_at(*q, index);
@@ -797,8 +797,22 @@ void bank_level_parallelism(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
       continue;
     }
 
-    if (dram->bank_groups[request->bank_group].banks[request->bank].in_progress && index != 0) {
+    if (request->is_finished) {
+      open_page(dimm, request, clock);
       continue;
+    }
+
+    if (index != 0) {
+
+      MemoryRequest_t *last_request = queue_peek_at(*q, index - 1);
+      if (
+        !last_request->is_finished &&
+        last_request->bank_group == request->bank_group &&
+        last_request->bank == request->bank
+      ) {
+        continue;
+      }
+
     }
 
     is_cmd_issued = open_page(dimm, request, clock);
@@ -810,10 +824,10 @@ void bank_level_parallelism(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
 
   LOG(
     "TFAW0 %hu, %hu, %hu, %hu\n",
-    dram0->tFAW_timers[0],
-    dram0->tFAW_timers[1],
-    dram0->tFAW_timers[2],
-    dram0->tFAW_timers[3]
+    dram->tFAW_timers[0],
+    dram->tFAW_timers[1],
+    dram->tFAW_timers[2],
+    dram->tFAW_timers[3]
   );
   decrement_timing_constraints(dram);
   decrement_consecutive_cmd_timers(dram);
