@@ -1,0 +1,6 @@
+--- Simulation Parameters ---
+Scheduling Policy Level: 0
+Input File: test_case_2.txt
+Output File: test_case_2_results.txt
+-----------------------------
+Error: core value out of range (0-11): 24

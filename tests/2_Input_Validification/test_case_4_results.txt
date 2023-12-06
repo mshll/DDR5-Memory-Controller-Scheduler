@@ -1,0 +1,6 @@
+--- Simulation Parameters ---
+Scheduling Policy Level: 0
+Input File: test_case_4.txt
+Output File: test_case_4_results.txt
+-----------------------------
+Error: address is more than 34 bits: 7ffffffff

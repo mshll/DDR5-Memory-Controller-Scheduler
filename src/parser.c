@@ -85,13 +85,13 @@ MemoryRequest_t parse_line(char *line) {
   MemoryRequest_t memory_request;
 
   if (sscanf(line, "%20s %3s %2s %20s", time_str, core_str, operation_str, address_str) != 4) {
-    fprintf(stderr, "Error parsing line: '%s'\n", line);
+    fprintf(stderr, "Error parsing line: %s\n", line);
     exit(EXIT_FAILURE);
   }
 
   // Check for negative numbers
   if (time_str[0] == '-' || core_str[0] == '-' || operation_str[0] == '-' || address_str[0] == '-') {
-    fprintf(stderr, "Error: Negative number detected in input: '%s'\n", line);
+    fprintf(stderr, "Error: Negative number detected in input: %s\n", line);
     exit(EXIT_FAILURE);
   }
 
