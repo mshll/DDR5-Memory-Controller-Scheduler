@@ -47,7 +47,7 @@
 #define TCCD_S_WTR 51 // WRITE -> READ in different bank group
 #define NUM_CONSECUTIVE_CMD_CONSTRAINTS 10
 
-#define TFAW       39 // time window where there can be at most four ACT commands
+#define TFAW       32 // time window where there can be at most four ACT commands
 #define NUM_TFAW_COUNTERS 4
 
 #define NUM_BANKS 32
