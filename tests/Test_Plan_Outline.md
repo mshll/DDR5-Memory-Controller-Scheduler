@@ -97,7 +97,7 @@ Create a trace file as an input (ASCII text file) using a test case generator.
 **Test Cases**:
 | \#  | OBJECTIVE | INPUT | EXPECTED RESULTS | Notes |
 | --- | --------- | ----- | ---------------- | ----- |
-|  1  | Requests coming in with a full queue | 18 consecutive requests starting at CPU 0 | Request 17 should be queued after a request is finished, then request 18 after another request is finished. | Use debug mode |
+|  1  | Requests coming in with a full queue | 18 consecutive requests starting at CPU 0 | Request 17 should be queued after a request is finished, then request 18 after another request is finished. | Use debug mode, should be valid in all levels |
 
 ## 4. POLICY IMPLEMENTED CORRECTLY
 
@@ -174,7 +174,7 @@ Create a trace file as an input (ASCII text file) using a test case generator.
 note: (R# = request number)
 
 ## 5. DRAM COMMANDS FUNCTIONALLY CORRECT
-**Note**: In level 2+, the scheduler will always pick READ1, WRITE1, and ACT1 if they are available. This project is using 1n mode, so there is a 1 cycle delay between 0 -> 1. 
+**Note**: In level 2+, the scheduler will always pick READ1, WRITE1, and ACT1 if they are available. This project is using 1n mode, so there is a 1 DIMM cycle delay between 0 -> 1. 
 
 ### 5.1. READ0, READ1
 >READ0 selects the command being issued (due to MUX) and READ1 will get column address. Followed by tCL = 40. Output should show the bank, bank group, and column being accessed (same as the input column address for this project).
@@ -204,10 +204,10 @@ Bolded is what we are looking for.
 **Test Cases**:
 | \#  | OBJECTIVE | INPUT | EXPECTED RESULTS | Notes |
 | --- | --------- | ----- | ---------------- | ----- |
-|  1  | ACT -> **READ -> READ -> PRE** -> ACT:<br/>tCCD_L,tRTP,tRP,tCL | Two reads to same BG,BA,ROW, at times 197 and 198.<br/>Read to same BG,BA, different ROW at time 199.  | RD1 at DIMM 139,<br/>RD1 at DIMM 151<br/>PRE at DIMM 169,<br/>ACT1 at DIMM 208. |  |
-|  2  | ACT -> **WRITE -> READ -> PRE** -> ACT:<br/>tCCD_L_WTR,tCWL+tBURST+tWR, | Read and write to same BG,BA,ROW at times 197 and 198.<br/> Read to same BG,BA, different row at time 199. | WR1 at DIMM 139,<br/>RD1 at DIMM 209,<br/>PRE at DIMM 215,<br/> | tWR elapses tRTP |
-|  3  | ACT -> **READ -> WRITE -> PRE** -> ACT:<br/> |       |                  |       |
-|  4  |           |       |                  |       |
+|  1  | ACT -> **READ -> READ -> PRE -> ACT**:<br/>tCCD_L,tRTP,tRP | Two reads to same BG,BA,ROW at times 197 and 198.<br/>Read to same BG,BA, different ROW at time 199.  | RD1 at DIMM 139,<br/>RD1 at DIMM 151<br/>PRE at DIMM 169,<br/>ACT1 at DIMM 208 |  |
+|  2  | ACT -> **WRITE -> READ -> PRE** -> ACT:<br/>tCCD_L_WTR,tRTP | Read and write to same BG,BA,ROW at times 197 and 198.<br/> Read to same BG,BA, different row at time 199. | WR1 at DIMM 139,<br/>RD1 at DIMM 209,<br/>PRE at DIMM 227 | tRTP  should encompass tWR |
+|  3  | ACT -> **READ -> WRITE -> PRE** -> ACT:<br/>tCCD_L_RTW,tCWL+tBURST+tWR | Write and read to same BG,BA,ROW at times 197 and 198.<br/>Read to same BG,BA, different row at time 199. | RD1 at DIMM 139,<br/>WR1 at DIMM 155,<br/>PRE at DIMM 231 |
+|  4  | ACT -> **WRITE -> WRITE -> PRE** -> ACT:<br/>tCCD_L_WR,tCWL+tBURST+tWR | Two writes to same BG,BA,ROW at times 197 and 198.<br/>Write to same BG,BA, different row at time 199. | WR1 at DIMM 139,<br/>WR1 at DIMM 187,<br/>PRE at DIMM 263 |
 
 ### 6.2. Timing Descriptions
 
