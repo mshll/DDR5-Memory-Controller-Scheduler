@@ -172,7 +172,7 @@ Create a trace file as an input (ASCII text file) using a test case generator.
 |  1  | Read over write when valid | 3 requests all going to the same BG,BA. R1 will be read, R2 will be write, and R3 will be read. All are going to different ROW,COL. | RD -> RD -> WR | Activates and precharge are omitted |
 |  2  | No read over write when not valid (SAME addresses). | 3 requests all going to the same BG,BA. R1 will be read, R2 will be write, and R3 will be read. All are going to the SAME ROW,COL. | RD -> WR -> RD | Also tests how simulator handles when a page hit over page miss is possible, but invalid due to not being able to put read over write.  |
 |  3  | Prioritize page hits over page misses. | 3 requests all going to the same BG,BA. R1 will be read, R2 will be read (different row from R1), R3 will be read(same row as R1).| ACT -> RD -> RD -> PRE -> ACT -> RD |       |
-|  4  | Test our ageing process (should be 920) | 11 requests all going to same BG,BA, different rows. Only req2 is a write. First req comes in at 197. | (ACT -> RD -> PRE)x8 |       |
+|  4  | Test our ageing process (should be 920) | 12 requests all going to same BG,BA, different rows. Only req2 is a write. First req comes in at 197. All other requests start coming in at time 200. | (ACT -> RD -> PRE)x8,<br/>ACT -> WR -> PRE |       |
 
 note: (R# = request number)
 
