@@ -80,7 +80,7 @@ char *issue_cmd(char *cmd, MemoryRequest_t *request, uint64_t cycle) {
   char *response = malloc(sizeof(char) * 100);
   char *temp = malloc(sizeof(char) * 100);
 
-  sprintf(response, "%10" PRIu64 " %u %4s", cycle/2, request->channel, cmd);
+  sprintf(response, "%10" PRIu64 " %u %4s", cycle, request->channel, cmd);
 
   if (strncmp(cmd, "ACT", 3) == 0) {
     sprintf(temp, " %u %u 0x%04X", request->bank_group, request->bank, request->row);
@@ -187,34 +187,31 @@ bool can_issue_act(DRAM_t *dram) {
 }
 
 void check_requests_age(Queue_t *global_queue){
+  if (global_queue == NULL || global_queue->list == NULL) {
+    return; 
+  }
 
-    if (global_queue == NULL || global_queue->list == NULL) {
-        NULL; 
+  int old_request_age =-1;
+  int young_request_age =-1;
+  for (int i = 0; i < global_queue->size; i++) {
+    MemoryRequest_t *request = queue_peek_at(global_queue, i);
+    if (request != NULL) {
+      if (request->aging >= TRC*8 && old_request_age == -1) {
+        old_request_age = i;
+      } 
+      else if (request->aging < TRC && young_request_age == -1) {
+        young_request_age = i;
+      }
+
+      if (old_request_age != -1 && young_request_age != -1) {
+        break;
+      }
     }
+  }
 
-    
-    int old_request_age =-1;
-    int young_request_age =-1;
-    for (int i = 0; i < global_queue->size; i++) {
-        MemoryRequest_t *request = queue_peek_at(global_queue, i);
-        if (request != NULL) {
-            if (request->aging >= TRC*8 && old_request_age == -1) {
-                old_request_age = i;
-          } 
-          else if (request->aging < TRC && young_request_age == -1) {
-                    young_request_age = i;
-                }
-
-                if (old_request_age != -1 && young_request_age != -1) {
-                    break;
-                }
-            }
-        }
-
-        if (old_request_age != -1 && young_request_age != -1) {
-            queue_insert_at(&global_queue, young_request_age,queue_delete_at(&global_queue,old_request_age));
-        }
-
+  if (old_request_age != -1 && young_request_age != -1) {
+    queue_insert_at(&global_queue, young_request_age,queue_delete_at(&global_queue,old_request_age));
+  }
 
 }
 

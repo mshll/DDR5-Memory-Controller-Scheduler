@@ -144,7 +144,7 @@ void out_of_order(Queue_t *global_queue, MemoryRequest_t *current_request) {
   
   bool inserted = false; //flag so we dont insert it twice
 
-    // this if else is for reads>writes when valid
+  // this if else is for reads>writes when valid
   if (current_request->operation == DATA_WRITE) {
 
     for (int i = 0; i < global_queue->size && !inserted; i++) {
