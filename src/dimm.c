@@ -287,6 +287,7 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
       LOG("RD1\tBG:%hu BA:%hu\n", request->bank_group, request->bank);
       // issue cmd
       cmd = issue_cmd(request->operation == DATA_WRITE ? "WR1" : "RD1", request, clock);
+      request->is_finished = true;
 
       // set timers
       set_timing_constraint(dram, request, tCL);
@@ -306,6 +307,7 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
     case WR1:
       // issue cmd
       cmd = issue_cmd(request->operation == DATA_WRITE ? "WR1" : "RD1", request, clock);
+      request->is_finished = true;
 
       // set timers
       set_timing_constraint(dram, request, tCWL);
@@ -606,6 +608,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
     case RD1:
       // issue cmd
       cmd = issue_cmd(request->operation == DATA_WRITE ? "WR1" : "RD1", request, cycle);
+      request->is_finished = true;
       dram->last_interface_cmd = READ;
       dram->last_bank_group = request->bank_group;
 
@@ -675,6 +678,7 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
     case WR1:
       // issue cmd
       cmd = issue_cmd(request->operation == DATA_WRITE ? "WR1" : "RD1", request, cycle);
+      request->is_finished = true;
       dram->last_interface_cmd = WRITE;
       dram->last_bank_group = request->bank_group;
 
@@ -752,8 +756,20 @@ void level_one_algorithm(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
   MemoryRequest_t *request = queue_peek(*q);
   DRAM_t *dram = &((*dimm)->channels[request->channel].DDR5_chip[0]);
 
-  if (request && request->state != COMPLETE) {
-    open_page(dimm, request, clock);
+  if ((*q)->size > 1) {  
+    MemoryRequest_t *next_request = queue_peek_at(*q, 1);
+    if (!request->is_finished) {
+      open_page(dimm, request, clock);
+    }
+    else {
+      open_page(dimm, request, clock);
+      open_page(dimm, next_request, clock);
+    }
+  }
+  else {
+    if (request->state != COMPLETE) {
+      open_page(dimm, request, clock);
+    }
   }
 
   if (request && request->state == COMPLETE) {
