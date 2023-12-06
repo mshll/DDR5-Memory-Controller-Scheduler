@@ -195,12 +195,13 @@ void check_requests_age(Queue_t *global_queue){
     
     int old_request_age =-1;
     int young_request_age =-1;
-        for (int i = 0; i < global_queue->size; i++) {
-            MemoryRequest_t *request = queue_peek_at(global_queue, i);
-            if (request != NULL) {
-                if (request->aging >= 100000 && old_request_age == -1) {
-                    old_request_age = i;
-                } else if (request->aging < 10 && young_request_age == -1) {
+    for (int i = 0; i < global_queue->size; i++) {
+        MemoryRequest_t *request = queue_peek_at(global_queue, i);
+        if (request != NULL) {
+            if (request->aging >= TRC*8 && old_request_age == -1) {
+                old_request_age = i;
+          } 
+          else if (request->aging < TRC && young_request_age == -1) {
                     young_request_age = i;
                 }
 

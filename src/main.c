@@ -143,6 +143,8 @@ void out_of_order(Queue_t *global_queue, MemoryRequest_t *current_request) {
   check_requests_age(global_queue);
   
   bool inserted = false; //flag so we dont insert it twice
+
+    // this if else is for reads>writes when valid
   if (current_request->operation == DATA_WRITE) {
 
     for (int i = 0; i < global_queue->size && !inserted; i++) {
@@ -156,6 +158,8 @@ void out_of_order(Queue_t *global_queue, MemoryRequest_t *current_request) {
         LOG("INSERTED AFTER\n");
         queue_insert_at(&global_queue, i + 1, *current_request);
         inserted = true;
+        break;
+
       }
     }
   } else {
@@ -170,9 +174,49 @@ void out_of_order(Queue_t *global_queue, MemoryRequest_t *current_request) {
         // we put the DATA_READ or IFETCH before the DATA_WRITE
         queue_insert_at(&global_queue, i, *current_request);
         inserted = true;
+        break;
+
       }
     }
   }
+      // if read > write is not valid, we want to prioritize hits. 
+      // put the read after write so we dont read stale data
+    if(!inserted && current_request->operation != DATA_WRITE){
+    for (int i = 0; i < global_queue->size && !inserted; i++) {
+      MemoryRequest_t *write_request = queue_peek_at(global_queue, i);
+      if (write_request->operation == DATA_WRITE &&
+          write_request->bank_group == current_request->bank_group &&
+          write_request->bank == current_request->bank &&
+          (write_request->row == current_request->row)
+      ) {
+        
+        queue_insert_at(&global_queue, i+1, *current_request);
+        inserted = true;
+        
+      }
+    }
+
+  }
+      // if read > write is not valid, we want to prioritize hits. 
+      // put the read next to the other read
+   if(!inserted && current_request->operation != DATA_WRITE){
+    for (int i = 0; i < global_queue->size && !inserted; i++) {
+      MemoryRequest_t *read_request = queue_peek_at(global_queue, i);
+      if (read_request->operation != DATA_WRITE &&
+          read_request->bank_group == current_request->bank_group &&
+          read_request->bank == current_request->bank &&
+          (read_request->row == current_request->row)
+      ) {
+        
+        queue_insert_at(&global_queue, i+1, *current_request);
+        inserted = true;
+        break;
+
+      }
+    }
+
+  }
+
 
   //flag not up we do it normally
   if (!inserted) {
