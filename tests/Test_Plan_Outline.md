@@ -22,21 +22,24 @@
   - [5.4. PRECHARGE](#54-precharge)
 - [6. DRAM TIMING CORRECT](#6-dram-timing-correct)
   - [6.1. Level 0](#61-level-0)
-  - [6.2. Timing Descriptions](#62-timing-descriptions)
-    - [6.2.1. tRCD](#621-trcd)
-    - [6.2.2. tRTP](#622-trtp)
-    - [6.2.3. tWR](#623-twr)
-    - [6.2.4. tCL](#624-tcl)
-    - [6.2.5. tCWL](#625-tcwl)
-    - [6.2.6. tRAS](#626-tras)
-    - [6.2.7. tRP](#627-trp)
-    - [6.2.8. tRC](#628-trc)
-    - [6.2.9. tFAW](#629-tfaw)
-    - [6.2.10. tRRD\_S and tRRD\_L](#6210-trrd_s-and-trrd_l)
-    - [6.2.11. tCCD\_S and tCCD\_L](#6211-tccd_s-and-tccd_l)
-    - [6.2.12. tCCD\_S\_WR and tCCD\_L\_WR](#6212-tccd_s_wr-and-tccd_l_wr)
-    - [6.2.13. tCCD\_S\_RTW and tCCD\_L\_RTW](#6213-tccd_s_rtw-and-tccd_l_rtw)
-    - [6.2.14. tCCD\_S\_WTR and tCCD\_L\_WTR](#6214-tccd_s_wtr-and-tccd_l_wtr)
+  - [6.2. Level 1](#62-level-1)
+  - [6.3. Level 2](#63-level-2)
+  - [6.4. Timing Descriptions](#64-timing-descriptions)
+    - [6.4.1. tRCD](#641-trcd)
+    - [6.4.2. tRTP](#642-trtp)
+    - [6.4.3. tWR](#643-twr)
+    - [6.4.4. tCL](#644-tcl)
+    - [6.4.5. tCWL](#645-tcwl)
+    - [6.4.6. tRAS](#646-tras)
+    - [6.4.7. tRP](#647-trp)
+    - [6.4.8. tRC](#648-trc)
+    - [6.4.9. tFAW](#649-tfaw)
+    - [6.4.10. tRRD\_S and tRRD\_L](#6410-trrd_s-and-trrd_l)
+    - [6.4.11. tCCD\_S and tCCD\_L](#6411-tccd_s-and-tccd_l)
+    - [6.4.12. tCCD\_S\_WR and tCCD\_L\_WR](#6412-tccd_s_wr-and-tccd_l_wr)
+    - [6.4.13. tCCD\_S\_RTW and tCCD\_L\_RTW](#6413-tccd_s_rtw-and-tccd_l_rtw)
+    - [6.4.14. tCCD\_S\_WTR and tCCD\_L\_WTR](#6414-tccd_s_wtr-and-tccd_l_wtr)
+    - [6.4.15. tBURST](#6415-tburst)
 - [7. copy paste thingy, remove later](#7-copy-paste-thingy-remove-later)
 
 
@@ -146,7 +149,7 @@ Create a trace file as an input (ASCII text file) using a test case generator.
 | --- | --------- | ----- | ---------------- | ----- |
 |  1  | BLP when each request is going to a different BA in the same BG. | 4 requests going to same BG, each with different BA. | ACT -> ACT -> ACT -> ACT -> RD -> RD -> RD -> RD | Testing BG 0, 3, 6 to check 0, even, and odd checks. |
 |  2  | BLP is working correctly when there are two requests vying for same BG,BA. | 3 requests, first two will go to same BG,BA, and the third will go to different BG,BA. | ACT -> ACT -> RD -> RD -> PRE -> ACT -> RD | First two ACT are for request 1 and 3 respectively. Second request page miss. |
-|  3  | Test open page tracking when interlearving BG,BA, while trying to trick it by making the BA number be the same. | Back to back references that are intersected by a page access from a different BG with different ROW. | ACT -> ACT -> READ -> READ -> READ | Output order is important. It should be [TBD] |
+|  3  | Test open page tracking when interlearving BG,BA, while trying to trick it by making the BA number be the same. | Back to back references that are intersected by a page access from a different BG with different ROW. | ACT -> ACT -> READ -> READ -> READ | Output order is important. <br/>It should be BGX->BGX->BGY |
 |  4  | Test open page tracking when interlearving BG,BA, while trying to trick it by making the BG number be the same. | Back to back references that are intersected by a page access from a different BA with different ROW. | ACT -> ACT -> READ -> READ -> READ | Same output as 3 |
 |  5  | Test open page tracking when intervleaving BG,BA, while trying to trick it by making the ROW be the same. | Back to back references that are intersected by a page access from a different BG,BA, with same ROW. | ACT -> ACT -> READ -> READ -> READ | Same output as 3 |
 |  6  | Test open page tracking when intervleaving BG,BA, while trying to trick it by making the BA,ROW the same. | Back to back references that are intersected by a page access from a different BG, with same BA,ROW. | ACT -> ACT -> READ -> READ -> READ | Same result as 3 |
@@ -198,7 +201,7 @@ note: (R# = request number)
 |  1  | tRCD, tCL, tRAS, tRP:<br/>  ACT -> READ -> PRE -> ACT | Read request at CPU 197 and 198. | ACT0 at DIMM 99,<br/>ACT1 at DIMM 100,<br/>RD0 at DIMM 138,<br/>RD1 at DIMM 139,<br/>PRE at DIMM 176,<br/>ACT0 at DIMM 214,<br/>ACT1 at DIMM 215 | BURST at DIMM 179,<br/>Dequeue at DIMM 187, (check debug if you want).<br/> If PRE goes early, maybe bug in tRTP. |
 |  2  | tRCD,tCWL,tBURST,tWR,tRP:<br/>  ACT -> WRITE -> PRE -> ACT | Write request at CPU 197 and 198. | ACT0 at DIMM 99,<br/>ACT1 at DIMM 100,<br/>WR0 at DIMM 138,<br/>WR1 at DIMM 139,<br/>PRE at DIMM 215,<br/>ACT0 at DIMM 254 | <br/>BURST at DIMM 177,<br/>Dequeue at DIMM 185. |
 
-### Level 1
+### 6.2. Level 1
 Bolded is what we are looking for. 
 
 **Test Cases**:
@@ -209,66 +212,72 @@ Bolded is what we are looking for.
 |  3  | tCCD_L_RTW, tCWL+tBURST+tWR:<br/>ACT -> **READ -> WRITE -> PRE** -> ACT | Write and read to same BG,BA,ROW at times 197 and 198.<br/>Read to same BG,BA, different row at time 199. | RD1 at DIMM 139,<br/>WR1 at DIMM 155,<br/>PRE at DIMM 231 |
 |  4  | tCCD_L_WR, tCWL+tBURST+tWR:<br/>ACT -> **WRITE -> WRITE -> PRE** -> ACT | Two writes to same BG,BA,ROW at times 197 and 198.<br/>Write to same BG,BA, different row at time 199. | WR1 at DIMM 139,<br/>WR1 at DIMM 187,<br/>PRE at DIMM 263 |
 
-### Level 2
+### 6.3. Level 2
 Bolded is what we are looking for. 
 
 **Test Cases**:
 | \#  | OBJECTIVE | INPUT | EXPECTED RESULTS | Notes |
 | --- | --------- | ----- | ---------------- | ----- |
-|  1  | tRRD_S, tCCD_S:<br/>ACT -> ACT -> READ -> READ | Two read requests to different BG at times 197 and 198 | ACT0 at DIMM 99,<br/>ACT1 at DIMM 100,<br/>ACT0 at DIMM  |       |
-|  2  |           |       |                  |       |
-|  3  |           |       |                  |       |
-|  4  |           |       |                  |       |
+|  1  | tRRD_S, tCCD_S:<br/>ACT -> ACT -> READ -> READ | Two read requests to different BG at times 197 and 198. | ACT1 at DIMM 100,<br/>ACT1 at DIMM 108, <br/>RD1 at DIMM 139,<br/>RD1 at DIMM 147 |
+|  2  | tRRD_L, tCCD_L:<br/>ACT -> ACT -> READ -> READ | Two read requests to same BG at times 197 and 198. | ACT1 at DIMM 100,<br/>ACT1 at DIMM 112,<br/>RD1 at DIMM 139,<br/>RD1 at DIMM 151 |
+|  3  | tRRD_L, tCCD_S, tCCD_L:<br/>ACT -> ACT -> READ -> READ -> READ | Requests X,Y to same BG at times 197 and 198, <br/>Request Z gets a page hit to same BA as X. | ACT1 at DIMM 100,<br/>ACT1 at DIMM 112,<br/>X_RD1 at DIMM 139,<br/>Z_RD1 at DIMM 147,<br/>Y_RD1 at DIMM 159 |
+|  4  | tCCD_S_WTR:<br/>ACT -> ACT -> **WRITE -> READ** | Write and read requests to different BG at times 197 and 198. | WR1 at DIMM 139,<br/>RD1 at DIMM 191 |
+|  5  | tCCD_L_WTR:<br/>ACT -> ACT -> **WRITE -> READ** | Write and read requests to same BG and different BA at times 197 and 198. | WR1 at DIMM 139,<br/>RD1 at DIMM 209 |       |
+|  6  | tCCD_S_RTW:<br/>ACT -> ACT -> **READ -> WRITE** | Read and write requests to different BG at times 197 and 198. | RD1 at DIMM 139,<br/>WR1 at DIMM 155 |
+|  7  | tCCD_L_RTW:<br/>ACT -> ACT -> **READ -> WRITE** | Read and write requests to same BG and different BA at times 197 and 198. | RD1 at DIMM 139,<br/>WR1 at DIMM 155 |
+|  8  | tCCD_S_WR:<br/>ACT -> ACT -> **WRITE -> WRITE** | Two write requests to different BG at times 197 and 198. | WR1 at DIMM 139,<br/>WR1 at DIMM 147 |       |
+|  9  | tCCD_L_WR:<br/>ACT -> ACT -> **WRITE -> WRITE** | Two write requests to same BG and different BA at times 197 and 198. | WR1 at DIMM 139,<br/>WR1 at DIMM 187 |       |
+|  10  | tFAW:<br/>ACT -> ACT -> ACT -> ACT -> ACT | |                  | not completed |
 
-### 6.2. Timing Descriptions
+### 6.4. Timing Descriptions
 
 **Note**: 
 1) All the RRD and CCD timings are level 1+ or level 2+ only because the cases only occur when a page hit happens, or because our scheduler picks the required back to back commands during bank level parallelism.
 2) Delay starts counting from the second 1/2 of the first command to the second 1/2 of the second command. This means the timing from activate to getting data = 1+tRCD+tCL, there is only a single "+1" because the second is overlapped by tRCD. 
 
-#### 6.2.1. tRCD
+#### 6.4.1. tRCD
 >tRCD = 39. Cycles to open a row. Occurs between ACT -> READ/WRITE.
 
-#### 6.2.2. tRTP
+#### 6.4.2. tRTP
 >tRTP = 18. Read to precharge delay. Occurs between READ -> PRECHARGE. This means a PRE can be done before we start (or during) reading out data, but we still need to wait for tRAS to be satisfied if necessary. This is possible because the data is moved to a buffer when the RD command is issued, so we can close the page prematurely. Level 1+ (page hits).
 
-#### 6.2.3. tWR
+#### 6.4.3. tWR
 >tWR = 30. Write recovery time. Occurs between WRITE DATA -> PRECHARGE. This means the time it takes from issuing a WRITE to PRE is tCWL + tBURST + tWR = 76 from WR1 -> PRE.
 
-#### 6.2.4. tCL
+#### 6.4.4. tCL
 >tCL = 40. Cycles to begin receiving data (from read). Occurs between READ -> DATA.
 
-#### 6.2.5. tCWL
+#### 6.4.5. tCWL
 >tCWL = 38. Column write delay (WR replacement for tCL). Occurs between WRITE -> DATA. 
 
-#### 6.2.6. tRAS
+#### 6.4.6. tRAS
 >tRAS = 76. Amount of cycles needed between ACT -> PRE. By doing the math from the previously mentioned timings, in level 0 we are able to issue the precharge command before tCL is satisfied and while tRTP is satisfied. For example if ACT1 finished at DIMM clock 1, tRAS will finish at DIMM clock 77, two cycles before tCL. 
 
-#### 6.2.7. tRP
+#### 6.4.7. tRP
 >tRP = 39. Row precharge time. Occurs between PRE -> ACT.
 
-#### 6.2.8. tRC
+#### 6.4.8. tRC
 >tRC = tRAS + tRP = 115. Minimum time between activates in a bank. As long as tRP and tRAS are tested correctly, this should be satisfied as well. 
 
-#### 6.2.9. tFAW
+#### 6.4.9. tFAW
 >tFAW = 32. Amount of time needed between every 4 ACT commands. Level 2+.
 
-#### 6.2.10. tRRD_S and tRRD_L
+#### 6.4.10. tRRD_S and tRRD_L
 >tRRD_S = 8, tRRD_L = 12. Activate to activate command delay. When switching between bank groups use _S, switching inside a bank group use _L. Level 2+. 
 
-#### 6.2.11. tCCD_S and tCCD_L
+#### 6.4.11. tCCD_S and tCCD_L
 >tCCD_S = 8, tCCD_L = 12. Read to read command delay. When switching between bank groups use _S, switching inside a bank group use _L. Level 1+.
 
-#### 6.2.12. tCCD_S_WR and tCCD_L_WR
+#### 6.4.12. tCCD_S_WR and tCCD_L_WR
 >tCCD_S_WR = 8, tCCD_L_WR = 48. Write to write command delay. _S for different bank group, _L for same bank group. Level 1+.
 
-#### 6.2.13. tCCD_S_RTW and tCCD_L_RTW
+#### 6.4.13. tCCD_S_RTW and tCCD_L_RTW
 >tCCD_S_RTW = 16, tCCD_L_RTW = 16. Read to write command delay. _S for different bank group, _L for same bank group. Level 1+.
 
-#### 6.2.14. tCCD_S_WTR and tCCD_L_WTR
+#### 6.4.14. tCCD_S_WTR and tCCD_L_WTR
 >tCCD_S_WTR = 52, tCCD_L_WTR = 70. Write to read command delay. _S for different bank gropu, _L for same bank in same bank group. Level 1+.
 
-#### tBURST
+#### 6.4.15. tBURST
 >tBURST = 8. Burst length 16 with half cycle for each data = 8 cycles total. 
 
 ## 7. copy paste thingy, remove later
