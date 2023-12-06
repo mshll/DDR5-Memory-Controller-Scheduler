@@ -149,14 +149,13 @@ Create a trace file as an input (ASCII text file) using a test case generator.
 | --- | --------- | ----- | ---------------- | ----- |
 |  1  | BLP when each request is going to a different BA in the same BG. | 4 requests going to same BG, each with different BA. | ACT -> ACT -> ACT -> ACT -> RD -> RD -> RD -> RD | Testing BG 0, 3, 6 to check 0, even, and odd checks. |
 |  2  | BLP is working correctly when there are two requests vying for same BG,BA. | 3 requests, first two will go to same BG,BA, and the third will go to different BG,BA. | ACT -> ACT -> RD -> RD -> PRE -> ACT -> RD | First two ACT are for request 1 and 3 respectively. Second request page miss. |
-|  3  | Test open page tracking when interlearving BG,BA, while trying to trick it by making the BA number be the same. | Back to back references that are intersected by a page access from a different BG with different ROW. | ACT -> ACT -> READ -> READ -> READ | Output order is important. <br/>It should be BGX->BGX->BGY |
+|  3  | Test open page tracking when interlearving BG,BA, while trying to trick it by making the BA number be the same. | Back to back references that are intersected by a page access from a different BG with different ROW. | ACT -> ACT -> READ -> READ -> READ | Output order is important. <br/>It should be BGX->BGY->BGX |
 |  4  | Test open page tracking when interlearving BG,BA, while trying to trick it by making the BG number be the same. | Back to back references that are intersected by a page access from a different BA with different ROW. | ACT -> ACT -> READ -> READ -> READ | Same output as 3 |
 |  5  | Test open page tracking when intervleaving BG,BA, while trying to trick it by making the ROW be the same. | Back to back references that are intersected by a page access from a different BG,BA, with same ROW. | ACT -> ACT -> READ -> READ -> READ | Same output as 3 |
 |  6  | Test open page tracking when intervleaving BG,BA, while trying to trick it by making the BA,ROW the same. | Back to back references that are intersected by a page access from a different BG, with same BA,ROW. | ACT -> ACT -> READ -> READ -> READ | Same result as 3 |
 |  7  | Page hit with read and write combo. | Read followed by write request to same BG,BA,ROW | ACT -> READ -> WRITE | Result should be same as open page policy |
 |  8  | Page miss with read and write, then a page hit with read. | Read followed by write to same BG,BA, different ROW, then a read to the same BG,BA,ROW as write. | ACT -> READ -> PRE -> ACT -> WRITE -> READ | Result should be same as open page policy |
 |  9  | Back to back page hits, alternating read, write, read | Read, write, read requests all going to same BG,BA,ROW. | ACT -> READ -> WRITE -> READ |       |
-|  x  | On the same even _CPU_ cycle for when a command should be executed, add a request for a different BG,BA. This new request should not start in that exact cycle, instead it needs to wait for idle time. |       |                  | Not created yet |
 
 ### 4.4. LEVEL 3
 #### 4.4.1. OUT-OF-ORDER SCHEDULING
@@ -173,6 +172,7 @@ Create a trace file as an input (ASCII text file) using a test case generator.
 |  1  | Read over write when valid | 3 requests all going to the same BG,BA. R1 will be read, R2 will be write, and R3 will be read. All are going to different ROW,COL. | RD -> RD -> WR | Activates and precharge are omitted |
 |  2  | No read over write when not valid (SAME addresses). | 3 requests all going to the same BG,BA. R1 will be read, R2 will be write, and R3 will be read. All are going to the SAME ROW,COL. | RD -> WR -> RD | Also tests how simulator handles when a page hit over page miss is possible, but invalid due to not being able to put read over write.  |
 |  3  | Prioritize page hits over page misses. | 3 requests all going to the same BG,BA. R1 will be read, R2 will be read (different row from R1), R3 will be read(same row as R1).| ACT -> RD -> RD -> PRE -> ACT -> RD |       |
+|  4  | Test our ageing process (should be 920) | 11 requests all going to same BG,BA, different rows. Only req2 is a write. First req comes in at 197. | (ACT -> RD -> PRE)x8 |       |
 
 note: (R# = request number)
 
@@ -207,10 +207,11 @@ Bolded is what we are looking for.
 **Test Cases**:
 | \#  | OBJECTIVE | INPUT | EXPECTED RESULTS | Notes |
 | --- | --------- | ----- | ---------------- | ----- |
-|  1  | tCCD_L, tRTP, tRP:<br/>ACT -> **READ -> READ -> PRE -> ACT** | Two reads to same BG,BA,ROW at times 197 and 198.<br/>Read to same BG,BA, different ROW at time 199.  | RD1 at DIMM 139,<br/>RD1 at DIMM 151<br/>PRE at DIMM 169,<br/>ACT1 at DIMM 208 |  |
+|  1  | tCCD_L, tRAS, tRP:<br/>ACT -> **READ -> READ -> PRE -> ACT** | Two reads to same BG,BA,ROW at times 197 and 198.<br/>Read to same BG,BA, different ROW at time 199.  | RD1 at DIMM 139,<br/>RD1 at DIMM 151<br/>PRE at DIMM 176,<br/>ACT1 at DIMM 215 |  |
 |  2  | tCCD_L_WTR, tRTP:<br/>ACT -> **WRITE -> READ -> PRE** -> ACT | Read and write to same BG,BA,ROW at times 197 and 198.<br/> Read to same BG,BA, different row at time 199. | WR1 at DIMM 139,<br/>RD1 at DIMM 209,<br/>PRE at DIMM 227 | tRTP  should encompass tWR |
 |  3  | tCCD_L_RTW, tCWL+tBURST+tWR:<br/>ACT -> **READ -> WRITE -> PRE** -> ACT | Write and read to same BG,BA,ROW at times 197 and 198.<br/>Read to same BG,BA, different row at time 199. | RD1 at DIMM 139,<br/>WR1 at DIMM 155,<br/>PRE at DIMM 231 |
 |  4  | tCCD_L_WR, tCWL+tBURST+tWR:<br/>ACT -> **WRITE -> WRITE -> PRE** -> ACT | Two writes to same BG,BA,ROW at times 197 and 198.<br/>Write to same BG,BA, different row at time 199. | WR1 at DIMM 139,<br/>WR1 at DIMM 187,<br/>PRE at DIMM 263 |
+|  1  | tCCD_L, tRTP:<br/>ACT -> **READ -> READ -> PRE** -> ACT | Two reads to same BG,BA,ROW at times 197 and 359.<br/>Read to same BG,BA, different ROW at time 360.  | RD1 at DIMM 139,<br/>RD1 at DIMM 180<br/>PRE at DIMM 198|  |
 
 ### 6.3. Level 2
 Bolded is what we are looking for. 
@@ -220,7 +221,7 @@ Bolded is what we are looking for.
 | --- | --------- | ----- | ---------------- | ----- |
 |  1  | tRRD_S, tCCD_S:<br/>ACT -> ACT -> READ -> READ | Two read requests to different BG at times 197 and 198. | ACT1 at DIMM 100,<br/>ACT1 at DIMM 108, <br/>RD1 at DIMM 139,<br/>RD1 at DIMM 147 |
 |  2  | tRRD_L, tCCD_L:<br/>ACT -> ACT -> READ -> READ | Two read requests to same BG at times 197 and 198. | ACT1 at DIMM 100,<br/>ACT1 at DIMM 112,<br/>RD1 at DIMM 139,<br/>RD1 at DIMM 151 |
-|  3  | tRRD_L, tCCD_S, tCCD_L:<br/>ACT -> ACT -> READ -> READ -> READ | Requests X,Y to same BG at times 197 and 198, <br/>Request Z gets a page hit to same BA as X. | ACT1 at DIMM 100,<br/>ACT1 at DIMM 112,<br/>X_RD1 at DIMM 139,<br/>Z_RD1 at DIMM 147,<br/>Y_RD1 at DIMM 159 |
+|  3  | tRRD_L, tCCD_L, tCCD_L:<br/>ACT -> ACT -> READ -> READ -> READ | Requests X,Y to same BG at times 197 and 198, <br/>Request Z gets a page hit to same BA as X. | ACT1 at DIMM 100,<br/>ACT1 at DIMM 112,<br/>X_RD1 at DIMM 139,<br/>Y_RD1 at DIMM 151,<br/>Y_RD1 at DIMM 163 |
 |  4  | tCCD_S_WTR:<br/>ACT -> ACT -> **WRITE -> READ** | Write and read requests to different BG at times 197 and 198. | WR1 at DIMM 139,<br/>RD1 at DIMM 191 |
 |  5  | tCCD_L_WTR:<br/>ACT -> ACT -> **WRITE -> READ** | Write and read requests to same BG and different BA at times 197 and 198. | WR1 at DIMM 139,<br/>RD1 at DIMM 209 |       |
 |  6  | tCCD_S_RTW:<br/>ACT -> ACT -> **READ -> WRITE** | Read and write requests to different BG at times 197 and 198. | RD1 at DIMM 139,<br/>WR1 at DIMM 155 |
