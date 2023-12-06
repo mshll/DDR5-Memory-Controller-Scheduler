@@ -75,6 +75,16 @@ Create a trace file as an input (ASCII text file) using a test case generator.
 ## 2. INPUT VALIDIFICATION
 >Input should be in the format: time, core, operation, address. Where time is in (absolute) CPU clocks, core is between 0 to 11. operation is 0, 1, or 2, and address is 34-bit address represented in hexadecimal and it is 8-byte aligned.
 
+**Test Cases**:
+| \#  | OBJECTIVE | INPUT | EXPECTED RESULTS | Notes |
+| --- | --------- | ----- | ---------------- | ----- |
+|  1  | Invalid time | Negative time -1 | Detect that CPU time can not be negative |
+|  2  | Invalid Core | Core 24 | Detect core is not 0-11 and let user know |
+|  3  | Invalid operation | -1 | Detect operation is not 0-2|
+|  4  | Address larger than 34 bits | 0x7FFFFFFFF | Detect 35>34 |
+|  5  | Parsing address correctly | 4 requests, each making all the bits of one parameter 1's, order of BA,BG,ROW,COLUMN | Req1 = BA 3,<br/>Req2 = BG 7,<br/>Req3 = ROW 65535,<br/>Req4 = COL 1023 |
+
+
 **HOW:**
 
 - Address can be tested by making all of the one parameter's bits all 1's. For example, to test that the parsing is working for ROW address, make ROW=65535 and everything else 0. If the output shows ROW!=65535 and another parameter!=0, then the input is not being taken in correctly. Repeat for BA,BG,COL. Checkpoint2 shows examples of this. 
@@ -83,6 +93,11 @@ Create a trace file as an input (ASCII text file) using a test case generator.
 
 ## 3. QUEUE REQUESTS
 >Only 16 outstanding requests are allowed in the simulation at a time. If there are more than 16 requests in the queue when a new request comes in, that new request will not enter the queue until an item is completed to free up a spot. A request will only be completed and removed from the queue when its last command is executed (ex. read request will leave once the READ command is completed; Total timing: tCL + tBURST -> request is done).
+
+**Test Cases**:
+| \#  | OBJECTIVE | INPUT | EXPECTED RESULTS | Notes |
+| --- | --------- | ----- | ---------------- | ----- |
+|  1  | Requests coming in with a full queue | 18 consecutive requests starting at CPU 0 | Request 17 should be queued after a request is finished, then request 18 after another request is finished. | Use debug mode |
 
 ## 4. POLICY IMPLEMENTED CORRECTLY
 
@@ -93,8 +108,9 @@ Create a trace file as an input (ASCII text file) using a test case generator.
 **Test Cases**:
 | \#  | OBJECTIVE | INPUT | EXPECTED RESULTS | Notes |
 | --- | --------- | ----- | ---------------- | ----- |
-|  1  | Test page empty on successive references. | Back to back references to same BG,BA, same row, different column. | ACT -> READ -> PRE -> ACT -> READ -> PRE | Read or write should not matter |
-|  2  | Test page empty on two different references. | Back to back references to different BG,B,ROW. | ACT -> READ -> PRE -> ACT -> READ -> PRE | 
+|  1  | Test page empty on successive references. | Back to back references to same BG,BA, same row, different column. | ACT -> READ -> PRE -><br/> ACT -> READ -> PRE | Read or write should not matter |
+|  2  | Test page empty on two different references. | Back to back references to different BG,B,ROW. | ACT -> READ -> PRE -><br/> ACT -> READ -> PRE | 
+|  3  | Read followed by write followed by read | Three requests going to same row | ACT -> READ -> PRE -><br/> ACT -> WRITE -> PRE -><br/> ACT -> READ -> PRE | 
 
 #### 4.1.2. IN-ORDER SCHEDULING
 >Complete the first item in the queue before moving onto the next item. For closed page, output will always be in order: ACT,RD/WR,PRE. For open page, there is more variation depending on page hit or page miss, but it should still be clear if a request is being process once the previous one is completed. 
@@ -188,9 +204,9 @@ Bolded is what we are looking for.
 **Test Cases**:
 | \#  | OBJECTIVE | INPUT | EXPECTED RESULTS | Notes |
 | --- | --------- | ----- | ---------------- | ----- |
-|  1  | ACT -> **READ -> READ -> PRE** -> ACT:<br/>tCCD_L,tRTP,tRP,tCL | Two reads to same BG,BA,ROW, at times 199 and 200.<br/>Read to same BG,BA, different ROW at time 201.  | RD1 at DIMM 140,<br/>RD1 at DIMM 152<br/>PRE at DIMM 170,<br/>ACT1 at DIMM 209. |  |
-|  2  | ACT -> **WRITE -> READ -> PRE** -> ACT:<br/>tCCDL_WTR,tCWL+tBURST+tWR, | Read and write to same BG,BA,ROW at times 199 and 200.<br/> Read to same BG,BA, different row at time 201. | WR1 at DIMM 140,<br/>RD1 at DIMM 192,<br/>PRE at DIMM 216,<br/> |       |
-|  3  |           |       |                  |       |
+|  1  | ACT -> **READ -> READ -> PRE** -> ACT:<br/>tCCD_L,tRTP,tRP,tCL | Two reads to same BG,BA,ROW, at times 197 and 198.<br/>Read to same BG,BA, different ROW at time 199.  | RD1 at DIMM 139,<br/>RD1 at DIMM 151<br/>PRE at DIMM 169,<br/>ACT1 at DIMM 208. |  |
+|  2  | ACT -> **WRITE -> READ -> PRE** -> ACT:<br/>tCCD_L_WTR,tCWL+tBURST+tWR, | Read and write to same BG,BA,ROW at times 197 and 198.<br/> Read to same BG,BA, different row at time 199. | WR1 at DIMM 139,<br/>RD1 at DIMM 209,<br/>PRE at DIMM 215,<br/> | tWR elapses tRTP |
+|  3  | ACT -> **READ -> WRITE -> PRE** -> ACT:<br/> |       |                  |       |
 |  4  |           |       |                  |       |
 
 ### 6.2. Timing Descriptions
@@ -224,7 +240,7 @@ Bolded is what we are looking for.
 >tRC = tRAS + tRP = 115. Minimum time between activates in a bank. As long as tRP and tRAS are tested correctly, this should be satisfied as well. 
 
 #### 6.2.9. tFAW
->tFAW = 39. Amount of time needed between every 4 ACT commands. Level 2+.
+>tFAW = 32. Amount of time needed between every 4 ACT commands. Level 2+.
 
 #### 6.2.10. tRRD_S and tRRD_L
 >tRRD_S = 8, tRRD_L = 12. Activate to activate command delay. When switching between bank groups use _S, switching inside a bank group use _L. Level 2+. 
@@ -239,7 +255,7 @@ Bolded is what we are looking for.
 >tCCD_S_RTW = 16, tCCD_L_RTW = 16. Read to write command delay. _S for different bank group, _L for same bank group. Level 1+.
 
 #### 6.2.14. tCCD_S_WTR and tCCD_L_WTR
->tCCD_S_WTR = 70, tCCD_L_WTR = 52. Write to read command delay. _S for different bank gropu, _L for same bank in same bank group. Level 1+.
+>tCCD_S_WTR = 52, tCCD_L_WTR = 70. Write to read command delay. _S for different bank gropu, _L for same bank in same bank group. Level 1+.
 
 #### tBURST
 >tBURST = 8. Burst length 16 with half cycle for each data = 8 cycles total. 
