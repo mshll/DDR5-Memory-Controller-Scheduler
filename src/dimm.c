@@ -80,7 +80,7 @@ char *issue_cmd(char *cmd, MemoryRequest_t *request, uint64_t cycle) {
   char *response = malloc(sizeof(char) * 100);
   char *temp = malloc(sizeof(char) * 100);
 
-  sprintf(response, "%10" PRIu64 " %u %4s", cycle/2 - 1, request->channel, cmd);
+  sprintf(response, "%10" PRIu64 " %u %4s", cycle/2, request->channel, cmd);
 
   if (strncmp(cmd, "ACT", 3) == 0) {
     sprintf(temp, " %u %u 0x%04X", request->bank_group, request->bank, request->row);
@@ -288,7 +288,7 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
       LOG("RD1\tBG:%hu BA:%hu\n", request->bank_group, request->bank);
       // issue cmd
       cmd = issue_cmd(request->operation == DATA_WRITE ? "WR1" : "RD1", request, clock);
-      request->is_finished = true;
+      
 
       // set timers
       set_timing_constraint(dram, request, tCL);
@@ -308,7 +308,6 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
     case WR1:
       // issue cmd
       cmd = issue_cmd(request->operation == DATA_WRITE ? "WR1" : "RD1", request, clock);
-      request->is_finished = true;
 
       // set timers
       set_timing_constraint(dram, request, tCWL);
@@ -321,10 +320,11 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
       LOG("PRE\tBG:%hu BA:%hu\n", request->bank_group, request->bank);
       // can precharge before bursting data
       if (request->operation == DATA_WRITE) {
-        if (is_timing_constraint_met(dram, request, tWR)) {
+        if (is_timing_constraint_met(dram, request, tWR) && is_timing_constraint_met(dram, request, tRAS)) {
           precharge_bank(dram, request);
 
           cmd = issue_cmd("PRE", request, clock);
+          request->is_finished = true;
 
           set_timing_constraint(dram, request, tRP);
 
@@ -332,10 +332,11 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
         }
       }
       else {
-        if (is_timing_constraint_met(dram, request, tRTP)) {
+        if (is_timing_constraint_met(dram, request, tRTP) && is_timing_constraint_met(dram, request, tRAS)) {
           precharge_bank(dram, request);
 
           cmd = issue_cmd("PRE", request, clock);
+          request->is_finished = true;
 
           set_timing_constraint(dram, request, tRP);
 
@@ -741,8 +742,20 @@ void level_zero_algorithm(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
   DRAM_t *dram = &((*dimm)->channels[request->channel].DDR5_chip[0]);
   print_queue(*q);
 
-  if (request && request->state != COMPLETE) {
-    closed_page(dimm, request, clock);
+  if ((*q)->size > 1) {  
+    MemoryRequest_t *next_request = queue_peek_at(*q, 1);
+    if (!request->is_finished) {
+      closed_page(dimm, request, clock);
+    }
+    else {
+      closed_page(dimm, request, clock);
+      closed_page(dimm, next_request, clock);
+    }
+  }
+  else {
+    if (request->state != COMPLETE) {
+      closed_page(dimm, request, clock);
+    }
   }
 
   if (request && request->state == COMPLETE) {
@@ -757,27 +770,28 @@ void level_one_algorithm(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
   MemoryRequest_t *request = queue_peek(*q);
   DRAM_t *dram = &((*dimm)->channels[request->channel].DDR5_chip[0]);
 
-  if ((*q)->size > 1) {  
-    MemoryRequest_t *next_request = queue_peek_at(*q, 1);
-    if (!request->is_finished) {
-      open_page(dimm, request, clock);
-    }
-    else {
-      open_page(dimm, request, clock);
-      open_page(dimm, next_request, clock);
-    }
+  // if current request is not finish, finish it
+  if (!request->is_finished) {
+    open_page(dimm, request, clock);
   }
+  // else if current request is finish, start next request
   else {
-    if (request->state != COMPLETE) {
-      open_page(dimm, request, clock);
+    for (int i = 0; i < (*q)->size; i++) {
+      MemoryRequest_t *next_request = queue_peek_at(*q, i);
+      open_page(dimm, next_request, clock);
+
+      if (!next_request->is_finished) {
+        break;
+      }
     }
   }
 
+  // if current request is ready to be dequeue, delete it
   if (request && request->state == COMPLETE) {
     log_memory_request("Dequeued:", request, clock);
     dequeue(q);
   }
-
+  
   decrement_tfaw_timers(dram);
   decrement_timing_constraints(dram);
   decrement_consecutive_cmd_timers(dram);
