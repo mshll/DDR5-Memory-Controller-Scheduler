@@ -126,7 +126,5 @@ MemoryRequest_t parse_line(char *line) {
     exit(EXIT_FAILURE);
   }
 
-  // LOG("Parsed: time = %5" PRIu64 ", core = %2u, operation = %u, address = %#016llX\n", time, core, operation, address);
-
   return memory_request;
 }

@@ -233,9 +233,6 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
   char *cmd = NULL;
   bool cmd_is_issued = false;
 
-  // Set the initial state before processing the request
-  LOG("cycle %" PRIu64 ", state %d \n", clock, request->state);
-
   if (request->state == PENDING) {
     request->state = ACT0;
   }
@@ -243,7 +240,6 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
   // Process the request (one state per cycle)
   switch (request->state) {
     case ACT0:
-      LOG("ACT0\tBG:%hu BA:%hu\n", request->bank_group, request->bank);
       if (
         is_timing_constraint_met(dram, request, tRC) &&
         is_timing_constraint_met(dram, request, tRP)
@@ -254,7 +250,6 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
       break;
 
     case ACT1:
-      LOG("ACT1\tBG:%hu BA:%hu\n", request->bank_group, request->bank);
       activate_bank(dram, request);
 
       cmd = issue_cmd("ACT1", request, clock);
@@ -274,7 +269,6 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
       break;
 
     case RD0:
-      LOG("RD0\tBG:%hu BA:%hu\n", request->bank_group, request->bank);
       if (is_timing_constraint_met(dram, request, tRCD)) {
         cmd = issue_cmd(request->operation == DATA_WRITE ? "WR0" : "RD0", request, clock);
         request->state = RD1;
@@ -282,7 +276,6 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
       break;
 
     case RD1:
-      LOG("RD1\tBG:%hu BA:%hu\n", request->bank_group, request->bank);
       // issue cmd
       cmd = issue_cmd(request->operation == DATA_WRITE ? "WR1" : "RD1", request, clock);
       
@@ -314,7 +307,6 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
       break;
 
     case PRE:
-      LOG("PRE\tBG:%hu BA:%hu\n", request->bank_group, request->bank);
       // can precharge before bursting data
       if (request->operation == DATA_WRITE) {
         if (is_timing_constraint_met(dram, request, tWR) && is_timing_constraint_met(dram, request, tRAS)) {
@@ -345,7 +337,6 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
 
     case BUFFER:
       // data is being stored in buffer while tCL is set
-      LOG("BUFFER\tBG:%hu BA:%hu\n", request->bank_group, request->bank);
       if (request->operation == DATA_WRITE) {
         if (is_timing_constraint_met(dram, request, tCWL)) {
           set_timing_constraint(dram, request, tBURST);
@@ -362,7 +353,6 @@ bool closed_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t clock) {
       break;
 
     case BURST:
-      LOG("BURST\tBG:%hu BA:%hu\n", request->bank_group, request->bank);
       if (is_timing_constraint_met(dram, request, tBURST)) {
         if (request->operation == DATA_WRITE) {
           set_timing_constraint(dram, request, tWR);
@@ -399,8 +389,6 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
   char *cmd = NULL;
   bool cmd_is_issued = false;
 
-  LOG("cycle %" PRIu64 ", state %d \n", cycle/2 - 1, request->state);
-  LOG("AGE:%u\n", request->aging);
   // Set the initial state before processing the request
   if (request->state == PENDING) {
     if (is_page_hit(dram, request)) {
@@ -572,7 +560,6 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
 
       }
       else if (dram->last_interface_cmd == READ) {
-        LOG("TRCD :%u\n tCCD_L: %u\n,TCCD_S: %u\n",dram->timing_constraints[request->bank_group][request->bank][tRCD],dram->consecutive_cmd_timers[tCCD_L],dram->consecutive_cmd_timers[tCCD_S]);
         if (dram->last_bank_group == request->bank_group) {
           if (
             is_timing_constraint_met(dram, request, tRCD) &&
@@ -737,7 +724,6 @@ bool open_page(DIMM_t **dimm, MemoryRequest_t *request, uint64_t cycle) {
 void level_zero_algorithm(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
   MemoryRequest_t *request = queue_peek(*q);
   DRAM_t *dram = &((*dimm)->channels[request->channel].DDR5_chip[0]);
-  print_queue(*q);
 
   if ((*q)->size > 1) {  
     MemoryRequest_t *next_request = queue_peek_at(*q, 1);
@@ -797,7 +783,6 @@ void level_one_algorithm(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
 void bank_level_parallelism(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
   bool is_cmd_issued = false;
   DRAM_t *dram = &((*dimm)->channels[0].DDR5_chip[0]);
-  // print_queue(*q);
 
   for (int index = 0; index < (*q)->size; index++) {
     MemoryRequest_t *request = queue_peek_at(*q, index);
@@ -834,13 +819,6 @@ void bank_level_parallelism(DIMM_t **dimm, Queue_t **q, uint64_t clock) {
     }
   }
 
-  LOG(
-    "TFAW0 %hu, %hu, %hu, %hu\n",
-    dram->tFAW_timers[0],
-    dram->tFAW_timers[1],
-    dram->tFAW_timers[2],
-    dram->tFAW_timers[3]
-  );
   decrement_timing_constraints(dram);
   decrement_consecutive_cmd_timers(dram);
   decrement_tfaw_timers(dram);
